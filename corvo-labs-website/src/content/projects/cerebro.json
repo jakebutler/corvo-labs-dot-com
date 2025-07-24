@@ -1,0 +1,12 @@
+{
+  "title": "Cerebro",
+  "slug": "cerebro",
+  "category": ["AI Tools", "Product Management"],
+  "status": "active",
+  "tech": ["React", "TypeScript", "Vite", "Convex", "TailwindCSS"],
+  "tags": ["MVP", "Production", "Open Source"],
+  "description": "Cerebro is a web application that stores, displays, and verifies a structured dataset of influential people in software product management. The app allows contributors to view, edit, and verify detailed profile data.",
+  "priority": 1,
+  "heroImage": "",
+  "links": ["https://github.com/jacobbutler/cerebro"]
+}
