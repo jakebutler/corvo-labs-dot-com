@@ -1,0 +1,85 @@
+---
+title: "AI Rules Database"
+author: "Jacob Butler"
+date: "2025-07-18"
+tags:
+  - AI Tools
+  - Product Management
+---
+
+# AI Rules Database
+
+A comprehensive web crawler and AI-powered platform for aggregating, searching, and managing coding rulesets from multiple sources with advanced crawling and indexing capabilities.
+
+## Problem Statement
+
+Developers and AI engineers often need to consult various sources for coding rulesets, which is a time-consuming and fragmented process. There is no centralized platform to search and manage these rulesets efficiently.
+
+## Solution Approach
+
+I built a full-stack application that crawls multiple sources like GitHub, CursorRules.org, and CodingRules.ai to aggregate coding rulesets. The platform provides a powerful search and filtering interface, user management, and a secure API for programmatic access.
+
+## Key Features
+
+- **Multi-Source Aggregation**: Crawls and indexes rulesets from various platforms.
+- **Advanced Search**: Users can filter rulesets by technology, type, source, and content.
+- **User Management**: Admin-controlled user approval and role-based access.
+- **API Access**: Secure, token-based API for developers.
+- **Real-time Crawler Management**: A dashboard to monitor and control the crawling process.
+
+## Technical Implementation
+
+### Architecture
+- **Frontend**: React 18 with TypeScript, Vite, and TanStack Query for state management.
+- **Backend**: Node.js and Express with TypeScript, connected to a PostgreSQL database.
+- **Database**: Drizzle ORM for database operations.
+- **Authentication**: Passport.js for email/password, GitHub, and Google OAuth.
+
+### Code Example
+```typescript
+// Example of a server-side route to get rulesets
+import { publicProcedure, router } from "./trpc";
+import { z } from "zod";
+import { db } from "../db";
+import { rulesets } from "../schema";
+import { like } from "drizzle-orm";
+
+export const appRouter = router({
+  getRulesets: publicProcedure
+    .input(
+      z.object({
+        technology: z.string().optional(),
+      })
+    )
+    .query(async ({ input }) => {
+      const { technology } = input;
+      const allRulesets = await db
+        .select()
+        .from(rulesets)
+        .where(
+          technology ? like(rulesets.technologies, `%${technology}%`) : undefined
+        );
+      return allRulesets;
+    }),
+});
+
+export type AppRouter = typeof appRouter;
+```
+
+## Results & Impact
+
+- The platform successfully aggregates and indexes thousands of coding rulesets.
+- It provides a centralized and efficient way for developers to find and use coding rules.
+- The open-source nature of the project allows for community contributions and improvements.
+
+## Lessons Learned
+
+- Building a robust web crawler requires handling various data formats and network issues.
+- A well-designed API is crucial for the platform's usability and integration with other tools.
+- User feedback is essential for improving the search functionality and user experience.
+
+## Future Roadmap
+
+- Integrate more sources for ruleset aggregation.
+- Enhance the AI-powered search and recommendation features.
+- Develop a plugin for IDEs to access the rulesets directly.
