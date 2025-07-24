@@ -1,0 +1,17 @@
+[build]
+  command = "pnpm build"
+  publish = ".next"
+
+[dev]
+  command = "pnpm dev"
+
+[functions]
+  directory = "netlify/functions"
+
+[context.production.environment]
+  NODE_VERSION = "18"
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
