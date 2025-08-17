@@ -40,6 +40,15 @@ export default defineConfig({
           { type: "string", name: "excerpt", label: "Excerpt" },
           { type: "string", name: "author", label: "Author" },
           { type: "string", name: "tags", label: "Tags", list: true },
+          { 
+            type: "boolean", 
+            name: "published", 
+            label: "Published", 
+            description: "Set to true to publish this post, false to keep as draft",
+            ui: {
+              component: "toggle"
+            }
+          },
           { type: "rich-text", name: "body", label: "Body", isBody: true },
         ],
         ui: {
