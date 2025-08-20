@@ -4,9 +4,11 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { NewsletterCta } from '@/components/newsletter-cta'
+import { CommentsSection } from '@/components/comments/comments-section'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getPostBySlug, getAllPosts } from '@/lib/blog'
+import { getCommentsBySlug } from '@/lib/comments'
 import remarkGfm from 'remark-gfm'
 import rehypeHighlight from 'rehype-highlight'
 
@@ -49,6 +51,10 @@ const mdxOptions = {
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
 	const { slug } = await params
 	const post = getPostBySlug(slug)
+	
+	// Fetch initial comments for SSR
+	const commentsResponse = await getCommentsBySlug(slug)
+	const initialComments = commentsResponse.data || []
 
 	if (!post) {
 		notFound()
@@ -119,6 +125,14 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 						</div>
 					</div>
 				</footer>
+
+				{/* Comments Section */}
+				<div className="mt-12">
+					<CommentsSection
+						postSlug={post.slug}
+						initialComments={initialComments}
+					/>
+				</div>
 
 				{/* Newsletter CTA */}
 				<div className="mt-12">
