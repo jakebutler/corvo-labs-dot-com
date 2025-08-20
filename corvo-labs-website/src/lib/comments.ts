@@ -81,12 +81,19 @@ export async function submitComment(submission: CommentSubmission): Promise<Comm
         }
       }
       
+      // Check for RLS policy errors
+      if (error.code === '42501' || error.message?.includes('policy')) {
+        return {
+          success: false,
+          error: 'Permission denied. Please check your database configuration.'
+        }
+      }
+      
       return { 
         success: false, 
         error: 'Failed to submit comment. Please try again.' 
       }
     }
-
     return { 
       success: true, 
       message: 'Comment submitted successfully! It will appear after approval.' 
