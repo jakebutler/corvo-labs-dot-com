@@ -1,23 +1,21 @@
-import { BrandHero } from '@/components/brand-hero'
-import { HeroSection } from '@/components/hero-section'
-import { ExpertiseSection } from '@/components/expertise-section'
-import { FeaturedProjects } from '@/components/featured-projects'
-import { CtaSection } from '@/components/cta-section'
-import { NewsletterCta } from '@/components/newsletter-cta'
+import { Hero } from '@/components/hero'
+import { Services } from '@/components/services'
+import { Projects } from '@/components/projects'
+import { Contact } from '@/components/contact'
+import { Header } from '@/components/header'
+import { Footer } from '@/components/footer'
 
 export default function Home() {
   return (
     <div className="min-h-screen">
-      <BrandHero />
-      <HeroSection />
-      <ExpertiseSection />
-      <FeaturedProjects />
-      <CtaSection />
-      <NewsletterCta
-        source="homepage"
-        title="Stay Ahead of the Curve"
-        description="Get exclusive insights on AI innovation, product strategy, and emerging technologies. Join industry professionals who trust our expertise."
-      />
+      <Header />
+      <main>
+        <Hero />
+        <Services />
+        <Projects />
+        <Contact />
+      </main>
+      <Footer />
     </div>
   )
 }
