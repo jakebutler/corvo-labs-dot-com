@@ -52,7 +52,7 @@ function getBrowserMetadata() {
 export async function submitComment(submission: CommentSubmission): Promise<CommentSubmissionResponse> {
   try {
     // Add browser metadata if we're on the client side
-    const metadata = getBrowserMetadata()
+    const metadata = await getBrowserMetadata()
     
     const commentData = {
       post_slug: submission.post_slug,

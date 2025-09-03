@@ -7,7 +7,7 @@ import rehypeHighlight from 'rehype-highlight'
 import { Project, ProjectMetadata, ProjectCategory, ProjectStatus } from '@/types/project'
 
 const projectsDirectory = path.join(process.cwd(), 'src/content/projects')
-const projectsJsonPath = path.join(projectsDirectory, 'projects.json')
+// const projectsJsonPath = path.join(projectsDirectory, 'projects.json')
 
 // Calculate reading time (similar to blog utility)
 function calculateReadingTime(content: string): number {
@@ -128,7 +128,7 @@ export function getAllCategories(): ProjectCategory[] {
 	const categories = new Set<ProjectCategory>()
 	
 	projects.forEach(project => {
-		project.categories.forEach(category => categories.add(category))
+		project.categories?.forEach(category => categories.add(category))
 	})
 	
 	return Array.from(categories).sort()
@@ -140,7 +140,7 @@ export function getAllTechnologies(): string[] {
 	const technologies = new Set<string>()
 	
 	projects.forEach(project => {
-		project.technologies.forEach(tech => technologies.add(tech))
+		project.technologies?.forEach(tech => technologies.add(tech))
 	})
 	
 	return Array.from(technologies).sort()

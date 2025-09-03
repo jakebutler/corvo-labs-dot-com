@@ -12,13 +12,6 @@ export function CommentsSection({ postSlug, initialComments = [] }: CommentsSect
   const [isLoading, setIsLoading] = useState(false)
   const [hasError, setHasError] = useState(false)
 
-  // Load comments on mount if no initial comments provided
-  useEffect(() => {
-    if (initialComments.length === 0) {
-      loadComments()
-    }
-  }, [postSlug, initialComments.length])
-
   const loadComments = async () => {
     setIsLoading(true)
     setHasError(false)
@@ -30,12 +23,19 @@ export function CommentsSection({ postSlug, initialComments = [] }: CommentsSect
       } else {
         setComments(result.data || [])
       }
-    } catch (error) {
+    } catch {
       setHasError(true)
     } finally {
       setIsLoading(false)
     }
   }
+
+  // Load comments on mount if no initial comments provided
+  useEffect(() => {
+    if (initialComments.length === 0) {
+      loadComments()
+    }
+  }, [postSlug, initialComments.length, loadComments])
 
   const handleCommentSubmitSuccess = () => {
     // Optionally reload comments after successful submission

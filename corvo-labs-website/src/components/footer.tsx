@@ -1,4 +1,6 @@
 import React from 'react'
+import Link from 'next/link'
+import Image from 'next/image'
 
 export function Footer() {
   return (
@@ -6,9 +8,11 @@ export function Footer() {
       <div className="container mx-auto px-6">
         <div className="flex flex-col md:flex-row justify-between items-center">
           <div className="mb-6 md:mb-0">
-            <img
+            <Image
               src="https://uploadthingy.s3.us-west-1.amazonaws.com/4oMYgWpvnHWdcmkjtzxCDc/corvo-labs-wide.svg"
               alt="Corvo Labs logo"
+              width={200}
+              height={32}
               className="h-8 w-auto"
               style={{
                 filter: 'invert(1) brightness(100%)',
@@ -34,12 +38,12 @@ export function Footer() {
             >
               Projects
             </a>
-            <a
+            <Link
               href="/blog"
               className="text-gray-400 hover:text-white transition-colors"
             >
               Blog
-            </a>
+            </Link>
             <a
               href="#contact"
               className="text-gray-400 hover:text-white transition-colors"

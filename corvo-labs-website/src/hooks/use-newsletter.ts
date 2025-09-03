@@ -42,7 +42,7 @@ export function useNewsletter(): UseNewsletterReturn {
 			}
 
 			return result
-		} catch (_err) {
+		} catch {
 			const errorMessage = 'Network error. Please check your connection and try again.'
 			setError(errorMessage)
 			return {
@@ -76,7 +76,7 @@ export function useNewsletter(): UseNewsletterReturn {
 			}
 
 			return result
-		} catch (_err) {
+		} catch {
 			const errorMessage = 'Network error. Please check your connection and try again.'
 			setError(errorMessage)
 			return {

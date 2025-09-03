@@ -30,7 +30,7 @@ export function CommentForm({ postSlug, onSuccess, onError }: CommentFormProps) 
     // Client-side validation
     const validationErrors = validateComment(data)
     if (validationErrors.length > 0) {
-      validationErrors.forEach((error, index) => {
+      validationErrors.forEach((error) => {
         if (error.includes('Email')) {
           setError('email', { message: error })
         } else if (error.includes('Comment')) {
@@ -65,7 +65,7 @@ export function CommentForm({ postSlug, onSuccess, onError }: CommentFormProps) 
         })
         onError?.(result.error || 'Failed to submit comment')
       }
-    } catch (error) {
+    } catch {
       const errorMessage = 'An unexpected error occurred'
       setSubmitStatus({ type: 'error', message: errorMessage })
       onError?.(errorMessage)
@@ -130,7 +130,7 @@ export function CommentForm({ postSlug, onSuccess, onError }: CommentFormProps) 
               <p className="text-sm text-red-600 mt-1">{errors.email.message}</p>
             )}
             <p className="text-xs text-muted-foreground mt-1">
-              Your email won't be published
+              Your email won&apos;t be published
             </p>
           </div>
         </div>

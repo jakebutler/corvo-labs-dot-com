@@ -122,22 +122,22 @@ function ProjectHeader({ project }: { project: Project }) {
 				<div>
 					<h3 className="text-sm font-medium mb-2">Categories</h3>
 					<div className="flex flex-wrap gap-2">
-						{project.categories.map((category) => (
+						{project.categories?.map((category) => (
 							<Badge key={category} variant="outline">
 								{category}
 							</Badge>
-						))}
+						)) || []}
 					</div>
 				</div>
 				
 				<div>
 					<h3 className="text-sm font-medium mb-2">Technologies</h3>
 					<div className="flex flex-wrap gap-2">
-						{project.technologies.map((tech) => (
+						{project.technologies?.map((tech) => (
 							<Badge key={tech} variant="secondary">
 								{tech}
 							</Badge>
-						))}
+						)) || []}
 					</div>
 				</div>
 			</div>
@@ -231,7 +231,7 @@ function ProjectSidebar({ project }: { project: Project }) {
 						<div className="flex items-center gap-2">
 							<Users className="h-4 w-4 text-muted-foreground" />
 							<span className="text-muted-foreground">Team:</span>
-							<span>{project.team.join(', ')}</span>
+							<span>{project.team?.join(', ')}</span>
 						</div>
 					)}
 					
@@ -284,11 +284,11 @@ function ProjectSidebar({ project }: { project: Project }) {
 				<div className="bg-muted/50 rounded-lg p-6 space-y-4">
 					<h3 className="font-semibold">Tags</h3>
 					<div className="flex flex-wrap gap-2">
-						{project.tags.map((tag) => (
+						{project.tags?.map((tag) => (
 							<Badge key={tag} variant="outline" className="text-xs">
 								{tag}
 							</Badge>
-						))}
+						)) || []}
 					</div>
 				</div>
 			)}
