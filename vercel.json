@@ -1,0 +1,5 @@
+{
+  "buildCommand": "cd corvo-labs-website && npm run build",
+  "outputDirectory": "corvo-labs-website/.next",
+  "installCommand": "cd corvo-labs-website && npm install"
+}
