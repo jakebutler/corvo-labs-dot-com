@@ -43,10 +43,10 @@ export function ProjectGrid({
 				const matchesSearch = 
 					project.title.toLowerCase().includes(searchTerm) ||
 					project.description.toLowerCase().includes(searchTerm) ||
-					project.technologies.some(tech => 
+					project.technologies?.some(tech => 
 						tech.toLowerCase().includes(searchTerm)
 					) ||
-					project.categories.some(category =>
+					project.categories?.some(category =>
 						category.toLowerCase().includes(searchTerm)
 					)
 				
@@ -55,7 +55,7 @@ export function ProjectGrid({
 
 			// Category filter
 			if (filters.category !== 'all') {
-				if (!project.categories.includes(filters.category)) return false
+				if (!project.categories?.includes(filters.category)) return false
 			}
 
 			// Status filter
@@ -65,7 +65,7 @@ export function ProjectGrid({
 
 			// Technology filter
 			if (filters.technology !== 'all') {
-				const hasTechnology = project.technologies.some(tech =>
+				const hasTechnology = project.technologies?.some(tech =>
 					tech.toLowerCase().includes(filters.technology.toLowerCase())
 				)
 				if (!hasTechnology) return false
