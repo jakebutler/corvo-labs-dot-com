@@ -103,7 +103,7 @@ Corvo Labs specializes in:
 - **Healthcare Innovation** - Digital health solutions and clinical systems  
 - **UX Design** - User-centered design and accessibility
 - **Behavior Change** - Psychology-driven habit formation systems
-- **AI & Machine Learning** - Intelligent systems and prototype development
+- **AI** - Intelligent systems and prototype development
 
 ## 📋 Featured Projects
 
