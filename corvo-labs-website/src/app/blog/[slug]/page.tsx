@@ -1,4 +1,5 @@
 import { Metadata } from 'next'
+import Image from 'next/image'
 import { MDXRemote } from 'next-mdx-remote/rsc'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -65,6 +66,19 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 			<article className="container mx-auto max-w-4xl px-4">
 				{/* Header */}
 				<header className="mb-8">
+					{/* Cover Image */}
+					{post.coverImage && (
+						<div className="relative w-full h-56 md:h-64 lg:h-72 mb-6 rounded-lg overflow-hidden bg-muted">
+							<Image
+								src={post.coverImage || '/globe.svg'}
+								alt={`${post.title} cover`}
+								fill
+								className="object-cover"
+								sizes="(min-width: 1024px) 1024px, 100vw"
+								priority={false}
+							/>
+						</div>
+					)}
 					<div className="mb-4">
 						<Link 
 							href="/blog" 

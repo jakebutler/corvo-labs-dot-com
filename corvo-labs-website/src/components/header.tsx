@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { MenuIcon, XIcon } from 'lucide-react'
 
 export function Header() {
@@ -28,10 +29,13 @@ export function Header() {
       <div className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           <Link href="/" className="text-gray-900">
-            <img
+            <Image
               src="https://uploadthingy.s3.us-west-1.amazonaws.com/4oMYgWpvnHWdcmkjtzxCDc/corvo-labs-wide.svg"
               alt="Corvo Labs"
+              width={120}
+              height={32}
               className="h-8 w-auto"
+              priority
             />
           </Link>
           

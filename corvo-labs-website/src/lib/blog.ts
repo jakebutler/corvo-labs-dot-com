@@ -13,6 +13,8 @@ export interface BlogPost {
 	tags: string[]
 	author: string
 	readTime: number
+	coverImage?: string
+	published?: boolean
 }
 
 export interface BlogPostMeta {
@@ -23,6 +25,8 @@ export interface BlogPostMeta {
 	tags: string[]
 	author: string
 	readTime: number
+	coverImage?: string
+	published?: boolean
 }
 
 function calculateReadTime(content: string): number {
@@ -46,6 +50,8 @@ export function getAllPosts(): BlogPostMeta[] {
 				const fileContents = fs.readFileSync(fullPath, 'utf8')
 				const { data, content } = matter(fileContents)
 
+				const published = data.published === undefined ? true : Boolean(data.published)
+
 				return {
 					slug,
 					title: data.title || 'Untitled',
@@ -54,8 +60,12 @@ export function getAllPosts(): BlogPostMeta[] {
 					tags: data.tags || [],
 					author: data.author || 'Corvo Labs',
 					readTime: calculateReadTime(content),
+					coverImage: data.coverImage || undefined,
+					published,
 				} as BlogPostMeta
 			})
+			// Hide unpublished posts from listings
+			.filter(post => post.published)
 
 		return allPostsData.sort((a, b) => (a.date < b.date ? 1 : -1))
 	} catch (error) {
@@ -75,6 +85,8 @@ export function getPostBySlug(slug: string): BlogPost | null {
 		const fileContents = fs.readFileSync(fullPath, 'utf8')
 		const { data, content } = matter(fileContents)
 
+		const published = data.published === undefined ? true : Boolean(data.published)
+
 		return {
 			slug,
 			title: data.title || 'Untitled',
@@ -84,6 +96,8 @@ export function getPostBySlug(slug: string): BlogPost | null {
 			tags: data.tags || [],
 			author: data.author || 'Corvo Labs',
 			readTime: calculateReadTime(content),
+			coverImage: data.coverImage || undefined,
+			published,
 		} as BlogPost
 	} catch (error) {
 		console.error(`Error reading blog post ${slug}:`, error)

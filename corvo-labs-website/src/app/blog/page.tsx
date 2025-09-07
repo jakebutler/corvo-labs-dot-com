@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { NewsletterCta } from '@/components/newsletter-cta'
 import Link from 'next/link'
+import Image from 'next/image'
 import { getAllPosts, getAllTags } from '@/lib/blog'
 
 export const metadata = {
@@ -62,7 +63,18 @@ export default function BlogPage() {
 					) : (
 						<div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
 							{posts.map(post => (
-								<Card key={post.slug} className="h-full flex flex-col">
+								<Card key={post.slug} className="h-full flex flex-col overflow-hidden">
+									{/* Cover Image */}
+									<div className="relative w-full h-40 md:h-44 lg:h-48 bg-muted">
+										<Image
+											src={post.coverImage || '/globe.svg'}
+											alt={`${post.title} cover`}
+											fill
+											className="object-cover"
+											sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+											priority={false}
+										/>
+									</div>
 									<CardHeader>
 										<div className="flex justify-between items-start mb-2">
 											<time className="text-sm text-muted-foreground">
