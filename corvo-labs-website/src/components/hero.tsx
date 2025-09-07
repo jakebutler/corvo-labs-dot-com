@@ -42,20 +42,6 @@ export function Hero() {
             management, healthcare, behavior change, UX design, and AI
             prototyping.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a
-              href="#contact"
-              className="px-8 py-3 bg-gray-900 text-white hover:bg-gray-800 transition-colors text-center font-medium rounded-none"
-            >
-              Get in touch
-            </a>
-            <a
-              href="#services"
-              className="px-8 py-3 border border-gray-900 text-gray-900 hover:bg-gray-100 transition-colors text-center font-medium rounded-none"
-            >
-              Our services
-            </a>
-          </div>
         </div>
         </div>
       </div>
