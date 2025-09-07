@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Separator } from '@/components/ui/separator'
 import { CommentList } from './comment-list'
 import { CommentForm } from './comment-form'
@@ -12,7 +12,7 @@ export function CommentsSection({ postSlug, initialComments = [] }: CommentsSect
   const [isLoading, setIsLoading] = useState(false)
   const [hasError, setHasError] = useState(false)
 
-  const loadComments = async () => {
+  const loadComments = useCallback(async () => {
     setIsLoading(true)
     setHasError(false)
     
@@ -28,7 +28,7 @@ export function CommentsSection({ postSlug, initialComments = [] }: CommentsSect
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [postSlug])
 
   // Load comments on mount if no initial comments provided
   useEffect(() => {

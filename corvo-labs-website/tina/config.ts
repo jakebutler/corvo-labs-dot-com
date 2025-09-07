@@ -40,6 +40,12 @@ export default defineConfig({
           { type: "string", name: "excerpt", label: "Excerpt" },
           { type: "string", name: "author", label: "Author" },
           { type: "string", name: "tags", label: "Tags", list: true },
+          {
+            type: "image",
+            name: "coverImage",
+            label: "Cover Image",
+            description: "Optional cover image for listings and headers. Uploads go to public/ by default.",
+          },
           { 
             type: "boolean", 
             name: "published", 

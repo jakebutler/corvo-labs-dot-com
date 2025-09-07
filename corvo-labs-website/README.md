@@ -66,6 +66,40 @@ Copy `.env.local.example` to `.env.local` and fill in your API token.
 - Filtering by category, status, technology
 - See `PROJECT_DATA_STRUCTURE.md` for adding projects
 
+## Blog Authoring (TinaCMS + MDX)
+
+Blog posts live in `content/blog/` as MDX files and are managed via TinaCMS.
+
+1) Run locally
+   - `npm run dev`
+   - App: http://localhost:3000 • Tina Admin: http://localhost:3000/admin
+
+2) Create or edit a post in Tina Studio
+   - Open `/admin` → "Blog Posts" → Create New
+   - File name becomes the slug and path: `/blog/{filename}`
+   - Fields (from `tina/config.ts`):
+     - `title` (required)
+     - `date` (required)
+     - `excerpt`, `author`, `tags[]` (optional)
+     - `coverImage` (image picker; paths like `/images/cover.jpg` under `public/`)
+     - `published` (toggle; false keeps the post as a draft)
+     - `body` (rich text / MDX)
+
+3) Drafts
+   - The blog list hides posts with `published: false`.
+   - If `published` is omitted, it defaults to `true` for older posts.
+
+4) Manual MDX editing
+   - Add files under `content/blog/your-slug.mdx` with frontmatter keys above.
+
+5) Preview & Publish
+   - Preview locally at `/blog/your-slug` while dev server runs.
+   - Commit and push to `main` to deploy (ensure Tina env vars are set in hosting: `NEXT_PUBLIC_TINA_CLIENT_ID`, `TINA_TOKEN`).
+
+6) Cover images
+   - Used on the blog grid (`src/app/blog/page.tsx`) and detail page (`src/app/blog/[slug]/page.tsx`).
+   - Fallback image is `/globe.svg` if none set on the grid.
+
 ## Contribution Guidelines
 - Use `npm run lint` and `npm run build` before PRs
 - All TypeScript and ESLint errors must be resolved

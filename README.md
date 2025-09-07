@@ -85,6 +85,49 @@ corvo-labs-dot-com/
 └── README.md             # This file
 ```
 
+## ✍️ Blog Authoring (TinaCMS + MDX)
+
+Use TinaCMS to create and edit blog posts stored at `corvo-labs-website/content/blog/` as MDX files.
+
+1) __Run locally__
+   - `cd corvo-labs-website`
+   - `npm install`
+   - `npm run dev`
+   - App: http://localhost:3000 • Tina Admin: http://localhost:3000/admin
+
+2) __Create or edit a post (Tina Studio)__
+   - Go to `Blog Posts` in Tina Admin (`/admin`).
+   - Create a new post (file name = slug, e.g., `ai-at-corvo.mdx`).
+   - Fields (from `tina/config.ts`):
+     - `title` (required)
+     - `date` (required)
+     - `excerpt`, `author`, `tags[]` (optional)
+     - `coverImage` (image picker; stored under `public/`)
+     - `published` (toggle; set false to keep as draft)
+     - `body` (rich text / MDX)
+
+3) __Drafts vs Published__
+   - The blog listing hides posts with `published: false`.
+   - Omitted `published` defaults to `true` for backward compatibility.
+
+4) __Manual editing (MDX)__
+   - Add files under `corvo-labs-website/content/blog/your-slug.mdx`.
+   - Frontmatter keys match the fields above (`title`, `date`, `excerpt`, `author`, `tags`, `coverImage`, `published`).
+   - Content body is standard MDX.
+
+5) __Preview & Publish__
+   - Preview locally at `/blog/your-slug` while `npm run dev` is running.
+   - Commit and push changes to `main` to deploy (Vercel recommended). Ensure `NEXT_PUBLIC_TINA_CLIENT_ID` and `TINA_TOKEN` are set in hosting env vars.
+
+6) __Cover images__
+   - Use Tina’s image picker to upload to `public/` and store a path like `/images/cover.jpg`.
+   - Cover images render on the blog grid (`src/app/blog/page.tsx`) and on the detail page (`src/app/blog/[slug]/page.tsx`).
+
+Troubleshooting:
+- If `/admin` 404s in production, run `npx tinacms build` locally to generate `public/admin/` and commit it.
+- If a post isn’t visible, confirm `published: true` and that it resides in `content/blog/`.
+- Ensure MDX is valid; syntax errors can cause build failures.
+
 ## 🛠️ Technologies Used
 
 - **Framework:** Next.js 15 with TypeScript

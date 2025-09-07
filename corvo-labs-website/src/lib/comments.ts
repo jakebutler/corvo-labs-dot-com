@@ -64,7 +64,7 @@ export async function submitComment(submission: CommentSubmission): Promise<Comm
       is_approved: false, // All comments start unapproved
     }
 
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('comments')
       .insert(commentData)
       .select('id')
