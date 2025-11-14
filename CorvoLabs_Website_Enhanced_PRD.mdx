@@ -1,0 +1,350 @@
+---
+title: "Corvo Labs Website & Blog Enhanced Rebuild PRD"
+description: "Enhanced product requirements document incorporating sophisticated animations and UX patterns from Toolbox Creative analysis."
+author: "Corvo Labs CTO"
+date: "2025-11-12"
+---
+
+# 🧭 Enhanced Product Requirements Document — Corvo Labs Website & Blog
+
+## 1. Executive Summary
+
+**Client:** Corvo Labs
+**Nature:** AI consultancy specializing in workflow automation and healthcare technology
+**Goal:** Rebuild corvolabs.com into a sophisticated, fast, maintainable static site with enhanced UX patterns, incorporating advanced animations and micro-interactions inspired by industry-leading implementations while maintaining professional AI consultancy identity.
+
+---
+
+## 2. Strategic Overview
+
+### 2.1 Enhanced Vision
+Transform the existing functional website into a sophisticated platform that **demonstrates technical capability through interaction** rather than just visual design. The enhanced site will maintain the professional, trust-driven aesthetic required for healthcare AI consulting while incorporating subtle animations and micro-interactions that showcase technical expertise.
+
+### 2.2 Key Differentiators
+- **Sophisticated Animation System**: Scroll-triggered animations demonstrating technical capability
+- **Interactive AI Workflow Visualizations**: Animated process transformations
+- **Enhanced User Engagement**: Micro-interactions that encourage exploration
+- **Professional Monochromatic Design**: Strategic AI-themed color accents
+- **Performance-First Approach**: Maintaining >90 Core Web Vitals scores
+
+---
+
+## 3. Enhanced Tech Stack
+
+| Layer | Technology | Rationale |
+|-------|-------------|-----------|
+| Framework | **Next.js (App Router)** | Superior static builds, MDX + React integration |
+| Content | **MDX** | Markdown-based content with React flexibility |
+| Styling | **TailwindCSS v4 + ShadCN/UI** | Enhanced design system with animation support |
+| Animations | **Framer Motion + React Spring** | Sophisticated, performant animation system |
+| Observers | **Intersection Observer API** | Scroll-triggered animations and lazy loading |
+| Comments | **giscus (GitHub Discussions)** | Privacy-friendly, self-hosted comments |
+| Newsletter | **Resend** | Email delivery + subscribe API |
+| Analytics | **Plausible (optional)** | GDPR-friendly analytics |
+| Hosting | **Vercel** | Simple deploys, automatic previews |
+| Version Control | **GitHub** | Supports markdown content updates via commits |
+
+### 3.1 Enhanced Dependencies
+```json
+{
+  "framer-motion": "^11.0.0",
+  "react-intersection-observer": "^9.0.0",
+  "@react-spring/web": "^9.0.0",
+  "react-use": "^17.0.0",
+  "lottie-react": "^6.0.0"
+}
+```
+
+---
+
+## 4. Enhanced Site Architecture
+
+### 4.1 Main Pages (Enhanced)
+- `/` — Home with sophisticated hero animations
+- `/about` — About with interactive timeline
+- `/services` — Services with animated process flows
+- `/work` — Portfolio with 3D hover effects
+- `/blog` — Blog with reading progress indicators
+- `/blog/[slug]` — Enhanced blog post template
+- `/contact` — Contact with interactive form
+
+### 4.2 Enhanced Navigation Structure
+- **Fixed Header**: Logo, navigation, CTA with scroll states
+- **Smooth Scroll Navigation**: Anchor links with scroll progress
+- **Mobile Menu**: Enhanced slide-out with gesture support
+- **Footer**: Enhanced contact info and social links
+
+---
+
+## 5. Enhanced Design System
+
+### 5.1 Color Strategy
+- **Base Palette**: Professional monochromatic (85% of design)
+- **AI Accent Colors**: Electric blue (#3B82F6), Medical cyan (#06B6D4)
+- **Innovation Accents**: Subtle purple (#8B5CF6) for technology demos
+- **Status Colors**: Semantic colors for success, warning, info states
+
+### 5.2 Typography Enhancement
+- **Primary**: Inter (body text, clean and professional)
+- **Secondary**: Space Grotesk (headings, technical sophistication)
+- **Accent**: JetBrains Mono (code snippets, technical content)
+
+### 5.3 Animation Principles
+- **Purposeful Motion**: Every animation serves a functional purpose
+- **Performance Optimized**: 60fps animations with minimal impact
+- **Accessibility First**: Respect `prefers-reduced-motion`
+- **Subtle Sophistication**: Demonstrates capability without overwhelming
+
+### 5.4 Component Architecture
+```
+src/components/
+├── animations/           # Reusable animation primitives
+│   ├── scroll-reveal.tsx
+│   ├── text-reveal.tsx
+│   └── animated-counter.tsx
+├── enhanced/            # Enhanced component versions
+│   ├── hero-enhanced.tsx
+│   ├── navigation-enhanced.tsx
+│   ├── project-card-enhanced.tsx
+│   └── services-enhanced.tsx
+├── visualizations/      # Data visualization components
+│   ├── workflow-diagram.tsx
+│   ├── metrics-display.tsx
+│   └── process-timeline.tsx
+└── interactions/        # Advanced interaction components
+    ├── hover-expand.tsx
+    ├── gesture-handler.tsx
+    └── smooth-scroll.tsx
+```
+
+---
+
+## 6. Enhanced Page Specifications
+
+### 6.1 Home Page Enhancement
+
+#### Hero Section
+- **Animated Background**: Floating AI-inspired geometric shapes
+- **Text Reveal Animation**: Staggered word animation on scroll
+- **Interactive Stats**: Animated counters showing key metrics
+- **Mouse-Tracking**: Subtle parallax effect following cursor movement
+- **CTA Enhancement**: Animated button with hover expansion
+
+#### Content Sections
+- **Scroll-Reveal Animations**: Content sections fade in on scroll
+- **Interactive Service Cards**: Expandable cards with detailed views
+- **Process Visualization**: Animated workflow diagrams
+- **Social Proof**: Enhanced testimonial carousel with auto-play
+
+### 6.2 About Page Enhancement
+
+#### Interactive Timeline
+- **Reverse Chronological Layout**: Vertical timeline with animated entries
+- **Progress Indicators**: Animated progress bars showing experience
+- **Company Logos**: Subtle hover animations on partner logos
+- **Achievement Metrics**: Animated counters for key accomplishments
+
+### 6.3 Services Page Enhancement
+
+#### Interactive Service Cards
+- **3D Hover Effects**: Perspective transforms on hover
+- **Progressive Content Reveal**: Expandable detailed views
+- **Process Animations**: Animated service delivery flows
+- **Outcome Metrics**: Animated success statistics
+
+### 6.4 Portfolio/Work Enhancement
+
+#### Advanced Project Cards
+- **3D Perspective Transforms**: Tilt effects on hover
+- **Progressive Image Loading**: Optimized image reveal animations
+- **Interactive Tags**: Animated category filters
+- **Detailed Case Studies**: Scroll-triggered narrative progression
+
+### 6.5 Blog Enhancement
+
+#### Reading Experience
+- **Reading Progress Bar**: Animated progress indicator
+- **Table of Contents**: Interactive navigation with smooth scroll
+- **Enhanced Typography**: Improved readability with subtle animations
+- **Social Sharing**: Animated sharing buttons
+- **Newsletter Integration**: Sophisticated subscription flow
+
+---
+
+## 7. Enhanced SEO Strategy
+
+### 7.1 Technical SEO
+- **Core Web Vitals**: Maintain >90 scores with animations
+- **Structured Data**: Enhanced schema for AI consulting services
+- **Performance Optimization**: Lazy loading and intersection observers
+- **Mobile Optimization**: Touch-optimized interactions
+
+### 7.2 Content SEO Enhancement
+| Page | Primary Keywords | Secondary Keywords | Enhanced Meta Description |
+|------|------------------|--------------------|--------------------------|
+| Home | AI consulting, workflow automation | Healthcare AI, SMB AI solutions | Transform your workflows with responsible AI. Corvo Labs delivers sophisticated AI solutions for healthcare and SMB teams. |
+| About | AI consultancy expertise, healthcare AI | AI product management, UX for AI | Led by veteran product leaders, Corvo Labs combines healthcare rigor with cutting-edge AI innovation. |
+| Services | AI consulting services, workflow design | AI implementation, LLM integration | From strategy to deployment, Corvo Labs engineers sophisticated AI workflows that deliver measurable results. |
+| Work | AI consulting portfolio, case studies | Healthcare AI projects, workflow automation | Explore our portfolio of successful AI implementations across healthcare and SMB workflows. |
+| Blog | AI adoption insights, workflow AI | AI strategy, healthcare innovation | Deep insights from real AI projects. Learn practical AI implementation strategies from industry experts. |
+
+---
+
+## 8. Enhanced Blog Template
+
+```mdx
+---
+title: "AI Pilot Projects: How to Start Small Without Staying Small"
+description: "Learn how to design your first AI use case with measurable outcomes — and scale success across teams."
+date: "2025-11-12"
+author: "Jake Butler"
+tags: ["AI Strategy", "Workflow Design", "Healthcare"]
+image: "/blog/ai-pilot-projects.jpg"
+readTime: "8 min"
+featured: true
+---
+
+import { Metadata } from "next"
+import { Giscus } from "@/components/Giscus"
+import { ReadingProgress } from "@/components/blog/reading-progress"
+import { TableOfContents } from "@/components/blog/table-of-contents"
+import { SocialShare } from "@/components/blog/social-share"
+import { NewsletterSubscribe } from "@/components/blog/newsletter-subscribe"
+
+<ReadingProgress />
+<TableOfContents />
+
+# {frontmatter.title}
+
+{frontmatter.description}
+
+<div className="blog-meta">
+  <span>{frontmatter.author}</span> • <span>{frontmatter.readTime}</span> • <span>{frontmatter.date}</span>
+</div>
+
+---
+
+## The Challenge
+
+Too many AI pilots fail because they're framed as experiments, not pathways to deployment...
+
+## What Works
+
+- Define clear workflows and metrics early
+- Build with privacy and explainability
+- Validate with small but real data
+
+---
+
+<NewsletterSubscribe />
+<SocialShare />
+<Giscus repo="jakebutler/corvo-labs-dot-com" category="Blog Comments" />
+```
+
+---
+
+## 9. Enhanced Implementation Roadmap
+
+### Phase 1: Foundation Enhancement (Weeks 1-2)
+- **Animation Framework Integration**: Framer Motion + Intersection Observer
+- **Base Interaction Patterns**: Scroll-reveal animations and hover states
+- **Navigation Enhancement**: Fixed header with scroll states
+- **Mobile Experience**: Touch-optimized interactions
+
+### Phase 2: Content Experience (Weeks 3-4)
+- **Enhanced Components**: Hero, services, and project cards
+- **Blog System Enhancement**: Reading progress and interactive navigation
+- **Newsletter Integration**: Sophisticated subscription flows
+- **Performance Optimization**: Lazy loading and animation tuning
+
+### Phase 3: Advanced Features (Weeks 5-6)
+- **Interactive Visualizations**: Workflow diagrams and process timelines
+- **Analytics Integration**: Engagement tracking and optimization
+- **Final Testing**: Cross-browser compatibility and accessibility
+- **Launch Preparation**: Performance audits and SEO optimization
+
+---
+
+## 10. Enhanced Success Criteria
+
+### 10.1 Performance Metrics
+- **Page Load Speed**: <1.5s globally (Lighthouse >90)
+- **Core Web Vitals**: All scores in green (>90)
+- **Animation Performance**: 60fps animations with minimal impact
+- **Mobile Optimization**: 100+ Lighthouse mobile score
+
+### 10.2 Engagement Metrics
+- **Time on Page**: 30% increase over current site
+- **Scroll Depth**: 50% improvement in content engagement
+- **Newsletter Conversions**: 25% increase in subscriptions
+- **Social Sharing**: 40% increase in content shares
+
+### 10.3 Technical Excellence
+- **Accessibility**: Full WCAG AA compliance
+- **Cross-Browser**: 100% compatibility across modern browsers
+- **SEO Performance**: >90 scores on all SEO tools
+- **Content Management**: All content editable via Git commits
+
+---
+
+## 11. Enhanced Deployment Strategy
+
+### 11.1 Development Environment
+- **Local Development**: Enhanced development workflow with animation testing
+- **Preview Environments**: Vercel previews for all PRs
+- **Performance Monitoring**: Core Web Vitals tracking in development
+- **Animation Testing**: Automated testing for animation performance
+
+### 11.2 Production Deployment
+- **Staged Rollout**: Gradual feature rollout with monitoring
+- **Performance Monitoring**: Real-time Core Web Vitals tracking
+- **Error Tracking**: Comprehensive error monitoring and reporting
+- **Analytics Integration**: Engagement and conversion tracking
+
+---
+
+## 12. Risk Mitigation
+
+### 12.1 Performance Risks
+- **Animation Performance**: Careful optimization and testing
+- **Bundle Size**: Code splitting and lazy loading strategies
+- **Mobile Performance**: Touch-optimized and lightweight interactions
+
+### 12.2 Accessibility Risks
+- **Motion Sensitivity**: Respect for `prefers-reduced-motion`
+- **Keyboard Navigation**: Full keyboard accessibility for all interactions
+- **Screen Reader Support**: Comprehensive ARIA labels and announcements
+
+### 12.3 Technical Risks
+- **Browser Compatibility**: Thorough testing across browsers
+- **Animation Frameworks**: Stable, well-supported libraries
+- **Content Management**: Maintain MDX-based workflow
+
+---
+
+## 13. Budget Considerations
+
+### 13.1 Development Resources
+- **Frontend Development**: 6 weeks enhanced implementation
+- **Animation Design**: Custom animation and interaction design
+- **Testing & QA**: Comprehensive testing across devices and browsers
+- **Performance Optimization**: Ongoing optimization and monitoring
+
+### 13.2 Tooling Costs
+- **Animation Libraries**: Open-source with commercial licenses
+- **Analytics**: Plausible analytics (~$9/month)
+- **Performance Monitoring**: Vercel Pro plan (~$20/month)
+- **Email Service**: Resend usage-based pricing
+
+---
+
+## 14. Conclusion
+
+This enhanced PRD transforms the original functional requirements into a sophisticated, engaging website that demonstrates Corvo Labs' technical capabilities while maintaining the professional identity required for healthcare AI consulting. The phased implementation approach ensures successful delivery while the performance-first approach maintains the speed and accessibility standards expected from a technical consultancy.
+
+The enhanced site will serve as both a powerful marketing tool and a demonstration of the company's technical expertise, positioning Corvo Labs as a leader in sophisticated AI workflow solutions.
+
+---
+
+**✅ Enhanced Deliverable:**
+This PRD incorporates industry-leading UX patterns and sophisticated animations while maintaining the professional, trust-driven identity required for healthcare AI consulting. The 6-week implementation roadmap ensures successful delivery with measurable business impact.
