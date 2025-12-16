@@ -2,6 +2,7 @@ import './globals.css'
 import { cn } from '@/lib/utils'
 import type { Metadata, Viewport } from 'next'
 import { EnhancedNav } from '@/components/enhanced-nav'
+import { EnhancedFooter } from '@/components/enhanced-footer'
 
 export const metadata: Metadata = {
   metadataBase: new URL('http://localhost:3000'),
@@ -41,6 +42,7 @@ export default function RootLayout({
       <body className={cn("min-h-screen bg-white text-gray-900 antialiased")}>
         <EnhancedNav />
         {children}
+        <EnhancedFooter />
       </body>
     </html>
   )

@@ -33,153 +33,158 @@ const categories = [
 const projects = [
   {
     id: 1,
-    title: "Emergency Department Triage Automation",
-    category: "clinical",
-    client: "Regional Medical Center",
-    location: "California",
+    title: "Kinisi",
+    category: "patient",
+    client: "Kinisi Health",
+    location: "San Francisco, CA",
     duration: "12 weeks",
-    challenge: "Emergency department was experiencing 45-minute average wait times with inefficient patient triage leading to delayed care and patient dissatisfaction.",
-    solution: "Implemented AI-powered triage system that automatically prioritizes patients based on symptoms, vital signs, and urgency indicators. The system integrates with existing EMR and provides real-time decision support to clinical staff.",
+    challenge: "Generic fitness apps fail to safely accommodate users with medical conditions, injuries, or specific time constraints, leading to low adherence and increased risk of re-injury.",
+    solution: "Built a clinical-grade AI training companion that conducts a dynamic medical intake to generate fully personalized safe workout plans, integrating directly with users' calendars for accountability.",
     process: [
-      "Analyzed 6 months of ED patient flow data",
-      "Designed machine learning model for triage prediction",
-      "Integrated with existing Epic EMR system",
-      "Trained clinical staff on new workflows",
-      "Implemented real-time monitoring dashboard"
+      "Designed clinical safety conversational protocol",
+      "Implemented Gemini 2.0-powered generation engine",
+      "Integrated WorkOS for secure enterprise authentication",
+      "Built real-time Google Calendar scheduling sync",
+      "Engineered reactive mobile-first interface"
     ],
     results: [
-      "Reduced average wait time by 62%",
-      "Improved patient satisfaction scores from 3.2 to 4.7/5",
-      "Decreased time-to-treatment for critical cases by 40%",
-      "Handled 2.3x more patients with same staffing levels"
+      "Reduced program generation time to under 30 seconds",
+      "100% compliance with user medical constraints",
+      "Seamless integration with Google Calendar API",
+      "Zero-latency interactive chat experience"
     ],
-    technologies: ["Machine Learning", "EMR Integration", "Real-time Analytics", "Mobile Interface"],
-    image: "/images/ed-triage.jpg"
+    technologies: [
+      "Next.js App Router",
+      "Gemini 2.0 Flash",
+      "WorkOS AuthKit",
+      "PostHog Analytics",
+      "Google Calendar API"
+    ],
+    image: "/images/kinisi-dashboard.jpg"
   },
   {
     id: 2,
-    title: "Medical Coding Automation Platform",
-    category: "administrative",
-    client: "Multi-Specialty Clinic",
-    location: "Texas",
-    duration: "16 weeks",
-    challenge: "Manual medical coding process was causing billing delays, coding errors, and revenue loss due to undercoding and claim rejections.",
-    solution: "Developed AI-powered medical coding platform that automatically analyzes clinical documentation and suggests appropriate billing codes. System includes real-time validation and compliance checking.",
+    title: "CalPal Nutrition Calculator",
+    category: "clinical",
+    client: "Corvo Labs Product",
+    location: "United States",
+    duration: "8 weeks",
+    challenge: "Nutrition professionals were losing 15-20 minutes per day switching between browser tabs, re-entering patient data, and manually transferring calculation results back to their documentation. This workflow friction compounded across 15-20 client encounters daily, reducing productivity and increasing the risk of data entry errors during critical patient consultations.",
+    solution: "Developed a Chrome extension that delivers instant, professional-grade nutrition calculations directly within the browser workflow. CalPal provides BMR, TDEE, and macro calculations using multiple IBW formulas (Hamwi, Devine, Adjusted) in a clean 800x600px popup interface. The extension eliminates tab-switching and context loss, allowing dietitians to access accurate calculations with one click while maintaining focus on their primary work.",
     process: [
-      "Audited 2 years of coding data for patterns",
-      "Built NLP model for clinical document analysis",
-      "Created coding validation engine",
-      "Integrated with practice management systems",
-      "Implemented continuous learning feedback loop"
+      "Conducted user research with licensed Registered Dietitians to identify workflow pain points",
+      "Designed dual-calculator interface (Protein Range and Macros) with real-time calculations",
+      "Implemented clinically validated formulas (Harris-Benedict BMR, multiple IBW methods)",
+      "Built Chrome extension with React and modern UI components for seamless integration",
+      "Tested with practicing dietitians and refined interface based on clinical workflow feedback"
     ],
     results: [
-      "95% coding accuracy rate",
-      "Reduced coding time from 15 to 3 minutes per chart",
-      "Increased revenue by 18% through improved coding",
-      "Decreased claim rejection rate by 73%"
+      "Eliminates tab-switching and saves 15-20 minutes per day per practitioner",
+      "Reduces calculation time from 2-3 minutes to 10-15 seconds per patient",
+      "Eliminates manual data re-entry, reducing transcription error risk to zero",
+      "Supports multiple IBW formulas with frame adjustments for clinical flexibility",
+      "Zero setup time—calculations available immediately after installation"
     ],
-    technologies: ["Natural Language Processing", "Rule Engine", "Practice Management Integration", "Compliance Validation"],
-    image: "/images/medical-coding.jpg"
+    technologies: [
+      "Chrome Extension (Manifest V3)",
+      "React & TypeScript",
+      "Real-time Calculation Engine",
+      "Clinical Formula Library"
+    ],
+    image: "/images/calpal-nutrition-calculator.jpg"
   },
   {
     id: 3,
-    title: "Patient Engagement Chatbot",
-    category: "patient",
-    client: "Children's Hospital",
-    location: "New York",
-    duration: "10 weeks",
-    challenge: "High call volume to appointment line and inconsistent patient communication leading to missed appointments and poor patient experience.",
-    solution: "Implemented intelligent chatbot for appointment scheduling, medication reminders, and patient education. The system handles 80% of routine patient inquiries and integrates with hospital scheduling systems.",
+    title: "Corvo Airlock",
+    category: "clinical",
+    client: "Coming Soon",
+    location: "Remote",
+    duration: "TBD",
+    challenge: "Project details coming soon. This innovative healthcare solution will address critical challenges in clinical workflow automation.",
+    solution: "We're currently developing an exciting new platform that will transform how healthcare professionals manage their daily workflows. Full details and implementation specifics will be available very soon.",
     process: [
-      "Analyzed patient communication patterns",
-      "Designed conversational AI flows",
-      "Integrated with hospital scheduling system",
-      "Created multilingual support (English/Spanish)",
-      "Implemented escalation to human agents"
+      "Project requirements gathering and stakeholder interviews",
+      "Technical architecture design and planning",
+      "User experience research and prototyping",
+      "Development and implementation phases",
+      "Testing and quality assurance processes"
     ],
     results: [
-      "Handled 45,000 patient interactions per month",
-      "Reduced call center volume by 60%",
-      "Improved appointment show rates by 28%",
-      "Patient satisfaction score of 4.6/5"
+      "Anticipated to significantly improve workflow efficiency",
+      "Expected to reduce administrative burden on clinical staff",
+      "Projected to enhance patient care delivery",
+      "More detailed metrics and outcomes coming soon",
+      "Implementation results will be shared post-launch"
     ],
-    technologies: ["Conversational AI", "Scheduling Integration", "Multi-language Support", "Sentiment Analysis"],
-    image: "/images/patient-chatbot.jpg"
+    technologies: [
+      "Technology stack to be announced",
+      "Modern web framework",
+      "Cloud-native architecture",
+      "Security-first design principles"
+    ],
+    image: "/images/corvo-airlock-coming-soon.jpg"
   },
   {
     id: 4,
-    title: "Predictive Analytics for Readmission Risk",
-    category: "analytics",
-    client: "Large Hospital Network",
-    location: "Illinois",
-    duration: "14 weeks",
-    challenge: "High 30-day readmission rates and inability to identify high-risk patients before discharge.",
-    solution: "Built predictive analytics platform that analyzes patient data to identify readmission risk factors and recommends intervention strategies. System provides real-time risk scores and actionable insights to care teams.",
+    title: "Pithy Jaunt",
+    category: "patient",
+    client: "Coming Soon",
+    location: "Remote",
+    duration: "TBD",
+    challenge: "Project details coming soon. This patient engagement solution will focus on improving health outcomes through innovative technology and user-centered design.",
+    solution: "We're crafting a unique digital experience that will transform how patients interact with healthcare services. The complete solution overview and technical details will be revealed shortly.",
     process: [
-      "Analyzed 3 years of patient outcome data",
-      "Developed predictive machine learning models",
-      "Created risk stratification algorithms",
-      "Built clinician dashboard with interventions",
-      "Integrated with discharge planning workflows"
+      "User research and persona development",
+      "Competitive analysis and market research",
+      "Product strategy and roadmap planning",
+      "Design thinking and rapid prototyping",
+      "Agile development and iterative testing"
     ],
     results: [
-      "Predictive accuracy of 89%",
-      "Reduced 30-day readmissions by 31%",
-      "Identified 2x more high-risk patients",
-      "Improved care coordination efficiency"
+      "Expected to improve patient engagement metrics",
+      "Anticipated to enhance user satisfaction scores",
+      "Projected to increase treatment adherence",
+      "Detailed performance metrics pending",
+      "Results will be measured against industry benchmarks"
     ],
-    technologies: ["Predictive Analytics", "Machine Learning", "Risk Stratification", "Clinical Dashboard"],
-    image: "/images/readmission-analytics.jpg"
+    technologies: [
+      "Technology stack to be determined",
+      "Mobile-first responsive design",
+      "API-first architecture",
+      "Analytics and measurement tools"
+    ],
+    image: "/images/pithy-jaunt-coming-soon.jpg"
   },
   {
     id: 5,
-    title: "Clinical Trial Matching System",
-    category: "clinical",
-    client: "Cancer Research Center",
-    location: "Massachusetts",
-    duration: "18 weeks",
-    challenge: "Manual process for matching patients to clinical trials was inefficient and missed eligible patients, slowing research enrollment.",
-    solution: "Created AI-powered clinical trial matching system that automatically screens patient records against trial criteria and alerts physicians to eligible patients.",
-    process: [
-      "Analyzed clinical trial protocols and criteria",
-      "Built patient-trial matching algorithms",
-      "Integrated with electronic health records",
-      "Created physician alert system",
-      "Implemented enrollment tracking"
-    ],
-    results: [
-      "Increased trial enrollment by 156%",
-      "Reduced screening time from hours to minutes",
-      "Identified 3x more eligible patients",
-      "Accelerated research study timelines"
-    ],
-    technologies: ["Pattern Matching", "Clinical Integration", "Alert Systems", "Compliance Tracking"],
-    image: "/images/clinical-trials.jpg"
-  },
-  {
-    id: 6,
-    title: "Surgical Scheduling Optimization",
+    title: "Hot Sauce",
     category: "administrative",
-    client: "Orthopedic Surgery Center",
-    location: "Florida",
-    duration: "12 weeks",
-    challenge: "Inefficient surgical scheduling leading to underutilized OR time, patient delays, and staff overtime costs.",
-    solution: "Implemented AI-driven surgical scheduling optimization that considers case complexity, resource requirements, and staff availability to maximize OR efficiency.",
+    client: "Coming Soon",
+    location: "Remote",
+    duration: "TBD",
+    challenge: "Project details coming soon. This administrative automation platform will streamline complex healthcare operations and improve organizational efficiency.",
+    solution: "We're developing a comprehensive solution that will revolutionize administrative workflows in healthcare settings. Full project details and technical specifications will be available soon.",
     process: [
-      "Analyzed 2 years of surgical scheduling data",
-      "Built optimization algorithms for OR utilization",
-      "Integrated with hospital information systems",
-      "Created real-time scheduling dashboard",
-      "Implemented predictive case duration modeling"
+      "Stakeholder requirement gathering",
+      "Business process mapping and optimization",
+      "System architecture and integration planning",
+      "Development and testing cycles",
+      "Deployment and change management"
     ],
     results: [
-      "Increased OR utilization by 27%",
-      "Reduced average turnover time by 35%",
-      "Decreased staff overtime costs by $180K annually",
-      "Improved on-time start rate to 94%"
+      "Expected to reduce administrative overhead significantly",
+      "Anticipated to improve operational efficiency",
+      "Projected to enhance staff productivity",
+      "ROI calculations and metrics pending",
+      "Detailed impact assessment to follow"
     ],
-    technologies: ["Optimization Algorithms", "Predictive Modeling", "Real-time Analytics", "Resource Management"],
-    image: "/images/surgical-scheduling.jpg"
+    technologies: [
+      "Enterprise-grade platform technologies",
+      "Integration with existing healthcare systems",
+      "Robust security and compliance features",
+      "Scalable cloud infrastructure"
+    ],
+    image: "/images/hot-sauce-coming-soon.jpg"
   }
 ]
 

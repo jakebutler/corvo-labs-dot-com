@@ -11,17 +11,14 @@ const fadeIn = {
 
 export function EnhancedCTA() {
   return (
-    <section className="py-20 text-white relative overflow-hidden">
-      {/* Gradient Background */}
-      <div
-        className="absolute inset-0 opacity-100"
-        style={{
-          background: 'linear-gradient(135deg, rgba(255, 222, 65, 1) 0%, rgba(255, 161, 55, 1) 25%, rgba(255, 90, 60, 1) 45%, rgba(245, 52, 100, 1) 65%, rgba(183, 33, 134, 1) 82%, rgba(81, 29, 142, 1) 100%)',
-          filter: 'blur(0.5px)',
-          maskImage: 'linear-gradient(to bottom, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0.85) 15%, rgba(0, 0, 0, 0.95) 30%, rgba(0, 0, 0, 1) 45%, rgba(0, 0, 0, 1) 100%)',
-          WebkitMaskImage: 'linear-gradient(to bottom, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0.85) 15%, rgba(0, 0, 0, 0.95) 30%, rgba(0, 0, 0, 1) 45%, rgba(0, 0, 0, 1) 100%)'
-        }}
-      />
+    <section className="py-20 bg-gray-900 text-white relative overflow-hidden">
+      {/* Subtle Background Pattern */}
+      <div className="absolute inset-0 opacity-5">
+        <div className="absolute inset-0" style={{
+          backgroundImage: `radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 2px, transparent 2px)`,
+          backgroundSize: '60px 60px'
+        }} />
+      </div>
       <div className="relative z-10">
         <div className="container mx-auto px-4">
           <motion.div
@@ -39,7 +36,7 @@ export function EnhancedCTA() {
             </motion.p>
             <motion.div variants={fadeIn} className="flex flex-col sm:flex-row gap-4 justify-center">
               <motion.button
-                className="px-8 py-3 bg-white text-purple-600 rounded-lg font-semibold hover:bg-gray-100 transition-colors duration-200 inline-flex items-center justify-center"
+                className="btn-organic px-8 py-3 text-lg inline-flex items-center justify-center"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >

@@ -174,13 +174,19 @@ export default function BlogPage() {
           >
             <motion.h1
               variants={fadeIn}
-              className="text-5xl md:text-7xl font-bold text-black mb-6 tracking-tighter"
+              className="text-display text-5xl md:text-6xl xl:text-7xl text-gray-900 mb-6"
+              style={{
+                fontFamily: 'var(--font-serif)',
+                fontWeight: 900,
+                lineHeight: 0.85,
+                letterSpacing: '-0.02em'
+              }}
             >
               Healthcare AI Insights
             </motion.h1>
             <motion.p
               variants={fadeIn}
-              className="text-xl md:text-2xl text-gray-600 leading-relaxed mb-8"
+              className="text-body text-xl md:text-2xl text-gray-600 leading-relaxed mb-8"
             >
               Expert insights on implementing AI in healthcare workflows, industry trends, and best practices from our team of healthcare AI specialists.
             </motion.p>
@@ -189,7 +195,7 @@ export default function BlogPage() {
               className="flex flex-col sm:flex-row gap-4 justify-center"
             >
               <motion.button
-                className="px-8 py-3 bg-accent text-white rounded-lg font-semibold hover:bg-accent-600 transition-colors duration-200 inline-flex items-center justify-center"
+                className="btn-organic px-8 py-3 text-lg inline-flex items-center justify-center"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
@@ -213,10 +219,10 @@ export default function BlogPage() {
           >
             <motion.div variants={fadeIn}>
               <Mail className="h-16 w-16 mx-auto mb-6" />
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              <h2 className="text-display text-3xl md:text-4xl xl:text-5xl mb-4">
                 Get Weekly Healthcare AI Insights
               </h2>
-              <p className="text-xl opacity-90 mb-8">
+              <p className="text-body text-xl opacity-90 mb-8 leading-relaxed">
                 Join 5,000+ healthcare leaders receiving expert analysis, implementation guides, and industry trends every week.
               </p>
             </motion.div>

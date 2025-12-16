@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, useMotionValueEvent } from 'framer-motion'
 import { useScroll, useTransform } from 'framer-motion'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
@@ -76,6 +76,7 @@ export function EnhancedNav() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
+  const [currentNavHeight, setCurrentNavHeight] = useState(80)
   const dropdownTimeoutRef = React.useRef<NodeJS.Timeout | null>(null)
   const { scrollY } = useScroll()
 
@@ -88,6 +89,11 @@ export function EnhancedNav() {
 
   const navHeight = useTransform(scrollY, [0, 50], [80, 64])
   const logoScale = useTransform(scrollY, [0, 50], [1.1, 1])
+
+  // Sync navHeight MotionValue to state for use in JSX
+  useMotionValueEvent(navHeight, 'change', (latest) => {
+    setCurrentNavHeight(latest)
+  })
 
   useEffect(() => {
     const handleScroll = () => {
@@ -161,7 +167,7 @@ export function EnhancedNav() {
           <div className="hidden lg:flex items-center space-x-8">
             {navItems.map((item) => (
               <div
-                key={item.label}
+                key={`${item.label}-${item.href}`}
                 className="relative"
                 onMouseEnter={() => handleMouseEnter(item.label)}
                 onMouseLeave={handleMouseLeave}
@@ -215,7 +221,7 @@ export function EnhancedNav() {
                       <div className="p-2">
                         {item.dropdownItems.map((dropdownItem, index) => (
                           <motion.div
-                            key={dropdownItem.href}
+                            key={`${dropdownItem.label}-${dropdownItem.href}`}
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: index * 0.05 }}
@@ -247,7 +253,7 @@ export function EnhancedNav() {
           {/* CTA Button */}
           <div className="hidden lg:block">
             <motion.button
-              className="px-6 py-2 bg-accent text-white rounded-lg font-semibold hover:bg-accent-600 transition-colors duration-200"
+              className="btn-organic px-6 py-2 text-base"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
@@ -276,13 +282,13 @@ export function EnhancedNav() {
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3 }}
             className="fixed top-0 left-0 right-0 z-40 lg:hidden"
-            style={{ marginTop: navHeight.get() }}
+            style={{ marginTop: currentNavHeight }}
           >
             <div className="bg-white border-b border-gray-200 shadow-lg">
               <div className="container mx-auto px-4 py-6">
                 {navItems.map((item, index) => (
                   <motion.div
-                    key={item.label}
+                    key={`${item.label}-${item.href}`}
                     initial={{ opacity: 0, x: -50 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.1 }}
@@ -321,9 +327,9 @@ export function EnhancedNav() {
                             transition={{ duration: 0.2 }}
                             className="mt-2 pl-4 space-y-2"
                           >
-                            {item.dropdownItems.map((dropdownItem) => (
+                            {item.dropdownItems.map((dropdownItem, index) => (
                               <Link
-                                key={dropdownItem.href}
+                                key={`${dropdownItem.label}-${dropdownItem.href}`}
                                 href={dropdownItem.href}
                                 className="block py-2 text-gray-600 hover:text-accent transition-colors"
                               >
@@ -346,7 +352,7 @@ export function EnhancedNav() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: navItems.length * 0.1 }}
-                  className="w-full mt-6 px-6 py-3 bg-accent text-white rounded-lg font-semibold hover:bg-accent-600 transition-colors duration-200"
+                  className="btn-organic w-full mt-6 px-6 py-3 text-base"
                 >
                   Get Started
                 </motion.button>

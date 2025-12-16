@@ -145,10 +145,10 @@ export default function ContactPage() {
               <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
                 <CheckCircle className="h-10 w-10 text-green-600" />
               </div>
-              <h1 className="text-4xl md:text-5xl font-bold text-black mb-4">
+              <h1 className="text-display text-4xl md:text-5xl text-gray-900 mb-4">
                 Thank You!
               </h1>
-              <p className="text-xl text-gray-600 mb-8">
+              <p className="text-body text-xl text-gray-600 mb-8 leading-relaxed">
                 Your consultation request has been submitted successfully. Our team will review your information and contact you within 24 hours to schedule your free AI assessment.
               </p>
             </motion.div>
@@ -183,7 +183,7 @@ export default function ContactPage() {
             <motion.div variants={fadeIn}>
               <motion.button
                 onClick={() => window.location.href = '/'}
-                className="px-8 py-3 bg-accent text-white rounded-lg font-semibold hover:bg-accent-600 transition-colors duration-200"
+                className="btn-organic px-8 py-3 text-lg"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
@@ -209,13 +209,19 @@ export default function ContactPage() {
           >
             <motion.h1
               variants={fadeIn}
-              className="text-5xl md:text-7xl font-bold text-black mb-6 tracking-tighter"
+              className="text-display text-5xl md:text-6xl xl:text-7xl text-gray-900 mb-6"
+              style={{
+                fontFamily: 'var(--font-serif)',
+                fontWeight: 900,
+                lineHeight: 0.85,
+                letterSpacing: '-0.02em'
+              }}
             >
               Start Your AI Journey
             </motion.h1>
             <motion.p
               variants={fadeIn}
-              className="text-xl md:text-2xl text-gray-600 leading-relaxed mb-8"
+              className="text-body text-xl md:text-2xl text-gray-600 leading-relaxed mb-8"
             >
               Schedule a free consultation with our healthcare AI experts. Let's discuss how we can transform your workflows with responsible AI solutions.
             </motion.p>
@@ -243,7 +249,7 @@ export default function ContactPage() {
             <div className="grid lg:grid-cols-3 gap-12">
               {/* Contact Information */}
               <motion.div variants={fadeIn} className="lg:col-span-1">
-                <h2 className="text-2xl font-bold text-black mb-8">Get in Touch</h2>
+                <h2 className="text-heading text-2xl font-bold text-gray-900 mb-8">Get in Touch</h2>
 
                 <div className="space-y-6 mb-8">
                   {contactInfo.map((info, index) => {

@@ -62,13 +62,19 @@ export default function AboutPage() {
           >
             <motion.h1
               variants={fadeIn}
-              className="text-5xl md:text-7xl font-bold text-black mb-6 tracking-tighter"
+              className="text-display text-5xl md:text-6xl xl:text-7xl text-gray-900 mb-6"
+              style={{
+                fontFamily: 'var(--font-serif)',
+                fontWeight: 900,
+                lineHeight: 0.85,
+                letterSpacing: '-0.02em'
+              }}
             >
               Healthcare Technology Experts Delivering Measurable Results
             </motion.h1>
             <motion.p
               variants={fadeIn}
-              className="text-xl md:text-2xl text-gray-600 leading-relaxed mb-8"
+              className="text-body text-xl md:text-2xl text-gray-600 leading-relaxed mb-8"
             >
               Led by veteran healthcare product leaders, Corvo Labs combines deep healthcare experience with
               advanced automation technology to deliver responsible workflow solutions.
@@ -78,11 +84,11 @@ export default function AboutPage() {
               className="flex flex-col sm:flex-row gap-4 justify-center"
             >
               <motion.button
-                className="px-8 py-3 bg-accent text-white rounded-lg font-semibold hover:bg-accent-600 transition-colors duration-200 inline-flex items-center justify-center"
+                className="btn-organic px-8 py-3 text-lg inline-flex items-center justify-center"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                Meet Our Team
+                Schedule Intro Call
                 <ArrowRight className="ml-2 h-4 w-4" />
               </motion.button>
             </motion.div>
@@ -101,10 +107,10 @@ export default function AboutPage() {
             className="max-w-6xl mx-auto"
           >
             <motion.div variants={fadeIn} className="text-center mb-16">
-              <h2 className="text-4xl md:text-5xl font-bold text-black mb-6">
+              <h2 className="text-display text-4xl md:text-5xl xl:text-6xl text-gray-900 mb-6">
                 Our Mission: Responsible AI for Healthcare
               </h2>
-              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              <p className="text-body text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
                 Empowering healthcare teams with responsible AI automation that enhances patient care,
                 improves operational efficiency, and maintains the highest standards of data security and regulatory compliance.
               </p>
@@ -112,11 +118,11 @@ export default function AboutPage() {
 
             <div className="grid md:grid-cols-2 gap-12">
               <motion.div variants={fadeIn} className="text-center">
-                <div className="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                <div className="flex items-center justify-center mx-auto mb-6">
                   <img
                     src="/images/mission-no-bg.png"
                     alt="Mission icon"
-                    className="h-8 w-8 object-contain"
+                    className="h-40 w-40 object-contain"
                   />
                 </div>
                 <h3 className="text-2xl font-bold text-black mb-4">Mission</h3>
@@ -127,11 +133,11 @@ export default function AboutPage() {
               </motion.div>
 
               <motion.div variants={fadeIn} className="text-center">
-                <div className="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                <div className="flex items-center justify-center mx-auto mb-6">
                   <img
                     src="/images/vision-no-bg.png"
                     alt="Vision icon"
-                    className="h-8 w-8 object-contain"
+                    className="h-40 w-40 object-contain"
                   />
                 </div>
                 <h3 className="text-2xl font-bold text-black mb-4">Vision</h3>
@@ -156,10 +162,10 @@ export default function AboutPage() {
             className="max-w-6xl mx-auto"
           >
             <motion.div variants={fadeIn} className="text-center mb-16">
-              <h2 className="text-4xl md:text-5xl font-bold text-black mb-6">
+              <h2 className="text-display text-4xl md:text-5xl xl:text-6xl text-gray-900 mb-6">
                 Healthcare Domain Expertise
               </h2>
-              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              <p className="text-body text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
                 We understand healthcare because we've lived it. Our team brings extensive experience
                 in healthcare operations, regulatory compliance, and clinical workflows.
               </p>
@@ -215,10 +221,10 @@ export default function AboutPage() {
             className="max-w-4xl mx-auto"
           >
             <motion.div variants={fadeIn} className="text-center mb-16">
-              <h2 className="text-4xl md:text-5xl font-bold text-black mb-6">
+              <h2 className="text-display text-4xl md:text-5xl xl:text-6xl text-gray-900 mb-6">
                 Proven Healthcare Technology Experience
               </h2>
-              <p className="text-xl text-gray-600">
+              <p className="text-body text-xl text-gray-600 leading-relaxed">
                 Our leadership team brings decades of combined experience in healthcare technology and workflow innovation.
               </p>
             </motion.div>
@@ -270,10 +276,10 @@ export default function AboutPage() {
             className="max-w-6xl mx-auto"
           >
             <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900">
+              <h2 className="text-display text-3xl md:text-4xl xl:text-5xl text-gray-900 mb-4">
                 Trusted by Healthcare Leaders
               </h2>
-              <p className="text-xl text-gray-600">
+              <p className="text-body text-xl text-gray-600 leading-relaxed">
                 Our commitment to excellence and healthcare compliance
               </p>
             </div>
