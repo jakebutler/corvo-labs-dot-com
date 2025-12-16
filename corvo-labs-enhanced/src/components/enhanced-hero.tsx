@@ -78,7 +78,7 @@ export function EnhancedHero() {
       transition: {
         duration: 0.8,
         delay: i * 0.1,
-        ease: [0.16, 1, 0.3, 1]
+        ease: [0.16, 1, 0.3, 1] as [number, number, number, number]
       }
     })
   }
@@ -92,7 +92,7 @@ export function EnhancedHero() {
       transition: {
         duration: 0.6,
         delay: 0.8 + i * 0.15,
-        ease: [0.16, 1, 0.3, 1]
+        ease: [0.16, 1, 0.3, 1] as [number, number, number, number]
       }
     })
   }
@@ -144,23 +144,24 @@ export function EnhancedHero() {
 
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-6xl mx-auto">
-          <div className="flex flex-col lg:flex-row items-center justify-between lg:space-x-16 space-y-12 lg:space-y-0">
+          <div className="flex flex-col lg:flex-row items-center justify-start lg:space-x-8 space-y-12 lg:space-y-0">
             {/* Left: Crow Image */}
             <motion.div
               custom={0}
               variants={titleVariants}
               initial="hidden"
               animate="visible"
-              className="hero-image flex-shrink-0 lg:w-1/2 flex justify-center lg:justify-start relative"
+              className="hero-image flex-shrink-0 flex justify-center lg:justify-start relative lg:ml-8"
             >
               <motion.img
                 src="/images/crow-hero-no-bg.png"
                 alt="Corvo Labs Crow"
-                className="h-48 md:h-64 lg:h-80 w-auto max-w-full object-contain z-20 relative block"
+                className="h-32 md:h-48 lg:h-64 w-auto max-w-full object-contain z-20 relative block"
                 style={{
                   filter: 'drop-shadow(0 20px 25px rgb(0 0 0 / 0.1))',
                   opacity: imagesLoaded['crow'] !== false ? 1 : 0,
-                  transition: 'opacity 0.3s ease-in-out'
+                  transition: 'opacity 0.3s ease-in-out',
+                  transform: 'translateX(-20px)'
                 }}
                 whileHover={{ scale: 1.05 }}
                 transition={{ duration: 0.3 }}
@@ -170,7 +171,7 @@ export function EnhancedHero() {
             </motion.div>
 
             {/* Right: Stacked Logo and Content */}
-            <div className="lg:w-1/2 text-center lg:text-left space-y-4">
+            <div className="lg:flex-1 text-center lg:text-left space-y-4 lg:ml-4">
               {/* Stacked Logo */}
               <motion.div
                 custom={1}
@@ -179,20 +180,29 @@ export function EnhancedHero() {
                 animate="visible"
                 className="hero-image flex justify-center lg:justify-start relative"
               >
-                <motion.img
-                  src="/images/corvo-labs-stacked.svg"
-                  alt="Corvo Labs"
-                  className="h-24 md:h-32 lg:h-40 w-auto max-w-full object-contain z-20 relative block"
-                  style={{
-                    filter: 'drop-shadow(0 10px 15px rgb(0 0 0 / 0.1))',
-                    opacity: imagesLoaded['logo'] !== false ? 1 : 0,
-                    transition: 'opacity 0.3s ease-in-out'
-                  }}
-                  whileHover={{ scale: 1.05 }}
-                  transition={{ duration: 0.3 }}
-                  onError={(e) => handleImageError('logo', e)}
-                  onLoad={() => handleImageLoad('logo')}
-                />
+                <div className="relative bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
+                  <motion.img
+                    src="/images/corvo-labs-stacked.svg"
+                    alt="Corvo Labs"
+                    className="h-24 md:h-32 lg:h-40 w-auto object-contain z-20 relative block"
+                    style={{
+                      filter: 'drop-shadow(0 10px 15px rgb(0 0 0 / 0.2))',
+                      opacity: imagesLoaded['logo'] !== false ? 1 : 0,
+                      transition: 'opacity 0.3s ease-in-out',
+                      minHeight: '160px'
+                    }}
+                    whileHover={{ scale: 1.05 }}
+                    transition={{ duration: 0.3 }}
+                    onError={(e) => {
+                      console.error('Logo failed to load:', e)
+                      handleImageError('logo', e)
+                    }}
+                    onLoad={() => {
+                      console.log('Logo loaded successfully')
+                      handleImageLoad('logo')
+                    }}
+                  />
+                </div>
               </motion.div>
 
               {/* Hero Description */}

@@ -64,7 +64,7 @@ export function ScrollReveal({
   const defaultTransition = {
     duration,
     delay,
-    ease: [0.16, 1, 0.3, 1] as const
+    ease: [0.16, 1, 0.3, 1] as [number, number, number, number]
   }
 
   return (
