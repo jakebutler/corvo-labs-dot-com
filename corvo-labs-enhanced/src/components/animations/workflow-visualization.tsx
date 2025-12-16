@@ -1,7 +1,8 @@
 'use client'
 
-import React, { useState, useRef, useEffect } from 'react'
-import { motion, AnimatePresence, useInView, useMotionValue, useTransform } from 'framer-motion'
+import React, { useState, useEffect } from 'react'
+import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion'
+import { useInView } from 'react-intersection-observer'
 import { cn } from '@/lib/utils'
 import { ArrowRight, CheckCircle, Circle, Zap, Database, Cloud, Shield } from 'lucide-react'
 
@@ -11,7 +12,7 @@ interface WorkflowStep {
   description: string
   icon: React.ReactNode
   status: 'pending' | 'active' | 'completed'
-  duration?: number
+  duration?: string
 }
 
 interface WorkflowVisualizationProps {
@@ -31,7 +32,7 @@ export function WorkflowVisualization({
 }: WorkflowVisualizationProps) {
   const [currentStep, setCurrentStep] = useState(0)
   const [isPlaying, setIsPlaying] = useState(autoPlay)
-  const [ref, inView] = useInView({ threshold: 0.3 })
+  const { ref, inView } = useInView({ threshold: 0.3 })
 
   useEffect(() => {
     if (!inView || !isPlaying) return
@@ -246,7 +247,7 @@ interface ProcessFlowProps {
 }
 
 export function ProcessFlow({ items, className }: ProcessFlowProps) {
-  const [ref, inView] = useInView({ threshold: 0.2 })
+  const { ref, inView } = useInView({ threshold: 0.3 })
 
   return (
     <div ref={ref} className={cn("w-full", className)}>
