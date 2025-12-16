@@ -1,0 +1,41 @@
+/* Enhanced Hero Component Styles */
+.enhanced-hero img {
+  display: block !important;
+  max-width: 100% !important;
+  height: auto !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+.enhanced-hero .hero-image {
+  position: relative !important;
+  z-index: 20 !important;
+}
+
+/* Ensure images are visible during animations */
+.enhanced-hero [data-framer-motion-image-id] {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Fallback for any image display issues */
+@supports not (display: block) {
+  .enhanced-hero img {
+    display: inline-block !important;
+  }
+}
+
+/* Print styles */
+@media print {
+  .enhanced-hero img {
+    display: block !important;
+    opacity: 1 !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .enhanced-hero img {
+    filter: contrast(1.2) !important;
+  }
+}
