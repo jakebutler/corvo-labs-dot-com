@@ -21,7 +21,17 @@ const staggerContainer = {
   }
 }
 
-const services = [
+interface Service {
+  icon: string
+  title: string
+  description: string
+  features: string[]
+  process: string[]
+  duration: string
+  deliverables: string[]
+}
+
+const services: Service[] = [
   {
     icon: "/images/ai-strategy-roadmap-no-bg.png",
     title: "AI Strategy & Roadmap Development",
@@ -69,7 +79,14 @@ const services = [
   }
 ]
 
-const specializations = [
+interface Specialization {
+  icon: React.ComponentType<{ className?: string }>
+  title: string
+  description: string
+  examples: string[]
+}
+
+const specializations: Specialization[] = [
   {
     icon: Users,
     title: "Clinical Workflows",
@@ -110,13 +127,19 @@ export default function ServicesPage() {
           >
             <motion.h1
               variants={fadeIn}
-              className="text-5xl md:text-7xl font-bold text-black mb-6 tracking-tighter"
+              className="text-display text-5xl md:text-6xl xl:text-7xl text-gray-900 mb-6"
+              style={{
+                fontFamily: 'var(--font-serif)',
+                fontWeight: 900,
+                lineHeight: 0.85,
+                letterSpacing: '-0.02em'
+              }}
             >
               Healthcare Technology Solutions
             </motion.h1>
             <motion.p
               variants={fadeIn}
-              className="text-xl md:text-2xl text-gray-600 leading-relaxed mb-8"
+              className="text-body text-xl md:text-2xl text-gray-600 leading-relaxed mb-8"
             >
               From strategy to implementation, we deliver comprehensive technology solutions that transform
               healthcare workflows while maintaining HIPAA compliance and delivering measurable ROI.
@@ -126,7 +149,7 @@ export default function ServicesPage() {
               className="flex flex-col sm:flex-row gap-4 justify-center"
             >
               <motion.button
-                className="px-8 py-3 bg-accent text-white rounded-lg font-semibold hover:bg-accent-600 transition-colors duration-200 inline-flex items-center justify-center"
+                className="btn-organic px-8 py-3 text-lg inline-flex items-center justify-center"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
@@ -149,79 +172,68 @@ export default function ServicesPage() {
             className="max-w-6xl mx-auto"
           >
             <motion.div variants={fadeIn} className="text-center mb-16">
-              <h2 className="text-4xl md:text-5xl font-bold text-black mb-6">
+              <h2 className="text-display text-4xl md:text-5xl xl:text-6xl text-gray-900 mb-6">
                 Comprehensive AI Consulting for Healthcare
               </h2>
-              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              <p className="text-body text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
                 Our three-pillar approach ensures successful AI adoption from initial strategy through ongoing optimization.
               </p>
             </motion.div>
 
-            <div className="space-y-16">
+            <div className="grid md:grid-cols-3 gap-8">
               {services.map((service, index) => (
                 <motion.div
                   key={index}
                   variants={fadeIn}
-                  className={cn(
-                    "bg-white rounded-xl p-8 md:p-12 shadow-sm",
-                    index % 2 === 1 ? "md:flex md:flex-row-reverse" : "md:flex md:flex-row"
-                  )}
+                  className="bg-white rounded-xl p-8 shadow-sm text-center"
                 >
-                  <div className="md:w-1/3 mb-8 md:mb-0 md:pr-8">
-                    <div className="mb-6">
-                      {typeof service.icon === 'string' ? (
-                        <img
-                          src={service.icon}
-                          alt={service.title}
-                          className="h-40 w-40 object-contain"
-                        />
-                      ) : (
-                        <service.icon className="h-40 w-40 text-accent" />
-                      )}
-                    </div>
-                    <h3 className="text-2xl font-bold text-black mb-4">{service.title}</h3>
-                    <p className="text-gray-600 leading-relaxed mb-6">{service.description}</p>
-                    <div className="flex items-center text-accent font-semibold">
-                      <Clock className="h-4 w-4 mr-2" />
-                      {service.duration}
-                    </div>
+                  <div className="mb-6 flex justify-center">
+                    <img
+                      src={service.icon}
+                      alt={service.title}
+                      className="h-32 w-32 object-contain"
+                    />
+                  </div>
+                  <h3 className="text-xl font-bold text-black mb-4">{service.title}</h3>
+                  <p className="text-gray-600 leading-relaxed mb-6">{service.description}</p>
+                  <div className="flex items-center justify-center text-accent font-semibold mb-6">
+                    <Clock className="h-4 w-4 mr-2" />
+                    {service.duration}
                   </div>
 
-                  <div className="md:w-2/3">
-                    <div className="mb-8">
-                      <h4 className="text-lg font-semibold text-black mb-4">Key Features</h4>
-                      <div className="space-y-3">
-                        {service.features.map((feature, idx) => (
-                          <div key={idx} className="flex items-start space-x-3">
-                            <CheckCircle className="h-5 w-5 text-accent flex-shrink-0 mt-0.5" />
-                            <span className="text-gray-700">{feature}</span>
+                  <div className="text-left space-y-4">
+                    <div>
+                      <h4 className="text-lg font-semibold text-black mb-3">Key Features</h4>
+                      <div className="space-y-2">
+                        {service.features.slice(0, 3).map((feature, idx) => (
+                          <div key={idx} className="flex items-start space-x-2">
+                            <CheckCircle className="h-4 w-4 text-accent flex-shrink-0 mt-0.5" />
+                            <span className="text-sm text-gray-700">{feature}</span>
                           </div>
                         ))}
                       </div>
                     </div>
 
-                    <div className="grid md:grid-cols-2 gap-6">
-                      <div>
-                        <h4 className="text-lg font-semibold text-black mb-3">Process</h4>
-                        <div className="flex flex-wrap gap-2">
-                          {service.process.map((step, idx) => (
-                            <span key={idx} className="px-3 py-1 bg-gray-100 rounded-full text-sm text-gray-700">
-                              {step}
-                            </span>
-                          ))}
-                        </div>
+                    <div>
+                      <h4 className="text-lg font-semibold text-black mb-2">Process</h4>
+                      <div className="flex flex-wrap gap-1 justify-center">
+                        {service.process.map((step, idx) => (
+                          <span key={idx} className="px-2 py-1 bg-gray-100 rounded-full text-xs text-gray-700">
+                            {step}
+                          </span>
+                        ))}
                       </div>
+                    </div>
 
-                      <div>
-                        <h4 className="text-lg font-semibold text-black mb-3">Deliverables</h4>
-                        <div className="space-y-2">
-                          {service.deliverables.slice(0, 3).map((deliverable, idx) => (
-                            <div key={idx} className="flex items-center space-x-2">
-                              <div className="w-2 h-2 bg-accent rounded-full"></div>
-                              <span className="text-sm text-gray-700">{deliverable}</span>
-                            </div>
-                          ))}
-                        </div>
+                    <div>
+                      <h4 className="text-lg font-semibold text-black mb-2">Deliverables</h4>
+                      <div className="space-y-1">
+                        {service.deliverables.slice(0, 2).map((deliverable, idx) => (
+                          <div key={idx} className="flex items-center space-x-2">
+                            <div className="w-1.5 h-1.5 bg-accent rounded-full"></div>
+                            <span className="text-xs text-gray-700">{deliverable}</span>
+                          </div>
+                        ))}
                       </div>
                     </div>
                   </div>
@@ -243,10 +255,10 @@ export default function ServicesPage() {
             className="max-w-6xl mx-auto"
           >
             <motion.div variants={fadeIn} className="text-center mb-16">
-              <h2 className="text-4xl md:text-5xl font-bold text-black mb-6">
+              <h2 className="text-display text-4xl md:text-5xl xl:text-6xl text-gray-900 mb-6">
                 Healthcare Specializations
               </h2>
-              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              <p className="text-body text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
                 Industry-specific technology solutions designed to address the unique challenges of healthcare environments.
               </p>
             </motion.div>
@@ -294,10 +306,10 @@ export default function ServicesPage() {
           >
             <motion.div variants={fadeIn}>
               <Shield className="h-16 w-16 mx-auto mb-6" />
-              <h2 className="text-4xl md:text-5xl font-bold mb-6">
+              <h2 className="text-display text-4xl md:text-5xl xl:text-6xl mb-6">
                 Healthcare Compliance & Security
               </h2>
-              <p className="text-xl opacity-90 max-w-3xl mx-auto mb-12">
+              <p className="text-body text-xl opacity-90 max-w-3xl mx-auto mb-12 leading-relaxed">
                 Every solution we deliver meets the highest standards of healthcare security and regulatory compliance.
               </p>
             </motion.div>
@@ -345,10 +357,10 @@ export default function ServicesPage() {
             className="max-w-4xl mx-auto text-center"
           >
             <motion.div variants={fadeIn}>
-              <h2 className="text-4xl md:text-5xl font-bold text-black mb-6">
+              <h2 className="text-display text-4xl md:text-5xl xl:text-6xl text-gray-900 mb-6">
                 Our Engagement Model
               </h2>
-              <p className="text-xl text-gray-600 mb-12">
+              <p className="text-body text-xl text-gray-600 mb-12 leading-relaxed">
                 Transparent pricing and clear project timelines ensure successful outcomes.
               </p>
             </motion.div>
