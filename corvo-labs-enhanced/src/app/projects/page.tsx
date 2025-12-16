@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import { motion } from 'framer-motion'
 import { ArrowRight, Filter, Users, Target, Award, Heart, BarChart3, Zap, Calendar, MapPin } from 'lucide-react'
 import { EnhancedCTA } from '@/components/enhanced-cta'
+import { HeroBackground } from '@/components/hero/HeroBackground'
 import { cn } from '@/lib/utils'
 
 const fadeIn = {
@@ -193,8 +194,9 @@ export default function ProjectsPage() {
   return (
     <>
       {/* Hero Section */}
-      <section className="min-h-[70vh] flex items-center justify-center bg-white">
-        <div className="container mx-auto px-4">
+      <section className="relative min-h-[70vh] flex items-center justify-center">
+        <HeroBackground className="absolute inset-0 z-0" />
+        <div className="container mx-auto px-4 relative z-10">
           <motion.div
             initial="hidden"
             animate="visible"
@@ -203,13 +205,19 @@ export default function ProjectsPage() {
           >
             <motion.h1
               variants={fadeIn}
-              className="text-5xl md:text-7xl font-bold text-black mb-6 tracking-tighter"
+              className="text-display text-5xl md:text-6xl xl:text-7xl mb-6 text-gray-900"
+              style={{
+                fontFamily: 'var(--font-serif)',
+                fontWeight: 900,
+                lineHeight: 0.85,
+                letterSpacing: '-0.02em'
+              }}
             >
               Healthcare AI Success Stories
             </motion.h1>
             <motion.p
               variants={fadeIn}
-              className="text-xl md:text-2xl text-gray-600 leading-relaxed mb-8"
+              className="text-body text-xl md:text-2xl text-gray-600 leading-relaxed mb-8"
             >
               Explore our portfolio of successful AI implementations across healthcare workflows.
               See real results and measurable outcomes from our consulting projects.
@@ -219,7 +227,7 @@ export default function ProjectsPage() {
               className="flex flex-col sm:flex-row gap-4 justify-center"
             >
               <motion.button
-                className="px-8 py-3 bg-accent text-white rounded-lg font-semibold hover:bg-accent-600 transition-colors duration-200 inline-flex items-center justify-center"
+                className="btn-organic px-8 py-3 text-lg inline-flex items-center justify-center"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
@@ -263,7 +271,7 @@ export default function ProjectsPage() {
       </section>
 
       {/* Filter Section */}
-      <section className="py-12 bg-gray-50 border-b">
+      <section className="py-12 bg-white border-b border-gray-200">
         <div className="container mx-auto px-4">
           <motion.div
             initial="hidden"
@@ -285,10 +293,10 @@ export default function ProjectsPage() {
                     variants={fadeIn}
                     onClick={() => setSelectedCategory(category.id)}
                     className={cn(
-                      "flex items-center space-x-2 px-4 py-2 rounded-full transition-colors",
+                      "flex items-center space-x-2 px-4 py-2 rounded-full transition-all duration-200",
                       selectedCategory === category.id
-                        ? "bg-accent text-white"
-                        : "bg-white text-gray-700 hover:bg-gray-100 border"
+                        ? "bg-accent text-white shadow-[0_0_20px_rgba(255,107,71,0.4)]"
+                        : "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300 hover:border-accent/50"
                     )}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
@@ -304,8 +312,9 @@ export default function ProjectsPage() {
       </section>
 
       {/* Projects Grid */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4">
+      <section className="py-20 relative">
+        <HeroBackground className="absolute inset-0 z-0" />
+        <div className="container mx-auto px-4 relative z-10">
           <motion.div
             initial="hidden"
             whileInView="visible"
@@ -318,21 +327,21 @@ export default function ProjectsPage() {
                 <motion.div
                   key={project.id}
                   variants={fadeIn}
-                  className="bg-gray-50 rounded-xl overflow-hidden hover:shadow-lg transition-shadow"
+                  className="glass-card bg-gradient-to-br from-white to-gray-50 rounded-2xl overflow-hidden hover:shadow-[0_0_40px_rgba(255,107,71,0.2)] transition-all duration-300 border border-gray-200/50"
                 >
                   <div className="p-8 md:p-12">
                     <div className="flex flex-col md:flex-row md:items-start md:space-x-8">
                       {/* Project Header */}
                       <div className="md:w-1/3 mb-6 md:mb-0">
-                        <div className="flex items-center space-x-2 text-accent font-semibold mb-2">
+                        <div className="flex items-center space-x-2 text-accent font-semibold mb-3">
                           <MapPin className="h-4 w-4" />
                           <span>{project.location}</span>
                         </div>
-                        <h3 className="text-2xl font-bold text-black mb-3">{project.title}</h3>
-                        <p className="text-lg text-gray-700 font-medium mb-4">{project.client}</p>
+                        <h3 className="text-heading text-2xl font-bold text-gray-900 mb-3">{project.title}</h3>
+                        <p className="text-body text-lg text-gray-700 font-medium mb-4">{project.client}</p>
 
                         <div className="space-y-2 mb-4">
-                          <div className="flex items-center text-gray-600">
+                          <div className="flex items-center text-gray-500">
                             <Calendar className="h-4 w-4 mr-2" />
                             <span className="text-sm">{project.duration}</span>
                           </div>
@@ -340,7 +349,7 @@ export default function ProjectsPage() {
 
                         <div className="flex flex-wrap gap-2">
                           {project.technologies.slice(0, 3).map((tech, idx) => (
-                            <span key={idx} className="px-3 py-1 bg-white rounded-full text-xs text-gray-700">
+                            <span key={idx} className="px-3 py-1 bg-accent/10 text-accent rounded-full text-xs border border-accent/20">
                               {tech}
                             </span>
                           ))}
@@ -350,17 +359,17 @@ export default function ProjectsPage() {
                       {/* Project Details */}
                       <div className="md:w-2/3">
                         <div className="mb-6">
-                          <h4 className="text-lg font-semibold text-black mb-2">Challenge</h4>
-                          <p className="text-gray-600">{project.challenge}</p>
+                          <h4 className="text-heading text-lg font-semibold text-gray-900 mb-2">Challenge</h4>
+                          <p className="text-body text-gray-600">{project.challenge}</p>
                         </div>
 
                         <div className="mb-6">
-                          <h4 className="text-lg font-semibold text-black mb-2">Solution</h4>
-                          <p className="text-gray-600">{project.solution}</p>
+                          <h4 className="text-heading text-lg font-semibold text-gray-900 mb-2">Solution</h4>
+                          <p className="text-body text-gray-600">{project.solution}</p>
                         </div>
 
                         <div className="mb-6">
-                          <h4 className="text-lg font-semibold text-black mb-3">Key Results</h4>
+                          <h4 className="text-heading text-lg font-semibold text-gray-900 mb-3">Key Results</h4>
                           <div className="grid md:grid-cols-2 gap-3">
                             {project.results.slice(0, expandedProject === project.id ? undefined : 2).map((result, idx) => (
                               <div key={idx} className="flex items-start space-x-2">
@@ -372,7 +381,7 @@ export default function ProjectsPage() {
                           {project.results.length > 2 && (
                             <button
                               onClick={() => setExpandedProject(expandedProject === project.id ? null : project.id)}
-                              className="text-accent font-semibold text-sm mt-3 hover:text-accent-600"
+                              className="text-accent font-semibold text-sm mt-3 hover:text-accent-600 transition-colors"
                             >
                               {expandedProject === project.id ? 'Show Less' : `Show ${project.results.length - 2} More Results`}
                             </button>
@@ -384,25 +393,25 @@ export default function ProjectsPage() {
                             initial={{ opacity: 0, height: 0 }}
                             animate={{ opacity: 1, height: 'auto' }}
                             exit={{ opacity: 0, height: 0 }}
-                            className="border-t pt-6"
+                            className="border-t border-gray-200 pt-6"
                           >
-                            <h4 className="text-lg font-semibold text-black mb-3">Implementation Process</h4>
+                            <h4 className="text-heading text-lg font-semibold text-gray-900 mb-3">Implementation Process</h4>
                             <ol className="space-y-2">
                               {project.process.map((step, idx) => (
                                 <li key={idx} className="flex items-start space-x-3">
                                   <span className="w-6 h-6 bg-accent text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">
                                     {idx + 1}
                                   </span>
-                                  <span className="text-gray-700">{step}</span>
+                                  <span className="text-body text-gray-700">{step}</span>
                                 </li>
                               ))}
                             </ol>
 
                             <div className="mt-6">
-                              <h4 className="text-lg font-semibold text-black mb-3">Technologies Used</h4>
+                              <h4 className="text-heading text-lg font-semibold text-gray-900 mb-3">Technologies Used</h4>
                               <div className="flex flex-wrap gap-2">
                                 {project.technologies.map((tech, idx) => (
-                                  <span key={idx} className="px-3 py-1 bg-gray-200 rounded-full text-sm text-gray-700">
+                                  <span key={idx} className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm border border-gray-200">
                                     {tech}
                                   </span>
                                 ))}
@@ -419,7 +428,7 @@ export default function ProjectsPage() {
 
             {filteredProjects.length === 0 && (
               <div className="text-center py-12">
-                <p className="text-gray-600">No projects found in this category.</p>
+                <p className="text-gray-500">No projects found in this category.</p>
               </div>
             )}
           </motion.div>
