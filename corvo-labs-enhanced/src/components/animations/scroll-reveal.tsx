@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { motion, useInView, UseInViewOptions, MotionProps } from 'framer-motion'
+import { motion, useInView, UseInViewOptions, MotionProps, Transition } from 'framer-motion'
 import { cn } from '@/lib/utils'
 
 interface ScrollRevealProps extends MotionProps {
@@ -15,6 +15,7 @@ interface ScrollRevealProps extends MotionProps {
   delay?: number
   duration?: number
   direction?: 'up' | 'down' | 'left' | 'right' | 'scale' | 'fade'
+  transition?: Transition
 }
 
 const defaultVariants = {
@@ -63,7 +64,7 @@ export function ScrollReveal({
   const defaultTransition = {
     duration,
     delay,
-    ease: [0.16, 1, 0.3, 1]
+    ease: [0.16, 1, 0.3, 1] as const
   }
 
   return (

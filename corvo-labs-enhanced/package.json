@@ -25,6 +25,7 @@
     "next": "15.4.3",
     "next-mdx-remote": "^5.0.0",
     "postcss": "^8.5.1",
+    "posthog-js": "^1.292.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-intersection-observer": "^10.0.0",
