@@ -1,7 +1,8 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { motion, AnimatePresence, useInView } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
+import { useInView } from 'react-intersection-observer'
 import { cn } from '@/lib/utils'
 
 interface AnimatedCounterProps {
@@ -176,7 +177,7 @@ interface GradientTextProps {
 export function GradientText({
   children,
   className,
-  colors = ["from-ai-blue", "via-ai-cyan", "to-ai-purple"],
+  colors = ["from-ai-blue", "via-ai-cyan", "to-accent-500"],
   animated = false
 }: GradientTextProps) {
   const gradientClass = `bg-gradient-to-r ${colors.join(" ")} bg-clip-text text-transparent`
