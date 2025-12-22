@@ -314,15 +314,24 @@ export default function ServicesPage() {
               </p>
             </motion.div>
 
-            <div className="grid md:grid-cols-3 gap-8">
+            <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
               {[
                 {
-                  title: "HIPAA Compliant",
-                  description: "All solutions are designed and implemented with strict HIPAA compliance requirements."
-                },
-                {
-                  title: "FDA Guidelines",
-                  description: "We follow FDA guidelines for AI/ML in medical devices and healthcare applications."
+                  title: "CHAI Guidelines",
+                  description: (
+                    <>
+                      We follow{" "}
+                      <a
+                        href="https://digitalassets.jointcommission.org/api/public/content/dcfcf4f1a0cc45cdb526b3cb034c68c2"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="underline hover:opacity-80 transition-opacity"
+                      >
+                        Responsible Use of AI in Healthcare
+                      </a>
+                      {" "}guidelines established by the Joint Commission and the Coalition for Health AI.
+                    </>
+                  )
                 },
                 {
                   title: "Data Security",

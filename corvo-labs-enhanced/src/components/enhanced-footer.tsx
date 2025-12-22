@@ -23,7 +23,6 @@ const footerLinks = {
     { label: 'Blog', href: '/blog' },
   ],
   compliance: [
-    { label: 'HIPAA Compliant', href: '/about' },
     { label: 'Security Standards', href: '/about' },
     { label: 'Healthcare Expertise', href: '/about' },
   ]
@@ -62,21 +61,11 @@ export function EnhancedFooter() {
               {/* Company Info */}
               <div className="lg:col-span-1">
                 <motion.div variants={fadeIn} className="space-y-6">
-                  <Link href="/" className="inline-block">
-                    <img
-                      src="/images/corvo-labs-stacked.svg"
-                      alt="Corvo Labs"
-                      className="h-12 w-auto opacity-90 hover:opacity-100 transition-opacity"
-                    />
-                  </Link>
                   <p className="text-gray-300 leading-relaxed text-sm">
                     Transforming healthcare through responsible AI automation.
                     Delivering measurable results with deep healthcare expertise.
                   </p>
                   <div className="flex items-center space-x-2 text-xs text-gray-400">
-                    <span>•</span>
-                    <span>HIPAA Compliant</span>
-                    <span>•</span>
                     <span>Healthcare Focused</span>
                   </div>
                 </motion.div>

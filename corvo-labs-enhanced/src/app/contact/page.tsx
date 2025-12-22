@@ -25,19 +25,19 @@ const contactInfo = [
   {
     icon: Mail,
     title: "Email",
-    content: "consulting@corvolabs.com",
+    content: "info@corvolabs.com",
     description: "Send us an inquiry and we'll respond within 24 hours"
   },
   {
     icon: Phone,
     title: "Phone",
-    content: "1-800-CORVO-AI",
+    content: "510-703-5290",
     description: "Monday - Friday, 9AM - 6PM EST"
   },
   {
     icon: MapPin,
     title: "Office",
-    content: "Boston, MA",
+    content: "San Francisco, CA",
     description: "Serving healthcare organizations nationwide"
   }
 ]
@@ -63,19 +63,13 @@ export default function ContactPage() {
     areaOfInterest: '',
     timeline: '',
     projectDescription: '',
-    hearAboutUs: '',
-
-    // Step 3: Additional Information
-    budget: '',
-    teamSize: '',
-    currentChallenges: '',
-    goals: '',
-    additionalInfo: ''
+    hearAboutUs: ''
   })
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [submitError, setSubmitError] = useState<string | null>(null)
 
   const validateStep = (step: number) => {
     const newErrors: Record<string, string> = {}
@@ -92,7 +86,6 @@ export default function ContactPage() {
       if (!formData.areaOfInterest) newErrors.areaOfInterest = 'Area of interest is required'
       if (!formData.timeline) newErrors.timeline = 'Timeline is required'
       if (!formData.projectDescription.trim()) newErrors.projectDescription = 'Project description is required'
-      else if (formData.projectDescription.length < 50) newErrors.projectDescription = 'Please provide more detail (at least 50 characters)'
     }
 
     setErrors(newErrors)
@@ -112,15 +105,41 @@ export default function ContactPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
+    // Only allow submission if we're on step 2
+    if (formStep !== 2) {
+      return
+    }
+
     if (!validateStep(formStep)) return
 
     setIsSubmitting(true)
 
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 2000))
+    try {
+      // Send email notification
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      })
 
-    setIsSubmitting(false)
-    setIsSubmitted(true)
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        console.error('API Error:', errorData)
+        throw new Error(errorData.error || `Failed to send email: ${response.status} ${response.statusText}`)
+      }
+
+      const result = await response.json()
+      console.log('Email sent successfully:', result)
+      setIsSubmitted(true)
+    } catch (error) {
+      console.error('Error submitting form:', error)
+      // Show error to user
+      setSubmitError(error instanceof Error ? error.message : 'Failed to send email. Please try again or contact us directly at info@corvolabs.com')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const handleInputChange = (field: string, value: string) => {
@@ -133,64 +152,77 @@ export default function ContactPage() {
 
   if (isSubmitted) {
     return (
-      <section className="min-h-screen flex items-center justify-center bg-white">
+      <section className="min-h-[calc(100vh-200px)] flex items-center justify-center bg-white py-20">
         <div className="container mx-auto px-4">
-          <motion.div
-            initial="hidden"
-            animate="visible"
-            variants={staggerContainer}
-            className="max-w-2xl mx-auto text-center"
-          >
-            <motion.div variants={fadeIn} className="mb-8">
-              <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <CheckCircle className="h-10 w-10 text-green-600" />
-              </div>
-              <h1 className="text-display text-4xl md:text-5xl text-gray-900 mb-4">
+          <div className="max-w-2xl mx-auto text-center">
+            {/* Animated Checkmark */}
+            <div className="mb-8">
+              <motion.div
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{
+                  type: "spring",
+                  stiffness: 200,
+                  damping: 15,
+                  delay: 0.1
+                }}
+                className="w-24 h-24 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-6"
+              >
+                <CheckCircle className="h-12 w-12 text-accent" strokeWidth={2.5} />
+              </motion.div>
+
+              <motion.h1
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+                className="text-display text-4xl md:text-5xl xl:text-6xl text-gray-900 mb-4"
+                style={{
+                  fontFamily: 'var(--font-serif)',
+                  fontWeight: 900,
+                  lineHeight: 0.85,
+                  letterSpacing: '-0.02em'
+                }}
+              >
                 Thank You!
-              </h1>
-              <p className="text-body text-xl text-gray-600 mb-8 leading-relaxed">
-                Your consultation request has been submitted successfully. Our team will review your information and contact you within 24 hours to schedule your free AI assessment.
-              </p>
-            </motion.div>
+              </motion.h1>
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+                className="text-body text-xl md:text-2xl text-gray-600 mb-12 leading-relaxed"
+              >
+                Your consultation request has been submitted successfully. Someone from our team will get back to you within 24 hours.
+              </motion.p>
+            </div>
 
-            <motion.div variants={fadeIn} className="bg-gray-50 rounded-xl p-8 mb-8">
-              <h2 className="text-xl font-bold text-black mb-4">What Happens Next?</h2>
-              <div className="space-y-4 text-left">
-                <div className="flex items-start space-x-3">
-                  <div className="w-6 h-6 bg-accent text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">1</div>
-                  <div>
-                    <h3 className="font-semibold text-black">Email Confirmation</h3>
-                    <p className="text-gray-600">You'll receive a confirmation email with your request details</p>
-                  </div>
-                </div>
-                <div className="flex items-start space-x-3">
-                  <div className="w-6 h-6 bg-accent text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">2</div>
-                  <div>
-                    <h3 className="font-semibold text-black">Expert Review</h3>
-                    <p className="text-gray-600">Our healthcare AI specialists will review your requirements</p>
-                  </div>
-                </div>
-                <div className="flex items-start space-x-3">
-                  <div className="w-6 h-6 bg-accent text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">3</div>
-                  <div>
-                    <h3 className="font-semibold text-black">Consultation Scheduling</h3>
-                    <p className="text-gray-600">We'll contact you to schedule your free assessment call</p>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-
-            <motion.div variants={fadeIn}>
-              <motion.button
-                onClick={() => window.location.href = '/'}
-                className="btn-organic px-8 py-3 text-lg"
+            {/* CTAs */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.5 }}
+              className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+            >
+              <motion.a
+                href="/projects"
+                className="btn-organic px-8 py-3 text-lg inline-flex items-center justify-center"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                Return to Homepage
-              </motion.button>
+                View Corvo Labs Projects
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </motion.a>
+              
+              <motion.a
+                href="/"
+                className="px-8 py-3 text-lg inline-flex items-center justify-center border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors duration-200"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Back to Home
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </motion.a>
             </motion.div>
-          </motion.div>
+          </div>
         </div>
       </section>
     )
@@ -225,13 +257,6 @@ export default function ContactPage() {
             >
               Schedule a free consultation with our healthcare AI experts. Let's discuss how we can transform your workflows with responsible AI solutions.
             </motion.p>
-            <motion.div
-              variants={fadeIn}
-              className="flex items-center justify-center space-x-2 text-accent"
-            >
-              <Shield className="h-5 w-5" />
-              <span className="font-semibold">HIPAA Compliant • Confidential Consultation</span>
-            </motion.div>
           </motion.div>
         </div>
       </section>
@@ -296,38 +321,36 @@ export default function ContactPage() {
                 <div className="bg-white rounded-xl p-8 md:p-12 shadow-sm">
                   {/* Progress Indicator */}
                   <div className="mb-8">
-                    <div className="flex items-center justify-between mb-4">
-                      {[1, 2, 3].map((step) => (
-                        <div key={step} className="flex items-center">
+                    <div className="flex items-center justify-center gap-8 mb-4">
+                      {[
+                        { step: 1, label: 'Basic Information' },
+                        { step: 2, label: 'Project Details' }
+                      ].map(({ step, label }) => (
+                        <div key={step} className="flex flex-col items-center">
                           <div className={cn(
-                            "w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-colors",
+                            "w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-colors flex-shrink-0 mb-2",
                             formStep >= step ? "bg-accent text-white" : "bg-gray-200 text-gray-600"
                           )}>
                             {step}
                           </div>
-                          {step < 3 && (
-                            <div className={cn(
-                              "w-full h-1 mx-2 transition-colors",
-                              formStep > step ? "bg-accent" : "bg-gray-200"
-                            )}></div>
-                          )}
+                          <span className={cn(
+                            "text-sm text-center",
+                            formStep >= step ? "text-accent font-medium" : "text-gray-600"
+                          )}>
+                            {label}
+                          </span>
                         </div>
                       ))}
                     </div>
-                    <div className="flex justify-between text-sm">
-                      <span className={formStep >= 1 ? "text-accent font-medium" : "text-gray-600"}>
-                        Basic Information
-                      </span>
-                      <span className={formStep >= 2 ? "text-accent font-medium" : "text-gray-600"}>
-                        Project Details
-                      </span>
-                      <span className={formStep >= 3 ? "text-accent font-medium" : "text-gray-600"}>
-                        Additional Info
-                      </span>
-                    </div>
                   </div>
 
-                  <form onSubmit={handleSubmit}>
+                  <form onSubmit={handleSubmit} onKeyDown={(e) => {
+                    // Prevent Enter key from EVER submitting the form
+                    // Form can only be submitted via explicit "Submit Request" button click
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                    }
+                  }}>
                     {/* Step 1: Basic Information */}
                     {formStep === 1 && (
                       <motion.div
@@ -570,88 +593,25 @@ export default function ContactPage() {
                       </motion.div>
                     )}
 
-                    {/* Step 3: Additional Information */}
-                    {formStep === 3 && (
-                      <motion.div
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -20 }}
-                        className="space-y-6"
-                      >
-                        <div className="grid md:grid-cols-2 gap-6">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                              Budget Range
-                            </label>
-                            <select
-                              value={formData.budget}
-                              onChange={(e) => handleInputChange('budget', e.target.value)}
-                              className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent/50"
-                            >
-                              <option value="">Select budget range</option>
-                              <option value="50k-100k">$50,000 - $100,000</option>
-                              <option value="100k-200k">$100,000 - $200,000</option>
-                              <option value="200k-500k">$200,000 - $500,000</option>
-                              <option value="500k+">$500,000+</option>
-                              <option value="flexible">Flexible</option>
-                            </select>
-                          </div>
 
+
+                    {/* Error Message */}
+                    {submitError && (
+                      <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                        <div className="flex items-start space-x-3">
+                          <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                              Team Size
-                            </label>
-                            <select
-                              value={formData.teamSize}
-                              onChange={(e) => handleInputChange('teamSize', e.target.value)}
-                              className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent/50"
-                            >
-                              <option value="">Select team size</option>
-                              <option value="1-10">1-10 people</option>
-                              <option value="11-50">11-50 people</option>
-                              <option value="51-200">51-200 people</option>
-                              <option value="201-1000">201-1000 people</option>
-                              <option value="1000+">1000+ people</option>
-                            </select>
+                            <h4 className="text-red-800 font-semibold mb-1">Submission Error</h4>
+                            <p className="text-red-700 text-sm">{submitError}</p>
+                            <p className="text-red-600 text-xs mt-2">
+                              You can also contact us directly at{' '}
+                              <a href="mailto:info@corvolabs.com" className="underline font-medium">
+                                info@corvolabs.com
+                              </a>
+                            </p>
                           </div>
                         </div>
-
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Current Challenges
-                          </label>
-                          <textarea
-                            value={formData.currentChallenges}
-                            onChange={(e) => handleInputChange('currentChallenges', e.target.value)}
-                            className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent/50 h-24 resize-none"
-                            placeholder="What specific challenges are you facing that you hope AI can help solve?"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Goals and Success Metrics
-                          </label>
-                          <textarea
-                            value={formData.goals}
-                            onChange={(e) => handleInputChange('goals', e.target.value)}
-                            className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent/50 h-24 resize-none"
-                            placeholder="What does success look like for this project? How will you measure impact?"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Additional Information
-                          </label>
-                          <textarea
-                            value={formData.additionalInfo}
-                            onChange={(e) => handleInputChange('additionalInfo', e.target.value)}
-                            className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent/50 h-24 resize-none"
-                            placeholder="Any other details you'd like to share..."
-                          />
-                        </div>
-                      </motion.div>
+                      </div>
                     )}
 
                     {/* Form Actions */}
@@ -671,7 +631,7 @@ export default function ContactPage() {
                       </div>
 
                       <div className="flex space-x-4">
-                        {formStep < 3 ? (
+                        {formStep < 2 ? (
                           <motion.button
                             type="button"
                             onClick={handleNextStep}
@@ -707,18 +667,7 @@ export default function ContactPage() {
                     </div>
                   </form>
 
-                  {/* HIPAA Notice */}
-                  <div className="mt-8 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                    <div className="flex items-start space-x-3">
-                      <Shield className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                      <div>
-                        <h4 className="font-semibold text-blue-900">HIPAA Compliance Notice</h4>
-                        <p className="text-blue-700 text-sm mt-1">
-                          This consultation request form is HIPAA-compliant. Your information will be kept confidential and used only for the purpose of providing AI consulting services.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
+
                 </div>
               </motion.div>
             </div>

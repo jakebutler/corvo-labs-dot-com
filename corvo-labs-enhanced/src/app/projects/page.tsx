@@ -254,11 +254,10 @@ export default function ProjectsPage() {
             variants={staggerContainer}
             className="max-w-6xl mx-auto"
           >
-            <div className="grid md:grid-cols-4 gap-8 text-center">
+            <div className="grid md:grid-cols-3 gap-8 text-center">
               {[
-                { number: "50+", label: "Healthcare AI Projects" },
                 { number: "200%", label: "Average ROI" },
-                { number: "95%", label: "Client Satisfaction" },
+                { number: "1000s", label: "Hours Saved" },
                 { number: "24/7", label: "Support Coverage" }
               ].map((stat, index) => (
                 <motion.div

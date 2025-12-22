@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  outputFileTracingRoot: __dirname,
   images: {
     formats: ['image/webp', 'image/avif'],
     deviceSizes: [320, 640, 768, 1024, 1280, 1600],

@@ -265,45 +265,7 @@ export default function AboutPage() {
       </section>
 
 
-      {/* Trust Indicators */}
-      <section className="py-16 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={staggerContainer}
-            className="max-w-6xl mx-auto"
-          >
-            <div className="text-center mb-12">
-              <h2 className="text-display text-3xl md:text-4xl xl:text-5xl text-gray-900 mb-4">
-                Trusted by Healthcare Leaders
-              </h2>
-              <p className="text-body text-xl text-gray-600 leading-relaxed">
-                Our commitment to excellence and healthcare compliance
-              </p>
-            </div>
 
-            <div className="grid md:grid-cols-4 gap-8 text-center">
-              {[
-                { number: "15+", label: "Years Healthcare Experience" },
-                { number: "50+", label: "AI Implementations" },
-                { number: "100%", label: "HIPAA Compliant" },
-                { number: "24/7", label: "Support Available" }
-              ].map((stat, index) => (
-                <motion.div
-                  key={index}
-                  variants={fadeIn}
-                  className="text-center"
-                >
-                  <div className="text-4xl md:text-5xl font-bold mb-2 text-gray-900">{stat.number}</div>
-                  <div className="text-sm md:text-base text-gray-600">{stat.label}</div>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-        </div>
-      </section>
 
       {/* CTA Section */}
       <EnhancedCTA />
