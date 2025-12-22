@@ -141,6 +141,8 @@ export default function BlogPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [email, setEmail] = useState('')
   const [isSubscribed, setIsSubscribed] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [subscribeError, setSubscribeError] = useState<string | null>(null)
 
   const filteredPosts = blogPosts.filter(post => {
     const matchesCategory = selectedCategory === 'all' || post.category === selectedCategory
@@ -152,12 +154,64 @@ export default function BlogPage() {
   const featuredPosts = blogPosts.filter(post => post.featured)
   const recentPosts = blogPosts.filter(post => !post.featured).slice(0, 6)
 
-  const handleSubscribe = (e: React.FormEvent) => {
+  const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (email) {
+    
+    // Clear previous errors
+    setSubscribeError(null)
+    
+    // Basic client-side validation
+    if (!email || !email.trim()) {
+      setSubscribeError('Please enter your email address')
+      return
+    }
+
+    // Email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email.trim())) {
+      setSubscribeError('Please enter a valid email address')
+      return
+    }
+
+    setIsSubmitting(true)
+
+    try {
+      const response = await fetch('/api/newsletter/subscribe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: email.trim(), source: 'blog' }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        // Handle error response
+        const errorMessage = data.error || 'Failed to subscribe. Please try again later.'
+        setSubscribeError(errorMessage)
+        return
+      }
+
+      // Success - show success message and reset form
       setIsSubscribed(true)
-      setTimeout(() => setIsSubscribed(false), 3000)
       setEmail('')
+      setSubscribeError(null)
+      
+      // Hide success message after 5 seconds
+      setTimeout(() => {
+        setIsSubscribed(false)
+      }, 5000)
+
+    } catch (error) {
+      console.error('Error subscribing to newsletter:', error)
+      setSubscribeError(
+        error instanceof Error 
+          ? 'Network error. Please check your connection and try again.'
+          : 'An unexpected error occurred. Please try again later.'
+      )
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -236,29 +290,52 @@ export default function BlogPage() {
                 <input
                   type="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    setEmail(e.target.value)
+                    // Clear error when user starts typing
+                    if (subscribeError) {
+                      setSubscribeError(null)
+                    }
+                  }}
                   placeholder="Enter your work email"
-                  className="flex-1 px-4 py-3 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-white/50"
+                  className="flex-1 px-4 py-3 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-white/50 disabled:opacity-50 disabled:cursor-not-allowed"
                   required
+                  disabled={isSubmitting}
                 />
                 <motion.button
                   type="submit"
-                  className="px-6 py-3 bg-white text-accent rounded-lg font-semibold hover:bg-gray-100 transition-colors duration-200"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+                  className="px-6 py-3 bg-white text-accent rounded-lg font-semibold hover:bg-gray-100 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white"
+                  whileHover={!isSubmitting ? { scale: 1.05 } : {}}
+                  whileTap={!isSubmitting ? { scale: 0.95 } : {}}
+                  disabled={isSubmitting}
                 >
-                  Subscribe
+                  {isSubmitting ? 'Subscribing...' : 'Subscribe'}
                 </motion.button>
               </div>
+              
+              {/* Success Message */}
               {isSubscribed && (
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="mt-3 text-sm opacity-90"
+                  exit={{ opacity: 0, y: -10 }}
+                  className="mt-3 text-sm opacity-90 text-green-200"
                 >
                   ✓ Successfully subscribed! Check your email for confirmation.
                 </motion.div>
               )}
+              
+              {/* Error Message */}
+              {subscribeError && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-3 text-sm opacity-90 text-red-200"
+                >
+                  {subscribeError}
+                </motion.div>
+              )}
+              
               <p className="text-sm opacity-75 mt-4">
                 Unsubscribe anytime. We respect your privacy and will never share your email.
               </p>
