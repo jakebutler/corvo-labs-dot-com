@@ -3,6 +3,9 @@
 import React from 'react'
 import { motion } from 'framer-motion'
 import { ArrowRight } from 'lucide-react'
+import { ShimmerButton } from '@/components/magicui/shimmer-button'
+import { AnimatedGradientText } from '@/components/magicui/animated-gradient-text'
+import Link from 'next/link'
 
 const fadeIn = {
   hidden: { opacity: 0, y: 20 },
@@ -29,20 +32,18 @@ export function EnhancedCTA() {
             className="max-w-4xl mx-auto text-center"
           >
             <motion.h2 variants={fadeIn} className="text-3xl md:text-4xl font-bold mb-6">
-              Ready to Transform Your Workflow?
+              Ready to <AnimatedGradientText colorFrom="#ffaa40" colorTo="#9c40ff" className="text-3xl md:text-4xl">Transform</AnimatedGradientText> Your Workflow?
             </motion.h2>
             <motion.p variants={fadeIn} className="text-xl opacity-90 mb-8 max-w-2xl mx-auto">
               Let's discuss how tailored solutions can help your team achieve more with less effort.
             </motion.p>
             <motion.div variants={fadeIn} className="flex flex-col sm:flex-row gap-4 justify-center">
-              <motion.button
-                className="btn-organic px-8 py-3 text-lg inline-flex items-center justify-center"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Schedule a Consultation
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </motion.button>
+              <Link href="/contact">
+                <ShimmerButton className="px-8 py-3 text-lg inline-flex items-center justify-center">
+                  <span className="text-white font-semibold">Schedule a Consultation</span>
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </ShimmerButton>
+              </Link>
             </motion.div>
           </motion.div>
         </div>

@@ -91,8 +91,11 @@ module.exports = {
 
         // Micro-interactions
         'shimmer': 'shimmer 3s ease-in-out infinite',
+        'shimmer-once': 'shimmer-once 3s ease-in-out forwards',
         'glow': 'glow 2s ease-in-out infinite alternate',
         'tilt': 'tilt 6s ease-in-out infinite',
+        'shimmer-slide': 'shimmer-slide var(--shimmer-duration, 3s) ease-in-out infinite',
+        'border-beam': 'border-beam calc(var(--duration) * 1s) linear infinite',
       },
       keyframes: {
         fadeIn: {
@@ -157,6 +160,10 @@ module.exports = {
           '0%': { backgroundPosition: '-200% center' },
           '100%': { backgroundPosition: '200% center' },
         },
+        'shimmer-once': {
+          '0%': { transform: 'translateX(-100%) translateY(-100%) rotate(12deg)' },
+          '100%': { transform: 'translateX(200%) translateY(200%) rotate(12deg)' },
+        },
 
         glow: {
           '0%': { boxShadow: '0 0 20px rgba(255, 107, 71, 0.3)' },
@@ -166,6 +173,13 @@ module.exports = {
         tilt: {
           '0%, 100%': { transform: 'perspective(1000px) rotateX(0deg)' },
           '50%': { transform: 'perspective(1000px) rotateX(5deg)' },
+        },
+        'shimmer-slide': {
+          '0%': { transform: 'translateX(-100%)' },
+          '100%': { transform: 'translateX(100%)' },
+        },
+        'border-beam': {
+          '100%': { offsetDistance: '100%' },
         },
       },
     },

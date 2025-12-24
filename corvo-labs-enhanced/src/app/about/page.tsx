@@ -5,6 +5,11 @@ import { motion } from 'framer-motion'
 import { ArrowRight, Users, Target, Award, Heart, Lightbulb, Shield, Clock, CheckCircle } from 'lucide-react'
 import { EnhancedCTA } from '@/components/enhanced-cta'
 import { cn } from '@/lib/utils'
+import { BlurFade } from '@/components/magicui/blur-fade'
+import { AnimatedGradientText } from '@/components/magicui/animated-gradient-text'
+import { TextAnimate } from '@/components/magicui/text-animate'
+import { ShimmerButton } from '@/components/magicui/shimmer-button'
+import Link from 'next/link'
 
 const fadeIn = {
   hidden: { opacity: 0, y: 20 },
@@ -64,7 +69,7 @@ export default function AboutPage() {
               variants={fadeIn}
               className="text-display text-5xl md:text-6xl xl:text-7xl text-gray-900 mb-6"
               style={{
-                fontFamily: 'var(--font-serif)',
+                fontFamily: 'var(--font-cabinet-grotesk)',
                 fontWeight: 900,
                 lineHeight: 0.85,
                 letterSpacing: '-0.02em'
@@ -83,14 +88,12 @@ export default function AboutPage() {
               variants={fadeIn}
               className="flex flex-col sm:flex-row gap-4 justify-center"
             >
-              <motion.button
-                className="btn-organic px-8 py-3 text-lg inline-flex items-center justify-center"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Schedule Intro Call
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </motion.button>
+              <Link href="/contact">
+                <ShimmerButton className="px-8 py-3 text-lg inline-flex items-center justify-center">
+                  <span className="text-white font-semibold">Schedule Intro Call</span>
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </ShimmerButton>
+              </Link>
             </motion.div>
           </motion.div>
         </div>
@@ -108,7 +111,7 @@ export default function AboutPage() {
           >
             <motion.div variants={fadeIn} className="text-center mb-16">
               <h2 className="text-display text-4xl md:text-5xl xl:text-6xl text-gray-900 mb-6">
-                Our Mission: Responsible AI for Healthcare
+                Our Mission: <AnimatedGradientText colorFrom="#FF6B47" colorTo="#9c40ff" className="text-4xl md:text-5xl xl:text-6xl">Responsible AI</AnimatedGradientText> for Healthcare
               </h2>
               <p className="text-body text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
                 Empowering healthcare teams with responsible AI automation that enhances patient care,
@@ -163,7 +166,7 @@ export default function AboutPage() {
           >
             <motion.div variants={fadeIn} className="text-center mb-16">
               <h2 className="text-display text-4xl md:text-5xl xl:text-6xl text-gray-900 mb-6">
-                Healthcare Domain Expertise
+                Healthcare <AnimatedGradientText colorFrom="#FF6B47" colorTo="#9c40ff" className="text-4xl md:text-5xl xl:text-6xl">Domain Expertise</AnimatedGradientText>
               </h2>
               <p className="text-body text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
                 We understand healthcare because we've lived it. Our team brings extensive experience
@@ -222,44 +225,35 @@ export default function AboutPage() {
           >
             <motion.div variants={fadeIn} className="text-center mb-16">
               <h2 className="text-display text-4xl md:text-5xl xl:text-6xl text-gray-900 mb-6">
-                Proven Healthcare Technology Experience
+                Proven <AnimatedGradientText colorFrom="#FF6B47" colorTo="#9c40ff" className="text-4xl md:text-5xl xl:text-6xl">Healthcare Technology</AnimatedGradientText> Experience
               </h2>
               <p className="text-body text-xl text-gray-600 leading-relaxed">
                 Our leadership team brings decades of combined experience in healthcare technology and workflow innovation.
               </p>
             </motion.div>
 
-            <div className="relative">
-              {/* Timeline Line */}
-              <div className="absolute left-1/2 transform -translate-x-1/2 h-full w-0.5 bg-gray-300"></div>
-
+            <ul className="mb-4 ml-4 divide-y divide-dashed border-l">
               {timelineEvents.map((event, index) => (
-                <motion.div
-                  key={index}
-                  variants={fadeIn}
-                  className={cn(
-                    "flex items-center mb-12",
-                    index % 2 === 0 ? "flex-row-reverse" : ""
-                  )}
-                >
-                  <div className="w-1/2"></div>
-                  <div className="w-10 h-10 flex items-center justify-center mx-4 z-10">
-                    <img
-                      src="/images/bullseye-no-bg.png"
-                      alt="Timeline milestone"
-                      className="w-full h-full object-contain"
-                    />
-                  </div>
-                  <div className="w-1/2 px-6">
-                    <div className="bg-white p-6 rounded-lg shadow-sm">
-                      <h3 className="text-lg font-bold text-accent mb-1">{event.year}</h3>
-                      <h4 className="text-xl font-bold text-black mb-2">{event.title}</h4>
-                      <p className="text-gray-600">{event.description}</p>
+                <BlurFade key={index} delay={index * 0.1}>
+                  <li className="relative ml-10 py-4">
+                    <div className="absolute -left-16 top-2 flex items-center justify-center bg-white rounded-full">
+                      <span className="relative flex shrink-0 overflow-hidden rounded-full border size-12 m-auto">
+                        <img
+                          className="aspect-square h-full w-full object-contain"
+                          alt={event.title}
+                          src="/images/bullseye-no-bg.png"
+                        />
+                      </span>
                     </div>
-                  </div>
-                </motion.div>
+                    <div className="flex flex-1 flex-col justify-start gap-1">
+                      <h3 className="text-sm md:text-base font-semibold text-accent mb-1">{event.year}</h3>
+                      <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-2 leading-none">{event.title}</h2>
+                      <p className="text-gray-600 leading-relaxed">{event.description}</p>
+                    </div>
+                  </li>
+                </BlurFade>
               ))}
-            </div>
+            </ul>
           </motion.div>
         </div>
       </section>

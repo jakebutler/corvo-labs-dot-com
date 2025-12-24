@@ -6,6 +6,11 @@ import { ArrowRight, Filter, Users, Target, Award, Heart, BarChart3, Zap, Calend
 import { EnhancedCTA } from '@/components/enhanced-cta'
 import { HeroBackground } from '@/components/hero/HeroBackground'
 import { cn } from '@/lib/utils'
+import { NumberTicker } from '@/components/magicui/number-ticker'
+import { BlurFade } from '@/components/magicui/blur-fade'
+import { ShimmerButton } from '@/components/magicui/shimmer-button'
+import { AnimatedGradientText } from '@/components/magicui/animated-gradient-text'
+import Link from 'next/link'
 
 const fadeIn = {
   hidden: { opacity: 0, y: 20 },
@@ -212,13 +217,13 @@ export default function ProjectsPage() {
               variants={fadeIn}
               className="text-display text-5xl md:text-6xl xl:text-7xl mb-6 text-gray-900"
               style={{
-                fontFamily: 'var(--font-serif)',
+                fontFamily: 'var(--font-cabinet-grotesk)',
                 fontWeight: 900,
                 lineHeight: 0.85,
                 letterSpacing: '-0.02em'
               }}
             >
-              Healthcare AI Success Stories
+              Healthcare <AnimatedGradientText colorFrom="#FF6B47" colorTo="#9c40ff" className="text-5xl md:text-6xl xl:text-7xl">AI Success Stories</AnimatedGradientText>
             </motion.h1>
             <motion.p
               variants={fadeIn}
@@ -231,14 +236,12 @@ export default function ProjectsPage() {
               variants={fadeIn}
               className="flex flex-col sm:flex-row gap-4 justify-center"
             >
-              <motion.button
-                className="btn-organic px-8 py-3 text-lg inline-flex items-center justify-center"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Discuss Your Use Case
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </motion.button>
+              <Link href="/contact">
+                <ShimmerButton className="px-8 py-3 text-lg inline-flex items-center justify-center">
+                  <span className="text-white font-semibold">Discuss Your Use Case</span>
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </ShimmerButton>
+              </Link>
             </motion.div>
           </motion.div>
         </div>
@@ -256,18 +259,17 @@ export default function ProjectsPage() {
           >
             <div className="grid md:grid-cols-3 gap-8 text-center">
               {[
-                { number: "200%", label: "Average ROI" },
-                { number: "1000s", label: "Hours Saved" },
-                { number: "24/7", label: "Support Coverage" }
+                { number: 200, suffix: "%", label: "Average ROI" },
+                { number: 1000, suffix: "s", label: "Hours Saved" },
+                { number: 24, suffix: "/7", label: "Support Coverage" }
               ].map((stat, index) => (
-                <motion.div
-                  key={index}
-                  variants={fadeIn}
-                  className="text-center"
-                >
-                  <div className="text-4xl md:text-5xl font-bold mb-2">{stat.number}</div>
+                <BlurFade key={index} delay={index * 100} className="text-center">
+                  <div className="text-4xl md:text-5xl font-bold mb-2">
+                    <NumberTicker value={stat.number} />
+                    {stat.suffix}
+                  </div>
                   <div className="text-sm md:text-base opacity-90">{stat.label}</div>
-                </motion.div>
+                </BlurFade>
               ))}
             </div>
           </motion.div>

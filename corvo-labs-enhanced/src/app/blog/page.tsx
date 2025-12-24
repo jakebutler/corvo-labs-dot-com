@@ -5,6 +5,9 @@ import { motion } from 'framer-motion'
 import { ArrowRight, Calendar, Clock, User, Search, Filter, Mail, BookOpen, TrendingUp, Lightbulb, Award, Star } from 'lucide-react'
 import { EnhancedCTA } from '@/components/enhanced-cta'
 import { cn } from '@/lib/utils'
+import { ShimmerButton } from '@/components/magicui/shimmer-button'
+import { AnimatedGradientText } from '@/components/magicui/animated-gradient-text'
+import Link from 'next/link'
 
 const fadeIn = {
   hidden: { opacity: 0, y: 20 },
@@ -22,11 +25,11 @@ const staggerContainer = {
 }
 
 const categories = [
-  { id: 'all', label: 'All Posts', count: 24 },
-  { id: 'strategy', label: 'AI Strategy', count: 8 },
-  { id: 'implementation', label: 'Implementation', count: 6 },
-  { id: 'innovation', label: 'Innovation', count: 5 },
-  { id: 'workflows', label: 'Workflows', count: 5 }
+  { id: 'all', label: 'All Posts', count: 0 },
+  { id: 'strategy', label: 'AI Strategy', count: 0 },
+  { id: 'implementation', label: 'Implementation', count: 0 },
+  { id: 'innovation', label: 'Innovation', count: 0 },
+  { id: 'workflows', label: 'Workflows', count: 0 }
 ]
 
 const blogPosts = [
@@ -38,101 +41,11 @@ const blogPosts = [
     date: "November 10, 2025",
     readTime: "8 min read",
     category: "implementation",
-    featured: true,
+    featured: false,
+    published: false, // Draft mode - won't display on production
     image: "/images/ai-implementation.jpg",
     tags: ["AI Implementation", "Healthcare", "Success Factors"],
-    views: 2450
-  },
-  {
-    id: 2,
-    title: "HIPAA Compliance in the Age of AI: What Healthcare Leaders Need to Know",
-    excerpt: "Navigate the complex intersection of AI innovation and healthcare privacy regulations. Practical guidance for maintaining compliance while implementing AI solutions.",
-    author: "Emily Johnson",
-    date: "November 5, 2025",
-    readTime: "12 min read",
-    category: "strategy",
-    featured: true,
-    image: "/images/hipaa-compliance.jpg",
-    tags: ["HIPAA", "Compliance", "Regulations"],
-    views: 1890
-  },
-  {
-    id: 3,
-    title: "ROI Analysis: Calculating the Business Case for Healthcare AI",
-    excerpt: "A comprehensive framework for measuring and communicating the financial impact of AI investments in healthcare organizations.",
-    author: "Michael Rodriguez",
-    date: "October 28, 2025",
-    readTime: "10 min read",
-    category: "strategy",
-    featured: false,
-    image: "/images/roi-analysis.jpg",
-    tags: ["ROI", "Business Case", "Metrics"],
-    views: 1560
-  },
-  {
-    id: 4,
-    title: "Emergency Department Triage: How AI Reduced Wait Times by 62%",
-    excerpt: "Case study of a successful AI implementation in emergency department triage that dramatically improved patient flow and satisfaction scores.",
-    author: "Dr. Sarah Chen",
-    date: "October 20, 2025",
-    readTime: "6 min read",
-    category: "implementation",
-    featured: false,
-    image: "/images/ed-case-study.jpg",
-    tags: ["Case Study", "Emergency Medicine", "Triage"],
-    views: 2100
-  },
-  {
-    id: 5,
-    title: "The Future of Clinical Decision Support: AI-Enhanced Healthcare",
-    excerpt: "Exploring emerging trends in AI-powered clinical decision support systems and their potential to transform medical practice.",
-    author: "Emily Johnson",
-    date: "October 15, 2025",
-    readTime: "9 min read",
-    category: "innovation",
-    featured: false,
-    image: "/images/clinical-support.jpg",
-    tags: ["Clinical Decision Support", "Future Trends", "AI"],
-    views: 1340
-  },
-  {
-    id: 6,
-    title: "Workflow Automation in Healthcare: Beyond the Basics",
-    excerpt: "Advanced workflow automation strategies that go beyond simple task automation to transform entire healthcare processes.",
-    author: "Michael Rodriguez",
-    date: "October 8, 2025",
-    readTime: "7 min read",
-    category: "workflows",
-    featured: false,
-    image: "/images/workflow-automation.jpg",
-    tags: ["Workflow Automation", "Process Optimization", "Healthcare"],
-    views: 1670
-  },
-  {
-    id: 7,
-    title: "Change Management: Getting Healthcare Staff to Embrace AI",
-    excerpt: "Strategies for overcoming resistance to AI adoption and building organizational buy-in for new technologies in healthcare settings.",
-    author: "Emily Johnson",
-    date: "September 30, 2025",
-    readTime: "8 min read",
-    category: "implementation",
-    featured: false,
-    image: "/images/change-management.jpg",
-    tags: ["Change Management", "Staff Adoption", "Organizational Change"],
-    views: 1450
-  },
-  {
-    id: 8,
-    title: "Selecting the Right AI Vendor for Your Healthcare Organization",
-    excerpt: "A comprehensive guide to evaluating and selecting AI vendors that understand healthcare's unique challenges and requirements.",
-    author: "Dr. Sarah Chen",
-    date: "September 22, 2025",
-    readTime: "11 min read",
-    category: "strategy",
-    featured: false,
-    image: "/images/vendor-selection.jpg",
-    tags: ["Vendor Selection", "Procurement", "Evaluation"],
-    views: 1780
+    views: 0
   }
 ]
 
@@ -144,15 +57,18 @@ export default function BlogPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [subscribeError, setSubscribeError] = useState<string | null>(null)
 
-  const filteredPosts = blogPosts.filter(post => {
+  // Filter out draft/unpublished posts for production display
+  const publishedPosts = blogPosts.filter(post => post.published !== false)
+  
+  const filteredPosts = publishedPosts.filter(post => {
     const matchesCategory = selectedCategory === 'all' || post.category === selectedCategory
     const matchesSearch = post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          post.excerpt.toLowerCase().includes(searchTerm.toLowerCase())
     return matchesCategory && matchesSearch
   })
 
-  const featuredPosts = blogPosts.filter(post => post.featured)
-  const recentPosts = blogPosts.filter(post => !post.featured).slice(0, 6)
+  const featuredPosts = publishedPosts.filter(post => post.featured)
+  const recentPosts = publishedPosts.filter(post => !post.featured).slice(0, 6)
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -230,13 +146,13 @@ export default function BlogPage() {
               variants={fadeIn}
               className="text-display text-5xl md:text-6xl xl:text-7xl text-gray-900 mb-6"
               style={{
-                fontFamily: 'var(--font-serif)',
+                fontFamily: 'var(--font-cabinet-grotesk)',
                 fontWeight: 900,
                 lineHeight: 0.85,
                 letterSpacing: '-0.02em'
               }}
             >
-              Healthcare AI Insights
+              Healthcare <AnimatedGradientText colorFrom="#FF6B47" colorTo="#9c40ff" className="text-5xl md:text-6xl xl:text-7xl">AI Insights</AnimatedGradientText>
             </motion.h1>
             <motion.p
               variants={fadeIn}
@@ -248,21 +164,19 @@ export default function BlogPage() {
               variants={fadeIn}
               className="flex flex-col sm:flex-row gap-4 justify-center"
             >
-              <motion.button
-                className="btn-organic px-8 py-3 text-lg inline-flex items-center justify-center"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Subscribe to Newsletter
-                <Mail className="ml-2 h-4 w-4" />
-              </motion.button>
+              <Link href="#newsletter">
+                <ShimmerButton className="px-8 py-3 text-lg inline-flex items-center justify-center">
+                  <span className="text-white font-semibold">Subscribe to Newsletter</span>
+                  <Mail className="ml-2 h-4 w-4" />
+                </ShimmerButton>
+              </Link>
             </motion.div>
           </motion.div>
         </div>
       </section>
 
-      {/* Newsletter Signup */}
-      <section className="py-16 bg-accent text-white">
+              {/* Newsletter Signup */}
+      <section id="newsletter" className="py-16 bg-accent text-white">
         <div className="container mx-auto px-4">
           <motion.div
             initial="hidden"
@@ -302,15 +216,15 @@ export default function BlogPage() {
                   required
                   disabled={isSubmitting}
                 />
-                <motion.button
+                <ShimmerButton
                   type="submit"
-                  className="px-6 py-3 bg-white text-accent rounded-lg font-semibold hover:bg-gray-100 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white"
-                  whileHover={!isSubmitting ? { scale: 1.05 } : {}}
-                  whileTap={!isSubmitting ? { scale: 0.95 } : {}}
+                  background="#ffffff"
+                  shimmerColor="#FF6B47"
+                  className="px-6 py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? 'Subscribing...' : 'Subscribe'}
-                </motion.button>
+                  <span className="text-accent font-semibold">{isSubmitting ? 'Subscribing...' : 'Subscribe'}</span>
+                </ShimmerButton>
               </div>
               
               {/* Success Message */}
@@ -344,73 +258,6 @@ export default function BlogPage() {
         </div>
       </section>
 
-      {/* Featured Posts */}
-      {selectedCategory === 'all' && searchTerm === '' && (
-        <section className="py-20 bg-gray-50">
-          <div className="container mx-auto px-4">
-            <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              variants={staggerContainer}
-              className="max-w-6xl mx-auto"
-            >
-              <motion.div variants={fadeIn} className="text-center mb-12">
-                <h2 className="text-3xl md:text-4xl font-bold text-black mb-4">
-                  Featured Articles
-                </h2>
-                <p className="text-xl text-gray-600">
-                  Essential reading for healthcare leaders exploring AI adoption
-                </p>
-              </motion.div>
-
-              <div className="grid md:grid-cols-2 gap-8">
-                {featuredPosts.map((post, index) => (
-                  <motion.article
-                    key={post.id}
-                    variants={fadeIn}
-                    className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow"
-                  >
-                    <div className="aspect-w-16 aspect-h-9 bg-gray-200 h-48"></div>
-                    <div className="p-8">
-                      <div className="flex items-center space-x-4 text-sm text-gray-600 mb-4">
-                        <div className="flex items-center space-x-1">
-                          <Calendar className="h-4 w-4" />
-                          <span>{post.date}</span>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <Clock className="h-4 w-4" />
-                          <span>{post.readTime}</span>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <Star className="h-4 w-4 text-accent" />
-                          <span>Featured</span>
-                        </div>
-                      </div>
-                      <h3 className="text-xl font-bold text-black mb-3">{post.title}</h3>
-                      <p className="text-gray-600 mb-4">{post.excerpt}</p>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2">
-                          <div className="w-8 h-8 bg-gray-300 rounded-full"></div>
-                          <span className="text-sm text-gray-700">{post.author}</span>
-                        </div>
-                        <motion.button
-                          className="text-accent font-semibold hover:text-accent-600 inline-flex items-center"
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                        >
-                          Read More
-                          <ArrowRight className="ml-1 h-4 w-4" />
-                        </motion.button>
-                      </div>
-                    </div>
-                  </motion.article>
-                ))}
-              </div>
-            </motion.div>
-          </div>
-        </section>
-      )}
 
       {/* Search and Filter */}
       <section className="py-12 bg-white border-b">
@@ -469,14 +316,6 @@ export default function BlogPage() {
             variants={staggerContainer}
             className="max-w-6xl mx-auto"
           >
-            <motion.div variants={fadeIn} className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold text-black mb-4">
-                {selectedCategory === 'all' ? 'Recent Articles' : `${categories.find(c => c.id === selectedCategory)?.label}`}
-              </h2>
-              <p className="text-xl text-gray-600">
-                {filteredPosts.length} article{filteredPosts.length !== 1 ? 's' : ''} found
-              </p>
-            </motion.div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {filteredPosts.map((post, index) => (
@@ -537,13 +376,9 @@ export default function BlogPage() {
                 variants={fadeIn}
                 className="text-center mt-12"
               >
-                <motion.button
-                  className="px-8 py-3 bg-accent text-white rounded-lg font-semibold hover:bg-accent-600 transition-colors duration-200"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  Load More Articles
-                </motion.button>
+                <ShimmerButton className="px-8 py-3 rounded-lg font-semibold">
+                  <span className="text-white font-semibold">Load More Articles</span>
+                </ShimmerButton>
               </motion.div>
             )}
           </motion.div>

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence, useMotionValueEvent } from 'framer-motion'
 import { useScroll, useTransform } from 'framer-motion'
 import Link from 'next/link'
+import { ShimmerButton } from '@/components/magicui/shimmer-button'
 import { cn } from '@/lib/utils'
 import { Menu, X, ChevronDown } from 'lucide-react'
 
@@ -252,13 +253,11 @@ export function EnhancedNav() {
 
           {/* CTA Button */}
           <div className="hidden lg:block">
-            <motion.button
-              className="btn-organic px-6 py-2 text-base"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              Get Started
-            </motion.button>
+            <Link href="/contact">
+              <ShimmerButton className="px-6 py-2 text-base">
+                Contact Us
+              </ShimmerButton>
+            </Link>
           </div>
 
           {/* Mobile Menu Button */}
@@ -348,14 +347,11 @@ export function EnhancedNav() {
                   </motion.div>
                 ))}
 
-                <motion.button
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: navItems.length * 0.1 }}
-                  className="btn-organic w-full mt-6 px-6 py-3 text-base"
-                >
-                  Get Started
-                </motion.button>
+                <Link href="/contact" className="w-full mt-6">
+                  <ShimmerButton className="w-full px-6 py-3 text-base">
+                    Contact Us
+                  </ShimmerButton>
+                </Link>
               </div>
             </div>
           </motion.div>

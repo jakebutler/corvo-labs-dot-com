@@ -5,6 +5,10 @@ import { motion } from 'framer-motion'
 import { ArrowRight, CheckCircle, Clock, Shield, Zap, Users, Target, Award, BarChart3, Cpu, FileText } from 'lucide-react'
 import { EnhancedCTA } from '@/components/enhanced-cta'
 import { cn } from '@/lib/utils'
+import { BlurFade } from '@/components/magicui/blur-fade'
+import { AnimatedGradientText } from '@/components/magicui/animated-gradient-text'
+import { ShimmerButton } from '@/components/magicui/shimmer-button'
+import Link from 'next/link'
 
 const fadeIn = {
   hidden: { opacity: 0, y: 20 },
@@ -129,7 +133,7 @@ export default function ServicesPage() {
               variants={fadeIn}
               className="text-display text-5xl md:text-6xl xl:text-7xl text-gray-900 mb-6"
               style={{
-                fontFamily: 'var(--font-serif)',
+                fontFamily: 'var(--font-cabinet-grotesk)',
                 fontWeight: 900,
                 lineHeight: 0.85,
                 letterSpacing: '-0.02em'
@@ -148,14 +152,12 @@ export default function ServicesPage() {
               variants={fadeIn}
               className="flex flex-col sm:flex-row gap-4 justify-center"
             >
-              <motion.button
-                className="btn-organic px-8 py-3 text-lg inline-flex items-center justify-center"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Schedule Technology Assessment
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </motion.button>
+              <Link href="/contact">
+                <ShimmerButton className="px-8 py-3 text-lg inline-flex items-center justify-center">
+                  <span className="text-white font-semibold">Schedule Technology Assessment</span>
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </ShimmerButton>
+              </Link>
             </motion.div>
           </motion.div>
         </div>
@@ -171,22 +173,19 @@ export default function ServicesPage() {
             variants={staggerContainer}
             className="max-w-6xl mx-auto"
           >
-            <motion.div variants={fadeIn} className="text-center mb-16">
+            <BlurFade delay={0} className="text-center mb-16">
               <h2 className="text-display text-4xl md:text-5xl xl:text-6xl text-gray-900 mb-6">
-                Comprehensive AI Consulting for Healthcare
+                Comprehensive AI Consulting for <AnimatedGradientText colorFrom="#FF6B47" colorTo="#9c40ff" className="text-4xl md:text-5xl xl:text-6xl">Healthcare</AnimatedGradientText>
               </h2>
               <p className="text-body text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
                 Our three-pillar approach ensures successful AI adoption from initial strategy through ongoing optimization.
               </p>
-            </motion.div>
+            </BlurFade>
 
             <div className="grid md:grid-cols-3 gap-8">
               {services.map((service, index) => (
-                <motion.div
-                  key={index}
-                  variants={fadeIn}
-                  className="bg-white rounded-xl p-8 shadow-sm text-center"
-                >
+                <BlurFade key={index} delay={index * 150}>
+                  <div className="group text-center relative overflow-hidden p-8 bg-white border border-gray-200 rounded-xl hover:bg-accent-50 hover:border-accent-200 transition-all duration-300">
                   <div className="mb-6 flex justify-center">
                     <img
                       src={service.icon}
@@ -194,7 +193,7 @@ export default function ServicesPage() {
                       className="h-32 w-32 object-contain"
                     />
                   </div>
-                  <h3 className="text-xl font-bold text-black mb-4">{service.title}</h3>
+                  <h3 className="text-xl font-bold text-black mb-4 group-hover:text-accent-600 transition-colors duration-300">{service.title}</h3>
                   <p className="text-gray-600 leading-relaxed mb-6">{service.description}</p>
                   <div className="flex items-center justify-center text-accent font-semibold mb-6">
                     <Clock className="h-4 w-4 mr-2" />
@@ -237,7 +236,8 @@ export default function ServicesPage() {
                       </div>
                     </div>
                   </div>
-                </motion.div>
+                  </div>
+                </BlurFade>
               ))}
             </div>
           </motion.div>

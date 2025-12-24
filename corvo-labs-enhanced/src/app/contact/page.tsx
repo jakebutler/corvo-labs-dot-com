@@ -5,6 +5,9 @@ import { motion } from 'framer-motion'
 import { ArrowRight, Mail, Phone, MapPin, Clock, Shield, Send, CheckCircle, AlertCircle, User, Building, Briefcase, Calendar, MessageSquare } from 'lucide-react'
 import { EnhancedCTA } from '@/components/enhanced-cta'
 import { cn } from '@/lib/utils'
+import { BlurFade } from '@/components/magicui/blur-fade'
+import { AnimatedGradientText } from '@/components/magicui/animated-gradient-text'
+import { ShimmerButton } from '@/components/magicui/shimmer-button'
 
 const fadeIn = {
   hidden: { opacity: 0, y: 20 },
@@ -177,7 +180,7 @@ export default function ContactPage() {
                 transition={{ duration: 0.5, delay: 0.3 }}
                 className="text-display text-4xl md:text-5xl xl:text-6xl text-gray-900 mb-4"
                 style={{
-                  fontFamily: 'var(--font-serif)',
+                  fontFamily: 'var(--font-cabinet-grotesk)',
                   fontWeight: 900,
                   lineHeight: 0.85,
                   letterSpacing: '-0.02em'
@@ -243,13 +246,13 @@ export default function ContactPage() {
               variants={fadeIn}
               className="text-display text-5xl md:text-6xl xl:text-7xl text-gray-900 mb-6"
               style={{
-                fontFamily: 'var(--font-serif)',
+                fontFamily: 'var(--font-cabinet-grotesk)',
                 fontWeight: 900,
                 lineHeight: 0.85,
                 letterSpacing: '-0.02em'
               }}
             >
-              Start Your AI Journey
+              Start Your <AnimatedGradientText colorFrom="#FF6B47" colorTo="#9c40ff" className="text-5xl md:text-6xl xl:text-7xl">AI Journey</AnimatedGradientText>
             </motion.h1>
             <motion.p
               variants={fadeIn}
@@ -632,36 +635,32 @@ export default function ContactPage() {
 
                       <div className="flex space-x-4">
                         {formStep < 2 ? (
-                          <motion.button
+                          <ShimmerButton
                             type="button"
                             onClick={handleNextStep}
-                            className="px-8 py-3 bg-accent text-white rounded-lg font-semibold hover:bg-accent-600 transition-colors duration-200 inline-flex items-center"
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
+                            className="px-8 py-3 rounded-lg font-semibold inline-flex items-center"
                           >
-                            Next
+                            <span className="text-white font-semibold">Next</span>
                             <ArrowRight className="ml-2 h-4 w-4" />
-                          </motion.button>
+                          </ShimmerButton>
                         ) : (
-                          <motion.button
+                          <ShimmerButton
                             type="submit"
                             disabled={isSubmitting}
-                            className="px-8 py-3 bg-accent text-white rounded-lg font-semibold hover:bg-accent-600 transition-colors duration-200 inline-flex items-center disabled:opacity-50"
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
+                            className="px-8 py-3 rounded-lg font-semibold inline-flex items-center disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             {isSubmitting ? (
                               <>
                                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                                Submitting...
+                                <span className="text-white">Submitting...</span>
                               </>
                             ) : (
                               <>
-                                Submit Request
+                                <span className="text-white font-semibold">Submit Request</span>
                                 <Send className="ml-2 h-4 w-4" />
                               </>
                             )}
-                          </motion.button>
+                          </ShimmerButton>
                         )}
                       </div>
                     </div>
