@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
-import { ArrowRight, Filter, Users, Target, Award, Heart, BarChart3, Zap, Calendar, MapPin } from 'lucide-react'
+import { ArrowRight, Filter, Users, Target, Award, Heart, BarChart3, Zap, Calendar, MapPin, Sparkles } from 'lucide-react'
 import { EnhancedCTA } from '@/components/enhanced-cta'
 import { HeroBackground } from '@/components/hero/HeroBackground'
 import { cn } from '@/lib/utils'
@@ -32,7 +32,8 @@ const categories = [
   { id: 'clinical', label: 'Clinical Applications', icon: Heart },
   { id: 'administrative', label: 'Administrative Automation', icon: BarChart3 },
   { id: 'patient', label: 'Patient Engagement', icon: Users },
-  { id: 'analytics', label: 'Data Analytics', icon: Zap }
+  { id: 'analytics', label: 'Data Analytics', icon: Zap },
+  { id: 'ai-tools', label: 'AI Tools', icon: Sparkles }
 ]
 
 const projects = [
@@ -66,6 +67,37 @@ const projects = [
       "Google Calendar API"
     ],
     image: "/images/kinisi-dashboard.jpg"
+  },
+  {
+    id: 6,
+    title: "Primal Marc",
+    category: "ai-tools",
+    client: "Primal Marc",
+    location: "San Francisco, CA",
+    duration: "2 weeks",
+    challenge: "Content creators struggle to transform rough ideas into professional blog posts. Traditional writing tools lack structured workflows for research, citation management, and maintaining consistent voice across different blog types, leading to time-consuming manual processes and inconsistent quality.",
+    solution: "Built an AI-powered blog writing application that orchestrates five specialized AI agents through a human-in-the-loop workflow. The system transforms rough ideas into professional blog posts by guiding users through structured stages: voice selection, thesis refinement, automated research with quality scoring, draft generation, and SEO optimization. The platform supports five distinct blog types with tailored workflows, automatically generating citations, SEO metadata, and social media posts.",
+    process: [
+      "Designed five specialized AI agent architecture using LangChain.js for orchestration",
+      "Built workflow orchestrator with state persistence and human approval checkpoints",
+      "Integrated Perplexity API with quality scoring and Exa.ai fallback for research validation",
+      "Engineered secure API key management with client-side encryption for multiple LLM providers",
+      "Developed responsive Next.js application with real-time state management and markdown export"
+    ],
+    results: [
+      "Reduced blog creation time from hours to minutes with automated research and drafting",
+      "100% research-backed content through integrated Perplexity API with quality-scored validation",
+      "Seamless human-in-the-loop approvals at five critical checkpoints ensuring content quality",
+      "Multi-format export with markdown downloads including citations, SEO metadata, and social posts"
+    ],
+    technologies: [
+      "Next.js 14",
+      "LangChain.js",
+      "Perplexity API",
+      "Clerk Authentication",
+      "NeonDB"
+    ],
+    image: "/images/primal-marc.jpg"
   },
   {
     id: 2,

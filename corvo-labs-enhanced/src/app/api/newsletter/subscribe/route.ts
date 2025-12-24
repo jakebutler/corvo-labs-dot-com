@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
     if (!process.env.MAILERLITE_API_TOKEN) {
       console.error('MAILERLITE_API_TOKEN is missing')
       return NextResponse.json(
-        { 
+        {
           error: 'Newsletter service not configured. Please contact support.',
           details: process.env.NODE_ENV === 'development' ? 'MAILERLITE_API_TOKEN environment variable is not set' : undefined
         },
@@ -85,8 +85,8 @@ export async function POST(request: NextRequest) {
     if (response.status === 201) {
       // New subscriber created
       return NextResponse.json(
-        { 
-          success: true, 
+        {
+          success: true,
           message: 'Successfully subscribed to newsletter',
           data: responseData
         },
@@ -97,8 +97,8 @@ export async function POST(request: NextRequest) {
     if (response.status === 200) {
       // Existing subscriber updated
       return NextResponse.json(
-        { 
-          success: true, 
+        {
+          success: true,
           message: 'Subscription updated successfully',
           data: responseData
         },
@@ -110,7 +110,7 @@ export async function POST(request: NextRequest) {
       // Authentication failed
       console.error('MailerLite API authentication failed')
       return NextResponse.json(
-        { 
+        {
           error: 'Newsletter service authentication failed',
           details: process.env.NODE_ENV === 'development' ? 'Invalid API token' : undefined
         },
@@ -139,7 +139,7 @@ export async function POST(request: NextRequest) {
     // Handle other error statuses
     console.error('MailerLite API error:', response.status, responseData)
     return NextResponse.json(
-      { 
+      {
         error: 'Failed to subscribe to newsletter',
         details: process.env.NODE_ENV === 'development' ? responseData : undefined
       },
@@ -149,7 +149,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error processing newsletter subscription:', error)
     return NextResponse.json(
-      { 
+      {
         error: 'Failed to process subscription request',
         details: process.env.NODE_ENV === 'development' && error instanceof Error ? error.message : undefined
       },
@@ -157,7 +157,6 @@ export async function POST(request: NextRequest) {
     )
   }
 }
-
 
 
 

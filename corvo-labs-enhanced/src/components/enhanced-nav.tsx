@@ -22,42 +22,11 @@ interface NavItem {
 const navItems: NavItem[] = [
   {
     label: 'Services',
-    href: '/services',
-    hasDropdown: true,
-    dropdownItems: [
-      {
-        label: 'Technology Solutions',
-        href: '/services',
-        description: 'Comprehensive technology solutions for healthcare'
-      },
-      {
-        label: 'Workflow Automation',
-        href: '/services',
-        description: 'Streamline healthcare workflows'
-      },
-      {
-        label: 'Implementation Support',
-        href: '/services',
-        description: 'End-to-end implementation services'
-      }
-    ]
+    href: '/services'
   },
   {
     label: 'Projects',
-    href: '/projects',
-    hasDropdown: true,
-    dropdownItems: [
-      {
-        label: 'Healthcare Projects',
-        href: '/projects',
-        description: 'Healthcare technology implementations'
-      },
-      {
-        label: 'Success Stories',
-        href: '/projects',
-        description: 'Proven results and case studies'
-      }
-    ]
+    href: '/projects'
   },
   {
     label: 'Blog',
@@ -173,7 +142,7 @@ export function EnhancedNav() {
                 onMouseEnter={() => handleMouseEnter(item.label)}
                 onMouseLeave={handleMouseLeave}
               >
-  {item.hasDropdown ? (
+                {item.hasDropdown ? (
                   <motion.button
                     onClick={() => handleDropdownToggle(item.label)}
                     className={cn(
