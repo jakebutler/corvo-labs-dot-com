@@ -14,16 +14,16 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-white text-gray-900 overflow-hidden">
       {/* Sophisticated Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      <section className="relative flex items-center justify-center overflow-hidden pt-8 pb-24 lg:pb-32">
         {/* MagicUI Striped Pattern Background */}
-        <StripedPattern 
-          className="absolute inset-0 z-0 [mask-image:radial-gradient(600px_circle_at_center,white,transparent)] opacity-30" 
+        <StripedPattern
+          className="absolute inset-0 z-0 [mask-image:radial-gradient(600px_circle_at_center,white,transparent)] opacity-30"
         />
 
         {/* Asymmetrical Layout with Diagonal Flow */}
-        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
-            className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center min-h-[80vh]"
+            className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start"
             initial="hidden"
             animate="visible"
             variants={{
@@ -50,19 +50,7 @@ export default function Home() {
                 }
               }}
             >
-              <div className="space-y-6 xl:space-y-8">
-                {/* Elegant Pre-heading */}
-                <motion.div
-                  className="flex items-center space-x-3 text-elegant text-accent-600 text-lg font-medium"
-                  variants={{
-                    hidden: { opacity: 0, y: 20 },
-                    visible: { opacity: 1, y: 0 }
-                  }}
-                >
-                  <span className="w-2 h-2 bg-accent-600 rounded-full animate-pulse"></span>
-                  <span>Intelligent Solutions for Modern Healthcare</span>
-                </motion.div>
-
+              <div className="space-y-8">
                 {/* Hero Heading with Dramatic Typography */}
                 <motion.h1
                   className="text-display text-5xl md:text-6xl xl:text-7xl 2xl:text-8xl leading-none text-gray-900"
@@ -106,7 +94,7 @@ export default function Home() {
 
                 {/* Elegant CTA Buttons */}
                 <motion.div
-                  className="flex flex-col sm:flex-row gap-4 pt-6 items-center"
+                  className="flex flex-col sm:flex-row gap-4 items-center"
                   variants={{
                     hidden: { opacity: 0, y: 20 },
                     visible: { opacity: 1, y: 0, transition: { delay: 0.6 } }
@@ -127,7 +115,7 @@ export default function Home() {
 
             {/* Right Column: Visual Elements */}
             <motion.div
-              className="lg:col-span-5 xl:col-span-6 flex justify-center items-center"
+              className="lg:col-span-5 xl:col-span-6 flex justify-center items-start pt-2"
               variants={{
                 hidden: { opacity: 0, scale: 0.8 },
                 visible: {
@@ -159,7 +147,7 @@ export default function Home() {
         </div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div 
+          <motion.div
             className="text-center mb-20"
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -234,8 +222,8 @@ export default function Home() {
         </div>
 
         <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.div 
-            className="space-y-8"
+          <motion.div
+            className="space-y-12"
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -248,11 +236,13 @@ export default function Home() {
               Let's architect the future of your healthcare organization together.
               Sophisticated AI solutions that deliver measurable results.
             </p>
-            <Link href="/contact">
-              <ShimmerButton className="mx-auto shadow-2xl text-lg px-10 py-5">
-                <span className="text-white font-semibold">Begin Your Transformation</span>
-              </ShimmerButton>
-            </Link>
+            <div className="pt-10">
+              <Link href="/contact">
+                <ShimmerButton className="mx-auto shadow-2xl text-lg px-10 py-5">
+                  <span className="text-white font-semibold">Begin Your Transformation</span>
+                </ShimmerButton>
+              </Link>
+            </div>
           </motion.div>
         </div>
       </section>

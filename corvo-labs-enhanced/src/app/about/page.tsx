@@ -28,27 +28,39 @@ const staggerContainer = {
 
 const timelineEvents = [
   {
-    year: '2024',
+    year: 'Apr 2025',
     title: 'Corvo Labs Founded',
-    description: 'Established to bridge the gap between AI innovation and healthcare implementation needs.',
+    description: 'Established to bridge the gap between cutting-edge AI capability and the rigorous demands of healthcare environments.',
     icon: 'bullseye'
   },
   {
-    year: '2023-2024',
-    title: 'Healthcare AI Research',
-    description: 'Extensive research into healthcare workflow challenges and AI solution requirements.',
+    year: '2024',
+    title: 'Healthcare Delivery Leadership (Form Health)',
+    description: 'Led Patient Experience at Form Health, scaling a tech-enabled telehealth practice. Optimized practice operations through automation and drove patient activation with AI-enhanced engagement strategies.',
     icon: 'bullseye'
   },
   {
-    year: '2020-2023',
-    title: 'Healthcare Product Leadership',
-    description: 'Led healthcare technology product teams through digital transformation initiatives.',
+    year: '2019-2023',
+    title: 'Value-Based Care & Clinical Tools (Rally Health / Optum)',
+    description: 'Directed product for Rally Recover, focusing on value-based care pathways. Collaborated directly with orthopedic surgeons, nurses, and PTs to build clinical tools that bridge the gap between provider workflows and patient recovery.',
     icon: 'bullseye'
   },
   {
-    year: '2015-2020',
-    title: 'Enterprise AI Implementation',
-    description: 'Deployed AI solutions across multiple industries with focus on workflow optimization.',
+    year: '2015-2019',
+    title: 'Population Health at Scale (Rally Health)',
+    description: 'Delivered health and wellness programs to millions of members through UnitedHealthcare and Optum. Focused on scaling complex benefits integrations and employer health initiatives.',
+    icon: 'bullseye'
+  },
+  {
+    year: '2011-2015',
+    title: 'Clinical Validation & Behavior Change (MeYou Health)',
+    description: 'Pioneered digital behavior change interventions, including the "Path to Well-Being" and "Anti-Resolution" campaigns. Validated efficacy through a Randomized Controlled Trial (RCT), proving that digital design can drive measurable health outcomes.',
+    icon: 'bullseye'
+  },
+  {
+    year: '2008-2010',
+    title: 'Consumer Mobile Scale (Life360)',
+    description: 'Defined early mobile location-sharing experiences for millions of families. Mastered the art of high-stakes reliability and consumer-grade usability at global scale.',
     icon: 'bullseye'
   }
 ]

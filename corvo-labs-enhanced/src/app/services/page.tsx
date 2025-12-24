@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils'
 import { BlurFade } from '@/components/magicui/blur-fade'
 import { AnimatedGradientText } from '@/components/magicui/animated-gradient-text'
 import { ShimmerButton } from '@/components/magicui/shimmer-button'
+import { BentoCard, BentoGrid } from '@/components/ui/bento-grid'
 import Link from 'next/link'
 
 const fadeIn = {
@@ -38,84 +39,120 @@ interface Service {
 const services: Service[] = [
   {
     icon: "/images/ai-strategy-roadmap-no-bg.png",
-    title: "AI Strategy & Roadmap Development",
-    description: "Comprehensive assessment and strategic planning for AI implementation in healthcare settings.",
+    title: "Product Strategy & Development",
+    description: "We don't just plan; we build. From embedded roadmap development to forward-deployed engineering, we partner with you to ship high-impact AI products.",
     features: [
-      "Current workflow analysis and gap identification",
-      "AI readiness assessment and feasibility studies",
-      "ROI analysis and business case development",
-      "Technology roadmap and implementation timeline",
+      "AI Product Roadmap & Architecture",
+      "MVP Design & Prototyping",
+      "Embedded Team Integration",
+      "Go-to-Market Strategy",
       "Risk assessment and mitigation strategies"
     ],
     process: ["Discovery", "Analysis", "Strategy", "Roadmap"],
     duration: "4-6 weeks",
-    deliverables: ["AI Strategy Document", "Implementation Roadmap", "ROI Analysis", "Risk Assessment"]
+    deliverables: ["AI Product Roadmap", "MVP Designs", "Architecture Doc", "GTM Strategy"]
   },
   {
     icon: "/images/healthcare-workflow-automation-no-bg.png",
     title: "Healthcare Workflow Automation",
-    description: "Design and implementation of AI-powered workflows that enhance efficiency and patient care.",
+    description: "Production-ready automation systems designed for scale. We architect reusable workflows that streamline clinical and administrative operations.",
     features: [
-      "Clinical workflow optimization",
-      "Administrative process automation",
-      "Patient engagement solutions",
-      "Data analytics and reporting",
+      "End-to-End Workflow Architecture",
+      "Production-Ready Automation Scripts",
+      "Scalable Logic Reusability",
+      "Performance Analytics Dashboards",
       "Integration with existing healthcare systems"
     ],
     process: ["Mapping", "Design", "Prototyping", "Validation"],
     duration: "8-12 weeks",
-    deliverables: ["Workflow Designs", "Automated Solutions", "Integration Plans", "Performance Metrics"]
+    deliverables: ["Workflow Architecture", "Automation Scripts", "Analytics Dashboards", "Documentation"]
   },
   {
     icon: "/images/implementation-technical-support-no-bg.png",
-    title: "Implementation & Technical Support",
-    description: "End-to-end implementation with ongoing support and optimization for maximum impact.",
+    title: "Design & Technical Implementation",
+    description: "A complete fusion of product design and engineering. We handle everything from UI/UX to backend deployment, ensuring your solution is as beautiful as it is functional.",
     features: [
-      "Technical implementation and deployment",
-      "Staff training and change management",
-      "HIPAA compliance and security setup",
-      "Performance monitoring and optimization",
-      "Ongoing maintenance and support"
+      "Full-Stack Development",
+      "UI/UX Design Systems",
+      "System Integration",
+      "Ongoing Engineering Support",
+      "Performance monitoring and optimization"
     ],
     process: ["Development", "Deployment", "Training", "Support"],
-    duration: "12-16 weeks",
-    deliverables: ["Deployed Solutions", "Training Programs", "Documentation", "Support Plans"]
+    duration: "8-24+ weeks",
+    deliverables: ["Full-Stack Application", "Design System", "Integration Code", "Support Plan"]
   }
 ]
 
-interface Specialization {
-  icon: React.ComponentType<{ className?: string }>
-  title: string
-  description: string
-  examples: string[]
-}
-
-const specializations: Specialization[] = [
+const features = [
   {
-    icon: Users,
-    title: "Clinical Workflows",
-    description: "Technology solutions for patient care, clinical decision support, and medical workflow optimization.",
-    examples: ["Patient triage automation", "Clinical decision support", "Treatment planning assistance"]
+    Icon: Users,
+    name: "Clinical Workflows",
+    description: "Patient triage, decision support, and care coordination.",
+    href: "/contact",
+    cta: "Learn more",
+    className: "col-span-3 lg:col-span-1",
+    background: (
+      <div className="absolute top-10 left-10 opacity-40 group-hover:opacity-100 transition-opacity duration-300">
+        <div className="w-full h-full bg-accent/5 rounded-lg transform rotate-3" />
+      </div>
+    ),
   },
   {
-    icon: FileText,
-    title: "Administrative Processes",
-    description: "Streamlining healthcare operations through intelligent automation of administrative tasks.",
-    examples: ["Medical coding automation", "Insurance claims processing", "Appointment scheduling"]
+    Icon: FileText,
+    name: "Administrative Processes",
+    description: "Revenue cycle, claims processing, and scheduling.",
+    href: "/contact",
+    cta: "Learn more",
+    className: "col-span-3 lg:col-span-1",
+    background: (
+      <div className="absolute top-10 left-10 opacity-40 group-hover:opacity-100 transition-opacity duration-300">
+        <div className="w-full h-full bg-accent/5 rounded-lg transform -rotate-3" />
+      </div>
+    ),
   },
   {
-    icon: BarChart3,
-    title: "Patient Engagement",
-    description: "Enhancing patient experience and outcomes through AI-powered communication and monitoring.",
-    examples: ["Patient communication bots", "Remote monitoring systems", "Personalized care plans"]
+    Icon: BarChart3,
+    name: "Patient Engagement",
+    description: "Intelligent communication and remote monitoring.",
+    href: "/contact",
+    cta: "Learn more",
+    className: "col-span-3 lg:col-span-1",
+    background: (
+      <div className="absolute top-10 left-10 opacity-40 group-hover:opacity-100 transition-opacity duration-300">
+        <div className="w-full h-full bg-accent/5 rounded-lg transform rotate-2" />
+      </div>
+    ),
   },
   {
-    icon: Zap,
-    title: "Data Analytics",
-    description: "Transforming healthcare data into actionable insights for improved decision-making.",
-    examples: ["Predictive analytics", "Population health analysis", "Operational intelligence"]
-  }
+    Icon: Zap,
+    name: "Data Analytics",
+    description: "Population health insights and operational intelligence.",
+    href: "/contact",
+    cta: "Learn more",
+    className: "col-span-3 lg:col-span-1",
+    background: (
+      <div className="absolute top-10 left-10 opacity-40 group-hover:opacity-100 transition-opacity duration-300">
+        <div className="w-full h-full bg-accent/5 rounded-lg transform -rotate-2" />
+      </div>
+    ),
+  },
+  {
+    Icon: Shield,
+    name: "Compliance & Security",
+    description: "HIPAA-compliant infrastructure, SOC2 readiness, and Joint Commission AI guidelines. Security isn't a feature—it's our foundation.",
+    href: "/contact",
+    cta: "View Security Standards",
+    className: "col-span-3 lg:col-span-2",
+    background: (
+      <div className="absolute top-10 left-10 opacity-40 group-hover:opacity-100 transition-opacity duration-300">
+        <div className="w-full h-full bg-accent/5 rounded-lg transform rotate-1" />
+      </div>
+    ),
+  },
 ]
+
+
 
 export default function ServicesPage() {
   return (
@@ -186,56 +223,56 @@ export default function ServicesPage() {
               {services.map((service, index) => (
                 <BlurFade key={index} delay={index * 150}>
                   <div className="group text-center relative overflow-hidden p-8 bg-white border border-gray-200 rounded-xl hover:bg-accent-50 hover:border-accent-200 transition-all duration-300">
-                  <div className="mb-6 flex justify-center">
-                    <img
-                      src={service.icon}
-                      alt={service.title}
-                      className="h-32 w-32 object-contain"
-                    />
-                  </div>
-                  <h3 className="text-xl font-bold text-black mb-4 group-hover:text-accent-600 transition-colors duration-300">{service.title}</h3>
-                  <p className="text-gray-600 leading-relaxed mb-6">{service.description}</p>
-                  <div className="flex items-center justify-center text-accent font-semibold mb-6">
-                    <Clock className="h-4 w-4 mr-2" />
-                    {service.duration}
-                  </div>
-
-                  <div className="text-left space-y-4">
-                    <div>
-                      <h4 className="text-lg font-semibold text-black mb-3">Key Features</h4>
-                      <div className="space-y-2">
-                        {service.features.slice(0, 3).map((feature, idx) => (
-                          <div key={idx} className="flex items-start space-x-2">
-                            <CheckCircle className="h-4 w-4 text-accent flex-shrink-0 mt-0.5" />
-                            <span className="text-sm text-gray-700">{feature}</span>
-                          </div>
-                        ))}
-                      </div>
+                    <div className="mb-6 flex justify-center">
+                      <img
+                        src={service.icon}
+                        alt={service.title}
+                        className="h-32 w-32 object-contain"
+                      />
+                    </div>
+                    <h3 className="text-xl font-bold text-black mb-4 group-hover:text-accent-600 transition-colors duration-300">{service.title}</h3>
+                    <p className="text-gray-600 leading-relaxed mb-6">{service.description}</p>
+                    <div className="flex items-center justify-center text-accent font-semibold mb-6">
+                      <Clock className="h-4 w-4 mr-2" />
+                      {service.duration}
                     </div>
 
-                    <div>
-                      <h4 className="text-lg font-semibold text-black mb-2">Process</h4>
-                      <div className="flex flex-wrap gap-1 justify-center">
-                        {service.process.map((step, idx) => (
-                          <span key={idx} className="px-2 py-1 bg-gray-100 rounded-full text-xs text-gray-700">
-                            {step}
-                          </span>
-                        ))}
+                    <div className="text-left space-y-4">
+                      <div>
+                        <h4 className="text-lg font-semibold text-black mb-3">Key Features</h4>
+                        <div className="space-y-2">
+                          {service.features.slice(0, 3).map((feature, idx) => (
+                            <div key={idx} className="flex items-start space-x-2">
+                              <CheckCircle className="h-4 w-4 text-accent flex-shrink-0 mt-0.5" />
+                              <span className="text-sm text-gray-700">{feature}</span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    </div>
 
-                    <div>
-                      <h4 className="text-lg font-semibold text-black mb-2">Deliverables</h4>
-                      <div className="space-y-1">
-                        {service.deliverables.slice(0, 2).map((deliverable, idx) => (
-                          <div key={idx} className="flex items-center space-x-2">
-                            <div className="w-1.5 h-1.5 bg-accent rounded-full"></div>
-                            <span className="text-xs text-gray-700">{deliverable}</span>
-                          </div>
-                        ))}
+                      <div>
+                        <h4 className="text-lg font-semibold text-black mb-2">Process</h4>
+                        <div className="flex flex-wrap gap-1 justify-center">
+                          {service.process.map((step, idx) => (
+                            <span key={idx} className="px-2 py-1 bg-gray-100 rounded-full text-xs text-gray-700">
+                              {step}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div>
+                        <h4 className="text-lg font-semibold text-black mb-2">Deliverables</h4>
+                        <div className="space-y-1">
+                          {service.deliverables.slice(0, 2).map((deliverable, idx) => (
+                            <div key={idx} className="flex items-center space-x-2">
+                              <div className="w-1.5 h-1.5 bg-accent rounded-full"></div>
+                              <span className="text-xs text-gray-700">{deliverable}</span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     </div>
-                  </div>
                   </div>
                 </BlurFade>
               ))}
@@ -244,8 +281,8 @@ export default function ServicesPage() {
         </div>
       </section>
 
-      {/* Healthcare Specializations */}
-      <section className="py-20 bg-white">
+      {/* Deep Healthcare Expertise (Bento Grid) */}
+      <section className="py-20 bg-gray-50">
         <div className="container mx-auto px-4">
           <motion.div
             initial="hidden"
@@ -256,101 +293,18 @@ export default function ServicesPage() {
           >
             <motion.div variants={fadeIn} className="text-center mb-16">
               <h2 className="text-display text-4xl md:text-5xl xl:text-6xl text-gray-900 mb-6">
-                Healthcare Specializations
+                Deep <AnimatedGradientText colorFrom="#FF6B47" colorTo="#9c40ff" className="text-4xl md:text-5xl xl:text-6xl">Healthcare Expertise</AnimatedGradientText>
               </h2>
               <p className="text-body text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-                Industry-specific technology solutions designed to address the unique challenges of healthcare environments.
+                Where clinical insight meets enterprise security. We combine deep domain knowledge with rigorous compliance standards.
               </p>
             </motion.div>
 
-            <div className="grid md:grid-cols-2 gap-8">
-              {specializations.map((spec, index) => (
-                <motion.div
-                  key={index}
-                  variants={fadeIn}
-                  className="p-8 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
-                >
-                  <div className="flex items-start space-x-4">
-                    <div className="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center flex-shrink-0">
-                      <spec.icon className="h-6 w-6 text-accent" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-black mb-3">{spec.title}</h3>
-                      <p className="text-gray-600 mb-4">{spec.description}</p>
-                      <div className="space-y-2">
-                        {spec.examples.map((example, idx) => (
-                          <div key={idx} className="flex items-center space-x-2">
-                            <div className="w-1.5 h-1.5 bg-accent rounded-full"></div>
-                            <span className="text-sm text-gray-700">{example}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
+            <BentoGrid className="lg:grid-rows-2">
+              {features.map((feature) => (
+                <BentoCard key={feature.name} {...feature} />
               ))}
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Compliance & Security */}
-      <section className="py-20 bg-accent text-white">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={staggerContainer}
-            className="max-w-6xl mx-auto text-center"
-          >
-            <motion.div variants={fadeIn}>
-              <Shield className="h-16 w-16 mx-auto mb-6" />
-              <h2 className="text-display text-4xl md:text-5xl xl:text-6xl mb-6">
-                Healthcare Compliance & Security
-              </h2>
-              <p className="text-body text-xl opacity-90 max-w-3xl mx-auto mb-12 leading-relaxed">
-                Every solution we deliver meets the highest standards of healthcare security and regulatory compliance.
-              </p>
-            </motion.div>
-
-            <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-              {[
-                {
-                  title: "CHAI Guidelines",
-                  description: (
-                    <>
-                      We follow{" "}
-                      <a
-                        href="https://digitalassets.jointcommission.org/api/public/content/dcfcf4f1a0cc45cdb526b3cb034c68c2"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="underline hover:opacity-80 transition-opacity"
-                      >
-                        Responsible Use of AI in Healthcare
-                      </a>
-                      {" "}guidelines established by the Joint Commission and the Coalition for Health AI.
-                    </>
-                  )
-                },
-                {
-                  title: "Data Security",
-                  description: "Enterprise-grade security with encryption, access controls, and audit trails."
-                }
-              ].map((compliance, index) => (
-                <motion.div
-                  key={index}
-                  variants={fadeIn}
-                  className="text-center"
-                >
-                  <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <CheckCircle className="h-8 w-8" />
-                  </div>
-                  <h3 className="text-xl font-bold mb-2">{compliance.title}</h3>
-                  <p className="opacity-90">{compliance.description}</p>
-                </motion.div>
-              ))}
-            </div>
+            </BentoGrid>
           </motion.div>
         </div>
       </section>

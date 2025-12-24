@@ -11,20 +11,20 @@ const fadeIn = {
 }
 
 const footerLinks = {
-  services: [
-    { label: 'AI Strategy & Roadmap', href: '/services' },
-    { label: 'Workflow Automation', href: '/services' },
-    { label: 'Implementation Support', href: '/services' },
+  solutions: [
+    { label: 'Product Strategy & Development', href: '/services' },
+    { label: 'Healthcare Workflow Automation', href: '/services' },
+    { label: 'Design & Technical Implementation', href: '/services' },
   ],
   company: [
     { label: 'About Us', href: '/about' },
-    { label: 'Contact', href: '/contact' },
     { label: 'Projects', href: '/projects' },
-    { label: 'Blog', href: '/blog' },
+    { label: 'Contact', href: '/contact' },
   ],
-  compliance: [
-    { label: 'Security Standards', href: '/about' },
-    { label: 'Healthcare Expertise', href: '/about' },
+  expertise: [
+    { label: 'Clinical Workflows', href: '/services' },
+    { label: 'Compliance & Security', href: '/services' },
+    { label: 'Patient Engagement', href: '/services' },
   ]
 }
 
@@ -71,13 +71,13 @@ export function EnhancedFooter() {
                 </motion.div>
               </div>
 
-              {/* Services Links */}
+              {/* Solutions Links */}
               <div>
                 <motion.h3 variants={fadeIn} className="font-bold text-white mb-6 text-display">
-                  Services
+                  Solutions
                 </motion.h3>
                 <motion.div variants={fadeIn} className="space-y-3">
-                  {footerLinks.services.map((link) => (
+                  {footerLinks.solutions.map((link) => (
                     <Link
                       key={`${link.label}-${link.href}`}
                       href={link.href}
@@ -107,13 +107,13 @@ export function EnhancedFooter() {
                 </motion.div>
               </div>
 
-              {/* Compliance & Trust */}
+              {/* Expertise Links */}
               <div>
                 <motion.h3 variants={fadeIn} className="font-bold text-white mb-6 text-display">
-                  Trust & Compliance
+                  Expertise
                 </motion.h3>
                 <motion.div variants={fadeIn} className="space-y-3">
-                  {footerLinks.compliance.map((link) => (
+                  {footerLinks.expertise.map((link) => (
                     <Link
                       key={`${link.label}-${link.href}`}
                       href={link.href}
