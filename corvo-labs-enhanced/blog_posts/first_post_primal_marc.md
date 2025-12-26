@@ -1,0 +1,320 @@
+# **Why Video Generation Needs Context Engineering (Not Just Better Prompts)**
+
+AI video generation has quickly shifted from an academic curiosity to a practical tool. New models can now take text, and turn it into short clips that feel surprisingly cinematic. But anyone who’s played with these tools — especially for the first time — knows something isn’t quite _there_ yet. Early experiments often produce overly abstract, inconsistent, or short outputs that satisfy curiosity but not creative intent.
+
+What’s the missing ingredient? After weeks of trial, error, and reading documentation, the lesson I keep returning to isn’t _prompt engineering_ in the traditional sense — it’s **context engineering**: structuring _inputs, artifacts, and workflows_ so the model is more reliably guided toward coherence and control.
+
+In this post, I’ll expand on _context engineering_, why it matters, and how it materially changes how we build with video generation APIs.
+
+---
+
+## **Prompt Engineering Isn’t Enough**
+
+When I first started experimenting with video generation, I naturally gravitated toward prompt engineering — defining roles, describing scenes, and trying to manipulate outputs purely with text. I often assumed the more descriptive and carefully articulated the prompt, the better the result.
+
+Unfortunately, that wasn’t the case.
+
+In my early tests, I used the default video generation endpoint with a 10 second cap, often yielding 5–6 second clips that looked “meh”: abstract, AI-looking, and lacking coherent subject behavior. Even well-crafted descriptions that I iterated on over and over couldn’t reliably anchor the model’s output.
+
+  
+
+This mirrors a broader trend in the field. A comprehensive survey of _text-to-video generators_ points out persistent challenges in semantic alignment and temporal consistency, even as visual quality improves. For example, bridging text concepts into precise video outcomes remains limited by the _grounding ability_ of current models. 
+
+The takeaway? Words alone — even well-chosen ones — can’t fix ambiguity in video outcomes. Sticks and stones may break my bones, and words can't fix my video.
+
+---
+
+## **What Does “Context” Actually Mean?**
+
+Before we go further, let’s define the distinction:
+
+-   **Prompt engineering** is how you phrase your request
+    
+    → _Right words, structured descriptions_
+    
+-   **Context engineering** is what _information_ you give the model during generation
+    
+    → _Anchors, images, scene frames, histories, and workflows_  
+
+Prompt engineering tries to get a model to _guess_ your intent better.  
+
+Context engineering gives the model _less to guess_.
+
+---
+
+## **Where Context Engineering Paid Off for Me**
+
+While reviewing examples from tools like the Hailuo web app, I observed a clear pattern: the best prompts had three things in common:
+
+1.  **A clear subject** – an identifiable character or object
+    
+2.  **A defined scene + action** – the “who” and the “what” explicitly laid out
+
+3.  **A reference image** – the user was also instructed to upload a reference image of their subject
+     
+
+I applied this insight directly:
+
+1.  Instead of a vague description like “a robot in a city,” I specified _“a red-helmeted robot walking through Times Square at dusk.”_
+    
+2.  I passed in a _reference image_ showing the robot, giving the model a concrete visual anchor. 
+
+3.  I also passed in a _reference image_ showing the robot, giving the model a concrete visual anchor. 
+
+The difference was dramatic. Outputs became more coherent, subject identity more consistent, and motion more believable.
+
+---  
+
+This pattern isn’t just anecdotal. Text-to-video research and tooling increasingly show that _conditioning on concrete multimodal context_ — especially images — tends to improve video outcomes. For instance, some state-of-the-art approaches generate intermediate images first, then let video synthesis models animate them, yielding stronger visual fidelity and continuity. 
+
+---
+
+## **An Evolving Landscape of Models**
+
+To ground this discussion in what’s actually shipping today, consider **Google’s Veo model**: a recent text-to-video generator that supports longer durations and even synchronized audio. Released in 2025, Veo can produce minute-long clips from natural language descriptions and address physics and motion more robustly than earlier iterations.  
+
+Despite this progress, even models like Veo and others highlighted in recent surveys struggle with the _core issue_ I ran into:
+
+-   **Temporal consistency** — keeping subjects behaving logically over time
+    
+-   **Semantic alignment** — making the visual output genuinely reflect textual intent
+    
+-   **Scene coherence** — avoiding abstract or unintended results
+
+
+A recent survey on text-to-video generators underscores these persistent challenges: even state-of-the-art systems have trouble mapping complex human actions or nuanced semantics into video sequences in a robust manner.  
+
+This means that no matter how advanced the model, its _conditioning signals_ — the context you give it — are what steer final outcomes.
+
+---
+
+## **From Prompt to Workflow: What Context Engineering Really Means**
+
+Once I embraced context as the real lever, the approach shifted from “What prompt should I use?” to “What _workflow_ should I design?” Here’s the distilled sequence that worked best:
+
+1.  **Clarify the idea** — Start with a clear textual brief describing:   
+    -   The subject
+    -   The environment
+    -   The action
+    -   Style or mood constraints
+    
+2.  **Generate reference images**
+    Use an image generator to produce consistent images of key characters/scenes. These become _visual anchors_.
+    
+3.  **Use reference frames in video generation**
+    Many APIs support passing an initial frame (or frames) that the video model conditions on. This drastically reduces ambiguity.
+    
+4.  **Break down clips**
+    For longer videos, generate in segments tied to consistent reference images and stitch them together.
+    
+5.  **Parallelize where possible**
+    If you need multiple related clips, run parts in parallel rather than sequential refinement loops.
+
+This workflow forces the model’s attention onto _structured artifacts_ — not just text — reducing uncertainty and anchoring outputs.
+
+---
+
+## **Why Context Engineering Works**
+
+The reason this approach feels more effective isn’t just experiential. Text-to-video research shows that semantic control — the ability to map textual concepts to visual outcomes — remains one of the toughest challenges. Techniques that break down the problem into stages where you can effectively manage context (e.g., image → video, or anchored frames) consistently perform better than monolithic text prompts alone. 
+
+In other words:
+
+> **Prompt engineering improves the interpretation of intent.**
+
+> **Context engineering reduces the uncertainty around it.**
+
+That’s a subtle but powerful shift.
+
+---
+
+## **Broader Implications**
+
+As models improve, context engineering will become even more important. Rather than expecting models to infer everything from text, builders and creators will increasingly use structured pipelines that give models _what they need before asking them to generate more._
+
+This mirrors trends in other areas of generative AI:
+-   Retrieval-augmented generation in language models  
+-   Conditioning image generation on sketches or style guides
+-   Prompting that includes examples as part of the input
+
+In each case, the most successful approaches are _not_ about clever strings of words alone — they’re about _designed context._
+
+---
+
+## **Conclusion: Think Beyond Prompts**
+
+If you’re struggling to get usable video outputs from text prompts, stop asking “How do I write this better?” and start asking:
+
+> **“What additional structure does the model need to reduce semantic and temporal ambiguity?”**
+
+Whether it’s images, reference frames, templates, or staged workflows — giving the model _context_ is the real lever.
+
+So next time your model produces something abstract or inconsistent, ask yourself:
+
+> **What ambiguity are you still asking the model to resolve?**
+
+---
+
+
+# Citations + Social media posts
+
+## **1\. Suggested Inline Citations (Backlink-ready)**
+
+  
+
+Below are **recommended citation placements**, with suggested anchor text and rationale. You don’t need to use all of them — this gives you optionality.
+
+---
+
+### **Citation 1: Limits of prompt-only video generation**
+
+  
+
+**Anchor text (example):**
+
+  
+
+> “Recent surveys of text-to-video models highlight persistent challenges in semantic alignment and temporal consistency.”
+
+  
+
+**Source:**
+
+-   _A Comprehensive Survey of Text-to-Video Generators_
+    
+    Journal of Big Data, 2025
+    
+    https://journalofbigdata.springeropen.com/articles/10.1186/s40537-025-01314-3
+    
+
+  
+
+**Why this works:**
+
+-   Academic
+    
+-   Recent
+    
+-   Establishes that this is a _known structural problem_, not user error
+    
+
+---
+
+### **Citation 2: Grounding video generation with structured inputs**
+
+  
+
+**Anchor text:**
+
+  
+
+> “Many modern systems improve results by conditioning video generation on intermediate images or structured artifacts.”
+
+  
+
+**Source:**
+
+-   _Text-to-Video Synthesis – Emergent Mind Topic Overview_
+    
+    https://www.emergentmind.com/topics/text-to-video-synthesis
+    
+
+  
+
+**Why this works:**
+
+-   Neutral, technical overview
+    
+-   Helps bridge personal experience → field consensus
+    
+
+---
+
+### **Citation 3: Reference images and temporal consistency**
+
+  
+
+**Anchor text:**
+
+  
+
+> “Maintaining temporal consistency often requires anchoring generation to reference images or canonical character representations.”
+
+  
+
+**Source:**
+
+-   UpUply – _AI Video Prompt Guide_
+    
+    https://www.upuply.com/blog/ai-video-prompt
+    
+
+  
+
+**Why this works:**
+
+-   Industry-credible
+    
+-   Very aligned with your concrete workflow
+    
+
+---
+
+### **Citation 4: Staged and multimodal workflows**
+
+  
+
+**Anchor text:**
+
+  
+
+> “Effective multimodal workflows increasingly rely on staged generation pipelines rather than monolithic prompts.”
+
+  
+
+**Source:**
+
+-   UpUply – _How to Write Prompts for Text-to-Video Generation_
+    
+    https://www.upuply.com/blog/how-to-write-prompts-for-text-to-video-generation
+    
+
+  
+
+**Why this works:**
+
+-   Supports your “workflow > prompt” claim
+    
+-   Practical, not theoretical
+    
+
+---
+
+### **Citation 5 (Optional): Modern model capabilities**
+
+  
+
+**Anchor text:**
+
+  
+
+> “Even state-of-the-art models like Google’s Veo still require careful conditioning to achieve coherent results.”
+
+  
+
+**Source:**
+
+-   _Veo (Text-to-Video Model)_ overview
+    
+    https://en.wikipedia.org/wiki/Veo\_(text-to-video\_model)
+    
+
+  
+
+**Why optional:**
+
+-   Good for readers unfamiliar with the landscape
+    
+-   Not core to the thesis, but useful context
+    
+
