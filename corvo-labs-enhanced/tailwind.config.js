@@ -182,6 +182,21 @@ module.exports = {
           '100%': { offsetDistance: '100%' },
         },
       },
+      boxShadow: {
+        'drop': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+        'drop-lg': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+        'soft-lg': '0 4px 20px rgba(0, 0, 0, 0.06), 0 2px 8px rgba(0, 0, 0, 0.04)',
+        'soft-xl': '0 8px 30px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.04)',
+      },
+      dropShadow: {
+        'lg': '0 10px 8px rgba(0, 0, 0, 0.04), 0 4px 3px rgba(0, 0, 0, 0.1)',
+        'xl': '0 20px 13px rgba(0, 0, 0, 0.03), 0 8px 5px rgba(0, 0, 0, 0.08)',
+      },
+      rotate: {
+        'ccw-2': '-2deg',
+        'ccw-4': '-4deg',
+        'ccw-6': '-6deg',
+      },
     },
   },
   plugins: [

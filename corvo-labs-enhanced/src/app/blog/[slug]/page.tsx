@@ -38,6 +38,31 @@ const components = {
     code: (props: any) => (
         <code {...props} className="bg-gray-100 text-accent font-mono px-1.5 py-0.5 rounded text-sm" />
     ),
+    BlogImage: (props: any) => {
+        // Support className for styling via MDX attributes
+        const { src, alt, className, ...rest } = props
+        return (
+            <figure className="my-10 relative group">
+                <div className={`relative bg-white rounded-xl p-3 shadow-soft-lg border border-gray-100 transition-all duration-500 group-hover:shadow-soft-xl group-hover:-translate-y-1 ${className || ''}`}>
+                    <img
+                        src={src}
+                        alt={alt}
+                        className="w-full h-auto rounded-lg"
+                        {...rest}
+                    />
+                </div>
+                {alt && (
+                    <figcaption className="text-center text-sm text-gray-400 mt-3 italic font-sans tracking-wide">
+                        {alt}
+                    </figcaption>
+                )}
+            </figure>
+        )
+    },
+    // Superscript for reference numbers
+    sup: (props: any) => (
+        <sup {...props} className="text-accent font-medium not-italic" />
+    ),
 
     // Custom components can be added here
 }
