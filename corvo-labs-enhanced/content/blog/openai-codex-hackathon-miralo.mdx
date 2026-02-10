@@ -1,0 +1,131 @@
+---
+title: "When User Feedback Meets Real-Time Prototyping"
+date: "2026-02-10"
+excerpt: "At the OpenAI Codex hackathon, I built Miralo to turn live interview feedback into demo-ready prototype changes in minutes."
+author: "Jake Butler"
+tags: ["OpenAI Codex", "Hackathon", "Rapid Prototyping", "Product Development"]
+coverImage: "/images/blog/miralo-landing-page.png"
+readTime: "8 min read"
+category: "innovation"
+featured: false
+published: true
+---
+
+User interviews surface valuable insights. But there's a gap between "they want X" and "here's a prototype of X." That gap usually takes days or weeks. More than enough time for the insight to go stale, for details to blur, for momentum to fade.
+
+At the OpenAI Codex hackathon, I set out to close that gap. What if you could conduct a user interview and hand them a working prototype minutes later, while you're still on the call?
+
+I built Miralo (Spanish for "Look at it!") to test this idea: an AI-powered system that listens to user interviews, processes feedback in real-time, and generates prototype variations that incorporate what it's hearing.
+
+It worked. Not reliably enough for production yet, but reliably enough to validate something interesting about the future of product development.
+
+## The Hackathon Context
+
+I worked entirely in the Codex Mac app for this project to test the agent management UX in a lighter environment than a full IDE. Being at the hackathon with the Codex team actively shipping updates added some energy to the experience, but mostly I just wanted to see if I could make the model work as both the build tool and the core functionality of the app itself.
+
+Codex is OpenAI's coding model, desktop agent orchestration app, and CLI tool. Importantly, it's designed to understand codebases and generate working code quickly, and it's currently giving Anthropic's Claude a run for its money. I was testing how it could power both the development of Miralo and the real-time prototype generation that Miralo provides to users.
+
+<BlogImage
+  src="/images/blog/miralo-landing-page.png"
+  alt="Miralo landing page describing the interview-to-UI loop"
+/>
+
+## The Technical Approach: Anticipatory Scaffolding
+
+The core challenge was speed. You can't take 20 minutes to generate a prototype variation during a 30-minute user interview. The solution was anticipatory scaffolding.
+
+Before the user interview starts, Miralo analyzes the codebase using Codex. It identifies likely areas for feedback and prepares scaffolded code paths for each. For my demo, a basic todo list app, it suggested three directions:
+- An improved first-use experience (zero state)
+- Better overall UX guidance
+- Priority tagging functionality
+
+The interviewer can also input their own hypotheses to guide what Miralo prepares. If the model isn't confident in its predictions, it generates less-developed scaffolds and leaves more room for real-time flexibility.
+
+This is a classic speed vs. investment tradeoff. You pay upfront in analysis and prep time to get fast iteration during the interview. If the feedback goes in an entirely unanticipated direction, you lose some of that scaffolding investment, but the system accounts for this as soon as it discovers none of the existing scaffolds are appropriate.
+
+<BlogImage
+  src="/images/blog/miralo-intake-prepare-interview.png"
+  alt="Miralo interview intake flow with hypotheses and script setup"
+/>
+
+<BlogImage
+  src="/images/blog/miralo-intake-suggested-directions.png"
+  alt="Suggested interview directions generated from repository analysis"
+/>
+
+## Real-Time Audio as Product Input
+
+I integrated OpenAI's real-time audio transcription API to feed interview audio into the system. The API includes turn detection options, which let me build some simple but effective speaker detection and flow control.
+
+I set up action phrases the interviewer could use to trigger prototype generation, things like "Let me make sure I got that right" or "Is this what you're saying..." These worked as both natural conversation markers and system triggers.
+
+I used a hybrid approach: some phrases were hardcoded for reliability, but I also had an LLM detecting intent patterns. This gave me both deterministic control and flexible recognition.
+
+When Miralo detected an action phrase followed by an affirmative response from the interviewee, it would extract that section of transcript, convert it into a prompt for the coding agent, and kick off the build.
+
+## The Demo: From Feedback to Prototype in Minutes
+
+The full flow worked like this: conduct the interview, detect key feedback, generate a prompt, build a prototype variation, and present it back to the user, all in 2-5 minutes while the interview continued.
+
+The interviewer could keep the conversation going: dig deeper, build rapport, clarify points. Any additional clarification got passed to the coding agent as a steering prompt. By the time you're ready to show something, you have a working prototype that reflects what you just heard.
+
+I got it working. For my demo, I cloned a simple todo app repository into the Miralo workspace. Based on interview feedback about helping users get started, Miralo generated a redesigned zero state with copy encouraging the user to add their first task. The prototype was rough, but it was functional. Most importantly, it was built during the interview.
+
+<BlogImage
+  src="/images/blog/miralo-interview-runtime.png"
+  alt="Miralo interview runtime with live transcript and scaffolded worktrees"
+/>
+
+### What I'd Do Differently
+
+Working with voice input at a hackathon was a bad decision, and I knew it going in. Voice is clearly the future for input efficiency, but it's impossible to test properly in a loud, crowded hackathon space.
+
+I only managed a few basic tests with simulated user feedback. In hindsight, I should have generated several conversation transcripts instead of trying to capture live audio. That would have let me test the full system more thoroughly and would have made for a much better demo.
+
+It's a reminder that even when you're building something experimental, you still need to design for your constraints.
+
+## Where This Gets Interesting: Interview Preparation
+
+I was actually most excited about the front half of the experience, the interview prep features.
+
+Miralo would:
+- Intake a repository and analyze it with Codex
+- Anticipate areas where users might give feedback
+- Accept user input for interview hypotheses and direction
+- Help generate interview scripts if needed
+- Guide the interviewer to select up to two focus areas for the conversation
+
+This is where the product thinking shows up. Good user interviews aren't freeform; they're hypothesis-driven. Miralo makes that process explicit and ties it directly to what gets built.
+
+## The Vision: A PM and Designer's Best Friend
+
+The real potential here isn't the hackathon demo. It's what this approach could do for teams drowning in user feedback.
+
+Most product teams have feedback channels that surface dozens of small, low-risk improvement ideas like different data visualizations, tone adjustments in copy, or features users saw in competitor apps. These are valuable, but they're expensive to prioritize, spec, build, and validate through traditional cycles.
+
+Imagine a system that:
+- Consolidates lower-risk feedback from existing channels
+- Generates working prototypes automatically
+- Distributes those prototypes back to the users who provided feedback
+- Collects a new round of validation
+- Surfaces high-confidence improvements to your team for production implementation
+
+You compress the learn -> build -> measure loop from weeks to days. You get targeted 1:1 follow-ups with users who've already seen their feedback incorporated. You move forward with real confidence instead of intuition.
+
+This only works if you have an engineering team with a process and culture to implement validated changes quickly and safely. But if you do, this kind of system could transform how you handle the long tail of product improvements.
+
+## What This Demonstrates
+
+This project embodies a few principles that guide how I approach product work at Corvo Labs:
+
+**Action produces insight.** I could have spent weeks theorizing about real-time prototype generation. Instead, I built a rough version in a weekend and learned what actually matters.
+
+**Speed with integrity.** Anticipatory scaffolding, hybrid trigger detection, and hypothesis-driven interview prep weren't corners cut. They were thoughtful design choices that balanced speed with quality.
+
+**Tools extend capability.** This project used AI as a force multiplier for product teams, not a replacement. The interviewer still drives the conversation. The PM still sets hypotheses. The designer still evaluates output. The tool just compresses the loop.
+
+## Next Steps
+
+I'm planning to get a POC to a slightly better state and use [Daytona.io](https://daytona.io) to spin up secure sandboxes for the coding agent and prototype output. The broader Miralo project will likely be open-sourced. I'm more interested in seeing what people build with these ideas than in keeping them proprietary.
+
+If you're thinking about how to compress your own feedback loops, or if you want to talk through what this kind of system could look like for your team, [let's talk](https://cal.com/corvolabs/initial-consultation).
