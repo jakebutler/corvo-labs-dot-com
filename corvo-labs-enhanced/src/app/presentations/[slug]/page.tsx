@@ -21,7 +21,7 @@ export default async function PresentationPage({ params }: PresentationPageProps
     notFound();
   }
 
-  const password = getPresentationPassword(presentation);
+  const password = getPresentationPassword(slug);
   const requiresPassword = Boolean(password);
 
   const cookieStore = await cookies();

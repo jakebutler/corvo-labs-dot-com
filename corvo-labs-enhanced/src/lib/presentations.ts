@@ -4,14 +4,12 @@ import path from 'node:path';
 export type PresentationConfig = {
   title: string;
   fileName: string;
-  passwordEnvVar?: string;
 };
 
 const presentations: Record<string, PresentationConfig> = {
   'growth-vanguard-intro': {
     title: 'Growth Vanguard Intro',
     fileName: 'growth-vanguard-intro.html',
-    passwordEnvVar: 'GROWTH_VANGUARD_INTRO_PASSWORD',
   },
 };
 
@@ -24,13 +22,15 @@ export async function getPresentationHtml(fileName: string): Promise<string> {
   return readFile(filePath, 'utf8');
 }
 
-export function getPresentationPassword(config: PresentationConfig): string | null {
-  if (!config.passwordEnvVar) {
-    return null;
+export function getPresentationPassword(slug: string): string | null {
+  switch (slug) {
+    case 'growth-vanguard-intro': {
+      const password = process.env.GROWTH_VANGUARD_INTRO_PASSWORD;
+      return password?.trim() ? password : null;
+    }
+    default:
+      return null;
   }
-
-  const password = process.env[config.passwordEnvVar];
-  return password?.trim() ? password : null;
 }
 
 export function getPresentationAccessCookieName(slug: string): string {

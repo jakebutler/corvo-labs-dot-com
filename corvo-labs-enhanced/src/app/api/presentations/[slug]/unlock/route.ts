@@ -18,7 +18,7 @@ export async function POST(request: Request, context: RouteContext) {
     return NextResponse.json({ error: 'Presentation not found.' }, { status: 404 });
   }
 
-  const expectedPassword = getPresentationPassword(presentation);
+  const expectedPassword = getPresentationPassword(slug);
 
   if (!expectedPassword) {
     return NextResponse.json({ ok: true });
