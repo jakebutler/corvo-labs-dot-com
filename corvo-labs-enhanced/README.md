@@ -101,6 +101,9 @@ RESEND_API_KEY=re_...
 
 # PostHog analytics
 NEXT_PUBLIC_POSTHOG_KEY=phc_...
+
+# Presentation access password (server-side verification)
+GROWTH_VANGUARD_INTRO_PASSWORD=...
 ```
 
 ## Version History

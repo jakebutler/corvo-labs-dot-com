@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Corvo Labs + Growth Vanguard Partnership</title>
+
+    <!-- Fonts from Fontshare -->
+    <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700,500&f[]=satoshi@700,500,400&display=swap">
+
+    <style>
+        /* ===========================================
+           CSS CUSTOM PROPERTIES (THEME)
+           Corvo Labs Brand Colors
+           =========================================== */
+        :root {
+            /* Brand Colors */
+            --coral: #FF6B47;
+            --purple: #9c40ff;
+            --dark: #20150D;
+            --bg-white: #ffffff;
+            --gray-900: #111827;
+            --gray-700: #374151;
+            --gray-600: #4B5563;
+            --gray-300: #D1D5DB;
+
+            /* Semantic Colors */
+            --bg-primary: var(--bg-white);
+            --bg-secondary: #FAFAFA;
+            --text-primary: var(--dark);
+            --text-secondary: var(--gray-700);
+            --accent: var(--coral);
+            --accent-secondary: var(--purple);
+            --accent-glow: rgba(255, 107, 71, 0.15);
+
+            /* Typography - MUST use clamp() for responsive scaling */
+            --font-display: 'Cabinet Grotesk', sans-serif;
+            --font-body: 'Satoshi', sans-serif;
+
+            /* Responsive font sizes - more conservative for 13" laptop */
+            --title-size: clamp(1.75rem, 4.5vw, 3.5rem);
+            --h2-size: clamp(1.35rem, 3vw, 2.25rem);
+            --h3-size: clamp(1.1rem, 2.2vw, 1.65rem);
+            --subtitle-size: clamp(0.95rem, 1.8vw, 1.35rem);
+            --body-size: clamp(0.8rem, 1.3vw, 1rem);
+            --small-size: clamp(0.7rem, 1.1vw, 0.875rem);
+
+            /* Spacing - MUST use clamp() for responsive scaling */
+            --slide-padding: clamp(1.5rem, 4vw, 4rem);
+            --content-gap: clamp(1rem, 2.5vw, 2.5rem);
+            --element-gap: clamp(0.6rem, 1.2vw, 1.2rem);
+
+            /* Animation */
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+            --duration-normal: 0.7s;
+            --duration-fast: 0.4s;
+        }
+
+        /* ===========================================
+           BASE STYLES
+           =========================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-snap-type: y mandatory;
+            height: 100%;
+            overflow-x: hidden;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            height: 100%;
+            line-height: 1.5;
+        }
+
+        /* ===========================================
+           SLIDE CONTAINER
+           CRITICAL: Each slide MUST fit exactly in viewport
+           =========================================== */
+        .slide {
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            padding: var(--slide-padding);
+            scroll-snap-align: start;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slide-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            max-height: 100%;
+            overflow: hidden;
+            max-width: 1100px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* ===========================================
+           TYPOGRAPHY
+           =========================================== */
+        h1, h2, h3 {
+            font-family: var(--font-display);
+            font-weight: 800;
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+        }
+
+        h1 {
+            font-size: var(--title-size);
+            color: var(--text-primary);
+        }
+
+        h2 {
+            font-size: var(--h2-size);
+            margin-bottom: var(--element-gap);
+        }
+
+        h3 {
+            font-size: var(--h3-size);
+            margin-bottom: calc(var(--element-gap) * 0.6);
+        }
+
+        .subtitle {
+            font-size: var(--subtitle-size);
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        p, li {
+            font-size: var(--body-size);
+            line-height: 1.5;
+        }
+
+        .small {
+            font-size: var(--small-size);
+            line-height: 1.4;
+        }
+
+        /* Gradient text for emphasis */
+        .gradient-text {
+            background: linear-gradient(135deg, var(--coral) 0%, var(--purple) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* ===========================================
+           LAYOUT COMPONENTS
+           =========================================== */
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--content-gap);
+            align-items: start;
+        }
+
+        .content-block {
+            margin-bottom: var(--element-gap);
+        }
+
+        ul.feature-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: calc(var(--element-gap) * 0.4);
+        }
+
+        ul.feature-list li {
+            padding-left: 1.25rem;
+            position: relative;
+        }
+
+        ul.feature-list li::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        .pill-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: var(--element-gap);
+        }
+
+        /* Enhanced pills with better shadows */
+        .pill {
+            background: var(--bg-secondary);
+            border: 2px solid var(--gray-300);
+            border-radius: 16px;
+            padding: 1.25rem;
+            transition: all var(--duration-fast) var(--ease-out-expo);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .pill:hover {
+            border-color: var(--accent);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 32px rgba(255, 107, 71, 0.15);
+        }
+
+        .pill h3 {
+            color: var(--accent);
+            margin-bottom: 0.4rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Icon styling */
+        .pill h3 svg,
+        .icon {
+            width: 20px;
+            height: 20px;
+            stroke: currentColor;
+            flex-shrink: 0;
+        }
+
+        /* Enhanced scenario cards with better shadows */
+        .scenario-card {
+            background: linear-gradient(135deg, rgba(255, 107, 71, 0.04) 0%, rgba(156, 64, 255, 0.04) 100%);
+            border-left: 4px solid var(--accent);
+            padding: 1rem;
+            margin-bottom: calc(var(--element-gap) * 0.75);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            transition: all var(--duration-fast) var(--ease-out-expo);
+        }
+
+        .scenario-card:hover {
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            transform: translateX(4px);
+        }
+
+        .scenario-card h4 {
+            font-family: var(--font-display);
+            font-size: var(--subtitle-size);
+            margin-bottom: 0.4rem;
+            color: var(--accent);
+        }
+
+        .scenario-card ul {
+            list-style: none;
+            font-size: var(--small-size);
+        }
+
+        .scenario-card li {
+            padding: 0.15rem 0;
+        }
+
+        /* Phase timeline with enhanced shadows */
+        .phase-timeline {
+            display: flex;
+            flex-direction: column;
+            gap: calc(var(--element-gap) * 0.75);
+        }
+
+        .phase {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 1rem;
+            border-left: 4px solid var(--accent);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            transition: all var(--duration-fast) var(--ease-out-expo);
+        }
+
+        .phase:hover {
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            transform: translateX(4px);
+        }
+
+        /* Color-coded phases */
+        .phase.operations {
+            border-left-color: var(--coral);
+        }
+
+        .phase.operations h4 {
+            color: var(--coral);
+        }
+
+        .phase.product {
+            border-left-color: var(--purple);
+        }
+
+        .phase.product h4 {
+            color: var(--purple);
+        }
+
+        .phase h4 {
+            font-family: var(--font-display);
+            color: var(--accent);
+            margin-bottom: 0.4rem;
+            font-size: var(--subtitle-size);
+        }
+
+        .phase ul {
+            list-style: none;
+            font-size: var(--small-size);
+        }
+
+        .phase li {
+            padding: 0.2rem 0;
+            padding-left: 0.8rem;
+            position: relative;
+        }
+
+        .phase li::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+        }
+
+        /* Blockquote */
+        blockquote {
+            border-left: 4px solid var(--accent);
+            padding-left: 1.5rem;
+            margin: var(--element-gap) 0;
+            font-size: var(--h3-size);
+            font-family: var(--font-display);
+            font-weight: 700;
+            line-height: 1.3;
+            color: var(--text-primary);
+        }
+
+        /* ===========================================
+           SPECIAL SLIDES
+           =========================================== */
+        /* Title slide with logos */
+        .title-slide {
+            background: linear-gradient(135deg,
+                rgba(255, 107, 71, 0.02) 0%,
+                rgba(156, 64, 255, 0.02) 100%);
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: calc(var(--content-gap) * 1.5);
+        }
+
+        .logo-container img {
+            height: clamp(40px, 8vh, 80px);
+            width: auto;
+            object-fit: contain;
+            opacity: 0;
+            transform: scale(0.9);
+            animation: logoFadeIn 1s var(--ease-out-expo) forwards;
+        }
+
+        .logo-container img:nth-child(1) {
+            animation-delay: 0.2s;
+        }
+
+        .logo-container img:nth-child(2) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes logoFadeIn {
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .logo-divider {
+            font-size: var(--h2-size);
+            color: var(--gray-600);
+            font-weight: 300;
+            opacity: 0;
+            animation: logoFadeIn 1s var(--ease-out-expo) 0.3s forwards;
+        }
+
+        .title-slide .subtitle {
+            font-size: var(--h3-size);
+            margin-bottom: calc(var(--element-gap) * 1.5);
+        }
+
+        .title-slide .presenter-info {
+            font-size: var(--body-size);
+            color: var(--text-secondary);
+        }
+
+        /* Thank you slide */
+        .thank-you-slide {
+            text-align: center;
+            background: linear-gradient(135deg, var(--coral) 0%, var(--purple) 100%);
+            color: white;
+        }
+
+        .thank-you-slide h1 {
+            color: white;
+            margin-bottom: var(--content-gap);
+        }
+
+        .thank-you-slide .contact-info {
+            font-size: var(--subtitle-size);
+            margin-top: var(--content-gap);
+        }
+
+        /* ===========================================
+           PROGRESS BAR
+           =========================================== */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--coral) 0%, var(--purple) 100%);
+            z-index: 1000;
+            transition: width 0.3s ease;
+        }
+
+        /* ===========================================
+           NAVIGATION DOTS
+           =========================================== */
+        .nav-dots {
+            position: fixed;
+            right: 1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+            z-index: 100;
+        }
+
+        .nav-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--gray-300);
+            cursor: pointer;
+            transition: all var(--duration-fast) var(--ease-out-expo);
+        }
+
+        .nav-dot:hover {
+            background: var(--accent);
+            transform: scale(1.3);
+        }
+
+        .nav-dot.active {
+            background: var(--accent);
+            transform: scale(1.5);
+        }
+
+        /* ===========================================
+           ANIMATIONS
+           =========================================== */
+        .reveal {
+            opacity: 0;
+            transform: translateY(15px);
+            transition: opacity var(--duration-normal) var(--ease-out-expo),
+                        transform var(--duration-normal) var(--ease-out-expo);
+        }
+
+        .slide.visible .reveal {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Stagger children */
+        .reveal:nth-child(1) { transition-delay: 0.1s; }
+        .reveal:nth-child(2) { transition-delay: 0.2s; }
+        .reveal:nth-child(3) { transition-delay: 0.3s; }
+        .reveal:nth-child(4) { transition-delay: 0.4s; }
+        .reveal:nth-child(5) { transition-delay: 0.5s; }
+        .reveal:nth-child(6) { transition-delay: 0.6s; }
+
+        /* Section header transition */
+        .section-header {
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+
+        .section-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--coral) 0%, var(--purple) 100%);
+            transition: width 0.8s var(--ease-out-expo);
+        }
+
+        .slide.visible .section-header::after {
+            width: 60px;
+        }
+
+        /* ===========================================
+           RESPONSIVE BREAKPOINTS
+           =========================================== */
+        @media (max-height: 800px) {
+            :root {
+                --slide-padding: clamp(1.25rem, 3.5vw, 3rem);
+                --content-gap: clamp(0.85rem, 2vw, 2rem);
+                --element-gap: clamp(0.5rem, 1vw, 1rem);
+            }
+
+            .phase, .scenario-card, .pill {
+                padding: 0.85rem;
+            }
+
+            .logo-container {
+                margin-bottom: var(--content-gap);
+            }
+        }
+
+        @media (max-height: 700px) {
+            :root {
+                --slide-padding: clamp(1rem, 3vw, 2.5rem);
+                --content-gap: clamp(0.75rem, 1.5vw, 1.5rem);
+                --element-gap: clamp(0.4rem, 0.8vw, 0.8rem);
+            }
+
+            .phase, .scenario-card, .pill {
+                padding: 0.75rem;
+            }
+        }
+
+        @media (max-height: 600px) {
+            :root {
+                --slide-padding: clamp(0.75rem, 2.5vw, 2rem);
+                --title-size: clamp(1.5rem, 4vw, 2.5rem);
+                --h2-size: clamp(1.25rem, 2.8vw, 2rem);
+            }
+
+            .nav-dots, .keyboard-hint {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+
+            .pill-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .logo-container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .logo-divider {
+                display: none;
+            }
+        }
+
+        @media (max-height: 500px) and (orientation: landscape) {
+            :root {
+                --slide-padding: clamp(0.5rem, 2vw, 1.5rem);
+                --title-size: clamp(1.25rem, 3.5vw, 2rem);
+            }
+        }
+
+        /* ===========================================
+           REDUCED MOTION
+           =========================================== */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.2s !important;
+            }
+
+            html {
+                scroll-behavior: auto;
+            }
+        }
+
+        /* ===========================================
+           KEYBOARD HINT
+           =========================================== */
+        .keyboard-hint {
+            position: fixed;
+            bottom: 1.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: var(--small-size);
+            color: var(--gray-600);
+            opacity: 0.6;
+            z-index: 100;
+            transition: opacity 0.5s ease;
+        }
+    </style>
+</head>
+<body>
+    <!-- Progress bar -->
+    <div class="progress-bar"></div>
+
+    <!-- Navigation dots -->
+    <nav class="nav-dots"></nav>
+
+    <!-- Keyboard hint -->
+    <div class="keyboard-hint">Use arrow keys or scroll to navigate</div>
+
+    <!-- SLIDE 1: TITLE SLIDE -->
+    <section class="slide title-slide">
+        <div class="slide-content" style="text-align: center; align-items: center;">
+            <div class="logo-container">
+                <img src="/images/corvo-labs-wide.svg" alt="Corvo Labs" onerror="this.style.display='none'">
+                <span class="logo-divider">+</span>
+                <img src="https://cdn.prod.website-files.com/65935cf2af52e959dc66e215/6593707f9c234dd69d7e8f83_GV-logo.svg" alt="Growth Vanguard">
+            </div>
+            <p class="subtitle reveal">A Strategic Partnership</p>
+            <div class="presenter-info reveal">
+                <p><strong>Presented by Jake Butler</strong></p>
+                <p>Founder, Corvo Labs</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- [snip: unchanged slide content from user-provided deck] -->
+
+    <script>
+        class SlidePresentation {
+            constructor() {
+                this.slides = document.querySelectorAll('.slide');
+                this.currentSlide = 0;
+                this.progressBar = document.querySelector('.progress-bar');
+                this.navDots = document.querySelector('.nav-dots');
+
+                this.init();
+            }
+
+            init() {
+                this.createNavDots();
+                this.setupIntersectionObserver();
+                this.bindKeyboard();
+                this.bindWheel();
+                this.bindTouch();
+                this.updateProgress();
+                this.updateNavDots();
+
+                if (this.slides[0]) {
+                    this.slides[0].classList.add('visible');
+                }
+            }
+
+            createNavDots() {
+                this.slides.forEach((slide, index) => {
+                    const dot = document.createElement('div');
+                    dot.className = 'nav-dot';
+                    if (index === 0) dot.classList.add('active');
+                    dot.addEventListener('click', () => this.goToSlide(index));
+                    this.navDots.appendChild(dot);
+                });
+            }
+
+            setupIntersectionObserver() {
+                const options = {
+                    root: null,
+                    threshold: 0.5
+                };
+
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                            this.currentSlide = Array.from(this.slides).indexOf(entry.target);
+                            this.updateProgress();
+                            this.updateNavDots();
+                        }
+                    });
+                }, options);
+
+                this.slides.forEach(slide => observer.observe(slide));
+            }
+
+            bindKeyboard() {
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'ArrowRight' || e.key === ' ') {
+                        e.preventDefault();
+                        this.nextSlide();
+                    } else if (e.key === 'ArrowLeft') {
+                        e.preventDefault();
+                        this.prevSlide();
+                    }
+                });
+            }
+
+            bindWheel() {
+                let wheelTimeout;
+                document.addEventListener('wheel', (e) => {
+                    clearTimeout(wheelTimeout);
+                    wheelTimeout = setTimeout(() => {
+                        if (e.deltaY > 0) {
+                            this.nextSlide();
+                        } else {
+                            this.prevSlide();
+                        }
+                    }, 100);
+                });
+            }
+
+            bindTouch() {
+                let touchStartY = 0;
+
+                document.addEventListener('touchstart', (e) => {
+                    touchStartY = e.touches[0].clientY;
+                });
+
+                document.addEventListener('touchend', (e) => {
+                    const touchEndY = e.changedTouches[0].clientY;
+                    const diff = touchStartY - touchEndY;
+
+                    if (Math.abs(diff) > 50) {
+                        if (diff > 0) {
+                            this.nextSlide();
+                        } else {
+                            this.prevSlide();
+                        }
+                    }
+                });
+            }
+
+            nextSlide() {
+                if (this.currentSlide < this.slides.length - 1) {
+                    this.goToSlide(this.currentSlide + 1);
+                }
+            }
+
+            prevSlide() {
+                if (this.currentSlide > 0) {
+                    this.goToSlide(this.currentSlide - 1);
+                }
+            }
+
+            goToSlide(index) {
+                if (index >= 0 && index < this.slides.length) {
+                    this.slides[index].scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+
+            updateProgress() {
+                const progress = ((this.currentSlide + 1) / this.slides.length) * 100;
+                this.progressBar.style.width = `${progress}%`;
+            }
+
+            updateNavDots() {
+                const dots = this.navDots.querySelectorAll('.nav-dot');
+                dots.forEach((dot, index) => {
+                    if (index === this.currentSlide) {
+                        dot.classList.add('active');
+                    } else {
+                        dot.classList.remove('active');
+                    }
+                });
+            }
+        }
+
+        new SlidePresentation();
+
+        setTimeout(() => {
+            const hint = document.querySelector('.keyboard-hint');
+            if (hint) {
+                hint.style.opacity = '0';
+                setTimeout(() => hint.style.display = 'none', 500);
+            }
+        }, 3000);
+    </script>
+</body>
+</html>
