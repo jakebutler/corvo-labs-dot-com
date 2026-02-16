@@ -1,784 +1,2090 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Corvo Labs + Growth Vanguard Partnership</title>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Corvo Labs + Growth Vanguard Partnership</title>
 
-    <!-- Fonts from Fontshare -->
-    <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700,500&f[]=satoshi@700,500,400&display=swap">
+        <!-- Fonts from Fontshare -->
+        <link
+            rel="stylesheet"
+            href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700,500&f[]=satoshi@700,500,400&display=swap"
+        />
 
-    <style>
-        /* ===========================================
+        <style>
+            /* ===========================================
            CSS CUSTOM PROPERTIES (THEME)
            Corvo Labs Brand Colors
            =========================================== */
-        :root {
-            /* Brand Colors */
-            --coral: #FF6B47;
-            --purple: #9c40ff;
-            --dark: #20150D;
-            --bg-white: #ffffff;
-            --gray-900: #111827;
-            --gray-700: #374151;
-            --gray-600: #4B5563;
-            --gray-300: #D1D5DB;
+            :root {
+                /* Brand Colors */
+                --coral: #ff6b47;
+                --purple: #9c40ff;
+                --dark: #20150d;
+                --bg-white: #ffffff;
+                --gray-900: #111827;
+                --gray-700: #374151;
+                --gray-600: #4b5563;
+                --gray-300: #d1d5db;
 
-            /* Semantic Colors */
-            --bg-primary: var(--bg-white);
-            --bg-secondary: #FAFAFA;
-            --text-primary: var(--dark);
-            --text-secondary: var(--gray-700);
-            --accent: var(--coral);
-            --accent-secondary: var(--purple);
-            --accent-glow: rgba(255, 107, 71, 0.15);
+                /* Semantic Colors */
+                --bg-primary: var(--bg-white);
+                --bg-secondary: #fafafa;
+                --text-primary: var(--dark);
+                --text-secondary: var(--gray-700);
+                --accent: var(--coral);
+                --accent-secondary: var(--purple);
+                --accent-glow: rgba(255, 107, 71, 0.15);
 
-            /* Typography - MUST use clamp() for responsive scaling */
-            --font-display: 'Cabinet Grotesk', sans-serif;
-            --font-body: 'Satoshi', sans-serif;
+                /* Typography - MUST use clamp() for responsive scaling */
+                --font-display: "Cabinet Grotesk", sans-serif;
+                --font-body: "Satoshi", sans-serif;
 
-            /* Responsive font sizes - more conservative for 13" laptop */
-            --title-size: clamp(1.75rem, 4.5vw, 3.5rem);
-            --h2-size: clamp(1.35rem, 3vw, 2.25rem);
-            --h3-size: clamp(1.1rem, 2.2vw, 1.65rem);
-            --subtitle-size: clamp(0.95rem, 1.8vw, 1.35rem);
-            --body-size: clamp(0.8rem, 1.3vw, 1rem);
-            --small-size: clamp(0.7rem, 1.1vw, 0.875rem);
+                /* Responsive font sizes - more conservative for 13" laptop */
+                --title-size: clamp(1.75rem, 4.5vw, 3.5rem);
+                --h2-size: clamp(1.35rem, 3vw, 2.25rem);
+                --h3-size: clamp(1.1rem, 2.2vw, 1.65rem);
+                --subtitle-size: clamp(0.95rem, 1.8vw, 1.35rem);
+                --body-size: clamp(0.8rem, 1.3vw, 1rem);
+                --small-size: clamp(0.7rem, 1.1vw, 0.875rem);
 
-            /* Spacing - MUST use clamp() for responsive scaling */
-            --slide-padding: clamp(1.5rem, 4vw, 4rem);
-            --content-gap: clamp(1rem, 2.5vw, 2.5rem);
-            --element-gap: clamp(0.6rem, 1.2vw, 1.2rem);
+                /* Spacing - MUST use clamp() for responsive scaling */
+                --slide-padding: clamp(1.5rem, 4vw, 4rem);
+                --content-gap: clamp(1rem, 2.5vw, 2.5rem);
+                --element-gap: clamp(0.6rem, 1.2vw, 1.2rem);
 
-            /* Animation */
-            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
-            --duration-normal: 0.7s;
-            --duration-fast: 0.4s;
-        }
+                /* Animation */
+                --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+                --duration-normal: 0.7s;
+                --duration-fast: 0.4s;
+            }
 
-        /* ===========================================
+            /* ===========================================
            BASE STYLES
            =========================================== */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html {
-            scroll-behavior: smooth;
-            scroll-snap-type: y mandatory;
-            height: 100%;
-            overflow-x: hidden;
-        }
-
-        body {
-            font-family: var(--font-body);
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            overflow-x: hidden;
-            height: 100%;
-            line-height: 1.5;
-        }
-
-        /* ===========================================
-           SLIDE CONTAINER
-           CRITICAL: Each slide MUST fit exactly in viewport
-           =========================================== */
-        .slide {
-            width: 100vw;
-            height: 100vh;
-            height: 100dvh;
-            padding: var(--slide-padding);
-            scroll-snap-align: start;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .slide-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            max-height: 100%;
-            overflow: hidden;
-            max-width: 1100px;
-            margin: 0 auto;
-            width: 100%;
-        }
-
-        /* ===========================================
-           TYPOGRAPHY
-           =========================================== */
-        h1, h2, h3 {
-            font-family: var(--font-display);
-            font-weight: 800;
-            line-height: 1.1;
-            letter-spacing: -0.02em;
-        }
-
-        h1 {
-            font-size: var(--title-size);
-            color: var(--text-primary);
-        }
-
-        h2 {
-            font-size: var(--h2-size);
-            margin-bottom: var(--element-gap);
-        }
-
-        h3 {
-            font-size: var(--h3-size);
-            margin-bottom: calc(var(--element-gap) * 0.6);
-        }
-
-        .subtitle {
-            font-size: var(--subtitle-size);
-            color: var(--text-secondary);
-            font-weight: 500;
-        }
-
-        p, li {
-            font-size: var(--body-size);
-            line-height: 1.5;
-        }
-
-        .small {
-            font-size: var(--small-size);
-            line-height: 1.4;
-        }
-
-        /* Gradient text for emphasis */
-        .gradient-text {
-            background: linear-gradient(135deg, var(--coral) 0%, var(--purple) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        /* ===========================================
-           LAYOUT COMPONENTS
-           =========================================== */
-        .two-column {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: var(--content-gap);
-            align-items: start;
-        }
-
-        .content-block {
-            margin-bottom: var(--element-gap);
-        }
-
-        ul.feature-list {
-            list-style: none;
-            display: flex;
-            flex-direction: column;
-            gap: calc(var(--element-gap) * 0.4);
-        }
-
-        ul.feature-list li {
-            padding-left: 1.25rem;
-            position: relative;
-        }
-
-        ul.feature-list li::before {
-            content: "→";
-            position: absolute;
-            left: 0;
-            color: var(--accent);
-            font-weight: 700;
-        }
-
-        .pill-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: var(--element-gap);
-        }
-
-        /* Enhanced pills with better shadows */
-        .pill {
-            background: var(--bg-secondary);
-            border: 2px solid var(--gray-300);
-            border-radius: 16px;
-            padding: 1.25rem;
-            transition: all var(--duration-fast) var(--ease-out-expo);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-        }
-
-        .pill:hover {
-            border-color: var(--accent);
-            transform: translateY(-3px);
-            box-shadow: 0 12px 32px rgba(255, 107, 71, 0.15);
-        }
-
-        .pill h3 {
-            color: var(--accent);
-            margin-bottom: 0.4rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        /* Icon styling */
-        .pill h3 svg,
-        .icon {
-            width: 20px;
-            height: 20px;
-            stroke: currentColor;
-            flex-shrink: 0;
-        }
-
-        /* Enhanced scenario cards with better shadows */
-        .scenario-card {
-            background: linear-gradient(135deg, rgba(255, 107, 71, 0.04) 0%, rgba(156, 64, 255, 0.04) 100%);
-            border-left: 4px solid var(--accent);
-            padding: 1rem;
-            margin-bottom: calc(var(--element-gap) * 0.75);
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-            transition: all var(--duration-fast) var(--ease-out-expo);
-        }
-
-        .scenario-card:hover {
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-            transform: translateX(4px);
-        }
-
-        .scenario-card h4 {
-            font-family: var(--font-display);
-            font-size: var(--subtitle-size);
-            margin-bottom: 0.4rem;
-            color: var(--accent);
-        }
-
-        .scenario-card ul {
-            list-style: none;
-            font-size: var(--small-size);
-        }
-
-        .scenario-card li {
-            padding: 0.15rem 0;
-        }
-
-        /* Phase timeline with enhanced shadows */
-        .phase-timeline {
-            display: flex;
-            flex-direction: column;
-            gap: calc(var(--element-gap) * 0.75);
-        }
-
-        .phase {
-            background: var(--bg-secondary);
-            border-radius: 12px;
-            padding: 1rem;
-            border-left: 4px solid var(--accent);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-            transition: all var(--duration-fast) var(--ease-out-expo);
-        }
-
-        .phase:hover {
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-            transform: translateX(4px);
-        }
-
-        /* Color-coded phases */
-        .phase.operations {
-            border-left-color: var(--coral);
-        }
-
-        .phase.operations h4 {
-            color: var(--coral);
-        }
-
-        .phase.product {
-            border-left-color: var(--purple);
-        }
-
-        .phase.product h4 {
-            color: var(--purple);
-        }
-
-        .phase h4 {
-            font-family: var(--font-display);
-            color: var(--accent);
-            margin-bottom: 0.4rem;
-            font-size: var(--subtitle-size);
-        }
-
-        .phase ul {
-            list-style: none;
-            font-size: var(--small-size);
-        }
-
-        .phase li {
-            padding: 0.2rem 0;
-            padding-left: 0.8rem;
-            position: relative;
-        }
-
-        .phase li::before {
-            content: "•";
-            position: absolute;
-            left: 0;
-            color: var(--accent);
-        }
-
-        /* Blockquote */
-        blockquote {
-            border-left: 4px solid var(--accent);
-            padding-left: 1.5rem;
-            margin: var(--element-gap) 0;
-            font-size: var(--h3-size);
-            font-family: var(--font-display);
-            font-weight: 700;
-            line-height: 1.3;
-            color: var(--text-primary);
-        }
-
-        /* ===========================================
-           SPECIAL SLIDES
-           =========================================== */
-        /* Title slide with logos */
-        .title-slide {
-            background: linear-gradient(135deg,
-                rgba(255, 107, 71, 0.02) 0%,
-                rgba(156, 64, 255, 0.02) 100%);
-        }
-
-        .logo-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 2rem;
-            margin-bottom: calc(var(--content-gap) * 1.5);
-        }
-
-        .logo-container img {
-            height: clamp(40px, 8vh, 80px);
-            width: auto;
-            object-fit: contain;
-            opacity: 0;
-            transform: scale(0.9);
-            animation: logoFadeIn 1s var(--ease-out-expo) forwards;
-        }
-
-        .logo-container img:nth-child(1) {
-            animation-delay: 0.2s;
-        }
-
-        .logo-container img:nth-child(2) {
-            animation-delay: 0.4s;
-        }
-
-        @keyframes logoFadeIn {
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-
-        .logo-divider {
-            font-size: var(--h2-size);
-            color: var(--gray-600);
-            font-weight: 300;
-            opacity: 0;
-            animation: logoFadeIn 1s var(--ease-out-expo) 0.3s forwards;
-        }
-
-        .title-slide .subtitle {
-            font-size: var(--h3-size);
-            margin-bottom: calc(var(--element-gap) * 1.5);
-        }
-
-        .title-slide .presenter-info {
-            font-size: var(--body-size);
-            color: var(--text-secondary);
-        }
-
-        /* Thank you slide */
-        .thank-you-slide {
-            text-align: center;
-            background: linear-gradient(135deg, var(--coral) 0%, var(--purple) 100%);
-            color: white;
-        }
-
-        .thank-you-slide h1 {
-            color: white;
-            margin-bottom: var(--content-gap);
-        }
-
-        .thank-you-slide .contact-info {
-            font-size: var(--subtitle-size);
-            margin-top: var(--content-gap);
-        }
-
-        /* ===========================================
-           PROGRESS BAR
-           =========================================== */
-        .progress-bar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 3px;
-            background: linear-gradient(90deg, var(--coral) 0%, var(--purple) 100%);
-            z-index: 1000;
-            transition: width 0.3s ease;
-        }
-
-        /* ===========================================
-           NAVIGATION DOTS
-           =========================================== */
-        .nav-dots {
-            position: fixed;
-            right: 1.5rem;
-            top: 50%;
-            transform: translateY(-50%);
-            display: flex;
-            flex-direction: column;
-            gap: 0.4rem;
-            z-index: 100;
-        }
-
-        .nav-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--gray-300);
-            cursor: pointer;
-            transition: all var(--duration-fast) var(--ease-out-expo);
-        }
-
-        .nav-dot:hover {
-            background: var(--accent);
-            transform: scale(1.3);
-        }
-
-        .nav-dot.active {
-            background: var(--accent);
-            transform: scale(1.5);
-        }
-
-        /* ===========================================
-           ANIMATIONS
-           =========================================== */
-        .reveal {
-            opacity: 0;
-            transform: translateY(15px);
-            transition: opacity var(--duration-normal) var(--ease-out-expo),
-                        transform var(--duration-normal) var(--ease-out-expo);
-        }
-
-        .slide.visible .reveal {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        /* Stagger children */
-        .reveal:nth-child(1) { transition-delay: 0.1s; }
-        .reveal:nth-child(2) { transition-delay: 0.2s; }
-        .reveal:nth-child(3) { transition-delay: 0.3s; }
-        .reveal:nth-child(4) { transition-delay: 0.4s; }
-        .reveal:nth-child(5) { transition-delay: 0.5s; }
-        .reveal:nth-child(6) { transition-delay: 0.6s; }
-
-        /* Section header transition */
-        .section-header {
-            position: relative;
-            padding-bottom: 0.5rem;
-        }
-
-        .section-header::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 0;
-            height: 3px;
-            background: linear-gradient(90deg, var(--coral) 0%, var(--purple) 100%);
-            transition: width 0.8s var(--ease-out-expo);
-        }
-
-        .slide.visible .section-header::after {
-            width: 60px;
-        }
-
-        /* ===========================================
-           RESPONSIVE BREAKPOINTS
-           =========================================== */
-        @media (max-height: 800px) {
-            :root {
-                --slide-padding: clamp(1.25rem, 3.5vw, 3rem);
-                --content-gap: clamp(0.85rem, 2vw, 2rem);
-                --element-gap: clamp(0.5rem, 1vw, 1rem);
-            }
-
-            .phase, .scenario-card, .pill {
-                padding: 0.85rem;
-            }
-
-            .logo-container {
-                margin-bottom: var(--content-gap);
-            }
-        }
-
-        @media (max-height: 700px) {
-            :root {
-                --slide-padding: clamp(1rem, 3vw, 2.5rem);
-                --content-gap: clamp(0.75rem, 1.5vw, 1.5rem);
-                --element-gap: clamp(0.4rem, 0.8vw, 0.8rem);
-            }
-
-            .phase, .scenario-card, .pill {
-                padding: 0.75rem;
-            }
-        }
-
-        @media (max-height: 600px) {
-            :root {
-                --slide-padding: clamp(0.75rem, 2.5vw, 2rem);
-                --title-size: clamp(1.5rem, 4vw, 2.5rem);
-                --h2-size: clamp(1.25rem, 2.8vw, 2rem);
-            }
-
-            .nav-dots, .keyboard-hint {
-                display: none;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .two-column {
-                grid-template-columns: 1fr;
-            }
-
-            .pill-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .logo-container {
-                flex-direction: column;
-                gap: 1rem;
-            }
-
-            .logo-divider {
-                display: none;
-            }
-        }
-
-        @media (max-height: 500px) and (orientation: landscape) {
-            :root {
-                --slide-padding: clamp(0.5rem, 2vw, 1.5rem);
-                --title-size: clamp(1.25rem, 3.5vw, 2rem);
-            }
-        }
-
-        /* ===========================================
-           REDUCED MOTION
-           =========================================== */
-        @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after {
-                animation-duration: 0.01ms !important;
-                transition-duration: 0.2s !important;
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
             }
 
             html {
-                scroll-behavior: auto;
+                scroll-behavior: smooth;
+                scroll-snap-type: y mandatory;
+                height: 100%;
+                overflow-x: hidden;
             }
-        }
 
-        /* ===========================================
+            body {
+                font-family: var(--font-body);
+                background: var(--bg-primary);
+                color: var(--text-primary);
+                overflow-x: hidden;
+                height: 100%;
+                line-height: 1.5;
+            }
+
+            /* ===========================================
+           SLIDE CONTAINER
+           CRITICAL: Each slide MUST fit exactly in viewport
+           =========================================== */
+            .slide {
+                width: 100vw;
+                height: 100vh;
+                height: 100dvh;
+                padding: var(--slide-padding);
+                scroll-snap-align: start;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                position: relative;
+                overflow: hidden;
+            }
+
+            .slide-content {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                max-height: 100%;
+                overflow: hidden;
+                max-width: 1100px;
+                margin: 0 auto;
+                width: 100%;
+            }
+
+            /* ===========================================
+           TYPOGRAPHY
+           =========================================== */
+            h1,
+            h2,
+            h3 {
+                font-family: var(--font-display);
+                font-weight: 800;
+                line-height: 1.1;
+                letter-spacing: -0.02em;
+            }
+
+            h1 {
+                font-size: var(--title-size);
+                color: var(--text-primary);
+            }
+
+            h2 {
+                font-size: var(--h2-size);
+                margin-bottom: var(--element-gap);
+            }
+
+            h3 {
+                font-size: var(--h3-size);
+                margin-bottom: calc(var(--element-gap) * 0.6);
+            }
+
+            .subtitle {
+                font-size: var(--subtitle-size);
+                color: var(--text-secondary);
+                font-weight: 500;
+            }
+
+            p,
+            li {
+                font-size: var(--body-size);
+                line-height: 1.5;
+            }
+
+            .small {
+                font-size: var(--small-size);
+                line-height: 1.4;
+            }
+
+            /* Gradient text for emphasis */
+            .gradient-text {
+                background: linear-gradient(
+                    135deg,
+                    var(--coral) 0%,
+                    var(--purple) 100%
+                );
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }
+
+            /* ===========================================
+           LAYOUT COMPONENTS
+           =========================================== */
+            .two-column {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: var(--content-gap);
+                align-items: start;
+            }
+
+            .content-block {
+                margin-bottom: var(--element-gap);
+            }
+
+            ul.feature-list {
+                list-style: none;
+                display: flex;
+                flex-direction: column;
+                gap: calc(var(--element-gap) * 0.4);
+            }
+
+            ul.feature-list li {
+                padding-left: 1.25rem;
+                position: relative;
+            }
+
+            ul.feature-list li::before {
+                content: "→";
+                position: absolute;
+                left: 0;
+                color: var(--accent);
+                font-weight: 700;
+            }
+
+            .pill-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+                gap: var(--element-gap);
+            }
+
+            /* Enhanced pills with better shadows */
+            .pill {
+                background: var(--bg-secondary);
+                border: 2px solid var(--gray-300);
+                border-radius: 16px;
+                padding: 1.25rem;
+                transition: all var(--duration-fast) var(--ease-out-expo);
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            }
+
+            .pill:hover {
+                border-color: var(--accent);
+                transform: translateY(-3px);
+                box-shadow: 0 12px 32px rgba(255, 107, 71, 0.15);
+            }
+
+            .pill h3 {
+                color: var(--accent);
+                margin-bottom: 0.4rem;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+            /* Icon styling */
+            .pill h3 svg,
+            .icon {
+                width: 20px;
+                height: 20px;
+                stroke: currentColor;
+                flex-shrink: 0;
+            }
+
+            /* Enhanced scenario cards with better shadows */
+            .scenario-card {
+                background: linear-gradient(
+                    135deg,
+                    rgba(255, 107, 71, 0.04) 0%,
+                    rgba(156, 64, 255, 0.04) 100%
+                );
+                border-left: 4px solid var(--accent);
+                padding: 1rem;
+                margin-bottom: calc(var(--element-gap) * 0.75);
+                border-radius: 8px;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+                transition: all var(--duration-fast) var(--ease-out-expo);
+            }
+
+            .scenario-card:hover {
+                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+                transform: translateX(4px);
+            }
+
+            .scenario-card h4 {
+                font-family: var(--font-display);
+                font-size: var(--subtitle-size);
+                margin-bottom: 0.4rem;
+                color: var(--accent);
+            }
+
+            .scenario-card ul {
+                list-style: none;
+                font-size: var(--small-size);
+            }
+
+            .scenario-card li {
+                padding: 0.15rem 0;
+            }
+
+            /* Phase timeline with enhanced shadows */
+            .phase-timeline {
+                display: flex;
+                flex-direction: column;
+                gap: calc(var(--element-gap) * 0.75);
+            }
+
+            .phase {
+                background: var(--bg-secondary);
+                border-radius: 12px;
+                padding: 1rem;
+                border-left: 4px solid var(--accent);
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+                transition: all var(--duration-fast) var(--ease-out-expo);
+            }
+
+            .phase:hover {
+                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+                transform: translateX(4px);
+            }
+
+            /* Color-coded phases */
+            .phase.operations {
+                border-left-color: var(--coral);
+            }
+
+            .phase.operations h4 {
+                color: var(--coral);
+            }
+
+            .phase.product {
+                border-left-color: var(--purple);
+            }
+
+            .phase.product h4 {
+                color: var(--purple);
+            }
+
+            .phase h4 {
+                font-family: var(--font-display);
+                color: var(--accent);
+                margin-bottom: 0.4rem;
+                font-size: var(--subtitle-size);
+            }
+
+            .phase ul {
+                list-style: none;
+                font-size: var(--small-size);
+            }
+
+            .phase li {
+                padding: 0.2rem 0;
+                padding-left: 0.8rem;
+                position: relative;
+            }
+
+            .phase li::before {
+                content: "•";
+                position: absolute;
+                left: 0;
+                color: var(--accent);
+            }
+
+            /* Blockquote */
+            blockquote {
+                border-left: 4px solid var(--accent);
+                padding-left: 1.5rem;
+                margin: var(--element-gap) 0;
+                font-size: var(--h3-size);
+                font-family: var(--font-display);
+                font-weight: 700;
+                line-height: 1.3;
+                color: var(--text-primary);
+            }
+
+            /* ===========================================
+           SPECIAL SLIDES
+           =========================================== */
+            /* Title slide with logos */
+            .title-slide {
+                background: linear-gradient(
+                    135deg,
+                    rgba(255, 107, 71, 0.02) 0%,
+                    rgba(156, 64, 255, 0.02) 100%
+                );
+            }
+
+            .logo-container {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 2rem;
+                margin-bottom: calc(var(--content-gap) * 1.5);
+            }
+
+            .logo-container img {
+                height: clamp(40px, 8vh, 80px);
+                width: auto;
+                object-fit: contain;
+                opacity: 0;
+                transform: scale(0.9);
+                animation: logoFadeIn 1s var(--ease-out-expo) forwards;
+            }
+
+            .logo-container img:nth-child(1) {
+                animation-delay: 0.2s;
+            }
+
+            .logo-container img:nth-child(2) {
+                animation-delay: 0.4s;
+            }
+
+            @keyframes logoFadeIn {
+                to {
+                    opacity: 1;
+                    transform: scale(1);
+                }
+            }
+
+            .logo-divider {
+                font-size: var(--h2-size);
+                color: var(--gray-600);
+                font-weight: 300;
+                opacity: 0;
+                animation: logoFadeIn 1s var(--ease-out-expo) 0.3s forwards;
+            }
+
+            .title-slide .subtitle {
+                font-size: var(--h3-size);
+                margin-bottom: calc(var(--element-gap) * 1.5);
+            }
+
+            .title-slide .presenter-info {
+                font-size: var(--body-size);
+                color: var(--text-secondary);
+            }
+
+            /* Thank you slide */
+            .thank-you-slide {
+                text-align: center;
+                background: linear-gradient(
+                    135deg,
+                    var(--coral) 0%,
+                    var(--purple) 100%
+                );
+                color: white;
+            }
+
+            .thank-you-slide h1 {
+                color: white;
+                margin-bottom: var(--content-gap);
+            }
+
+            .thank-you-slide .contact-info {
+                font-size: var(--subtitle-size);
+                margin-top: var(--content-gap);
+            }
+
+            /* ===========================================
+           PROGRESS BAR
+           =========================================== */
+            .progress-bar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 3px;
+                background: linear-gradient(
+                    90deg,
+                    var(--coral) 0%,
+                    var(--purple) 100%
+                );
+                z-index: 1000;
+                transition: width 0.3s ease;
+            }
+
+            /* ===========================================
+           NAVIGATION DOTS
+           =========================================== */
+            .nav-dots {
+                position: fixed;
+                right: 1.5rem;
+                top: 50%;
+                transform: translateY(-50%);
+                display: flex;
+                flex-direction: column;
+                gap: 0.4rem;
+                z-index: 100;
+            }
+
+            .nav-dot {
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                background: var(--gray-300);
+                cursor: pointer;
+                transition: all var(--duration-fast) var(--ease-out-expo);
+            }
+
+            .nav-dot:hover {
+                background: var(--accent);
+                transform: scale(1.3);
+            }
+
+            .nav-dot.active {
+                background: var(--accent);
+                transform: scale(1.5);
+            }
+
+            /* ===========================================
+           ANIMATIONS
+           =========================================== */
+            .reveal {
+                opacity: 0;
+                transform: translateY(15px);
+                transition:
+                    opacity var(--duration-normal) var(--ease-out-expo),
+                    transform var(--duration-normal) var(--ease-out-expo);
+            }
+
+            .slide.visible .reveal {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            /* Stagger children */
+            .reveal:nth-child(1) {
+                transition-delay: 0.1s;
+            }
+            .reveal:nth-child(2) {
+                transition-delay: 0.2s;
+            }
+            .reveal:nth-child(3) {
+                transition-delay: 0.3s;
+            }
+            .reveal:nth-child(4) {
+                transition-delay: 0.4s;
+            }
+            .reveal:nth-child(5) {
+                transition-delay: 0.5s;
+            }
+            .reveal:nth-child(6) {
+                transition-delay: 0.6s;
+            }
+
+            /* Section header transition */
+            .section-header {
+                position: relative;
+                padding-bottom: 0.5rem;
+            }
+
+            .section-header::after {
+                content: "";
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                width: 0;
+                height: 3px;
+                background: linear-gradient(
+                    90deg,
+                    var(--coral) 0%,
+                    var(--purple) 100%
+                );
+                transition: width 0.8s var(--ease-out-expo);
+            }
+
+            .slide.visible .section-header::after {
+                width: 60px;
+            }
+
+            /* ===========================================
+           RESPONSIVE BREAKPOINTS
+           =========================================== */
+            @media (max-height: 800px) {
+                :root {
+                    --slide-padding: clamp(1.25rem, 3.5vw, 3rem);
+                    --content-gap: clamp(0.85rem, 2vw, 2rem);
+                    --element-gap: clamp(0.5rem, 1vw, 1rem);
+                }
+
+                .phase,
+                .scenario-card,
+                .pill {
+                    padding: 0.85rem;
+                }
+
+                .logo-container {
+                    margin-bottom: var(--content-gap);
+                }
+            }
+
+            @media (max-height: 700px) {
+                :root {
+                    --slide-padding: clamp(1rem, 3vw, 2.5rem);
+                    --content-gap: clamp(0.75rem, 1.5vw, 1.5rem);
+                    --element-gap: clamp(0.4rem, 0.8vw, 0.8rem);
+                }
+
+                .phase,
+                .scenario-card,
+                .pill {
+                    padding: 0.75rem;
+                }
+            }
+
+            @media (max-height: 600px) {
+                :root {
+                    --slide-padding: clamp(0.75rem, 2.5vw, 2rem);
+                    --title-size: clamp(1.5rem, 4vw, 2.5rem);
+                    --h2-size: clamp(1.25rem, 2.8vw, 2rem);
+                }
+
+                .nav-dots,
+                .keyboard-hint {
+                    display: none;
+                }
+            }
+
+            @media (max-width: 768px) {
+                .two-column {
+                    grid-template-columns: 1fr;
+                }
+
+                .pill-grid {
+                    grid-template-columns: 1fr;
+                }
+
+                .logo-container {
+                    flex-direction: column;
+                    gap: 1rem;
+                }
+
+                .logo-divider {
+                    display: none;
+                }
+            }
+
+            @media (max-height: 500px) and (orientation: landscape) {
+                :root {
+                    --slide-padding: clamp(0.5rem, 2vw, 1.5rem);
+                    --title-size: clamp(1.25rem, 3.5vw, 2rem);
+                }
+            }
+
+            /* ===========================================
+           REDUCED MOTION
+           =========================================== */
+            @media (prefers-reduced-motion: reduce) {
+                *,
+                *::before,
+                *::after {
+                    animation-duration: 0.01ms !important;
+                    transition-duration: 0.2s !important;
+                }
+
+                html {
+                    scroll-behavior: auto;
+                }
+            }
+
+            /* ===========================================
            KEYBOARD HINT
            =========================================== */
-        .keyboard-hint {
-            position: fixed;
-            bottom: 1.5rem;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: var(--small-size);
-            color: var(--gray-600);
-            opacity: 0.6;
-            z-index: 100;
-            transition: opacity 0.5s ease;
-        }
-    </style>
-</head>
-<body>
-    <!-- Progress bar -->
-    <div class="progress-bar"></div>
-
-    <!-- Navigation dots -->
-    <nav class="nav-dots"></nav>
-
-    <!-- Keyboard hint -->
-    <div class="keyboard-hint">Use arrow keys or scroll to navigate</div>
-
-    <!-- SLIDE 1: TITLE SLIDE -->
-    <section class="slide title-slide">
-        <div class="slide-content" style="text-align: center; align-items: center;">
-            <div class="logo-container">
-                <img src="/images/corvo-labs-wide.svg" alt="Corvo Labs" onerror="this.style.display='none'">
-                <span class="logo-divider">+</span>
-                <img src="https://cdn.prod.website-files.com/65935cf2af52e959dc66e215/6593707f9c234dd69d7e8f83_GV-logo.svg" alt="Growth Vanguard">
-            </div>
-            <p class="subtitle reveal">A Strategic Partnership</p>
-            <div class="presenter-info reveal">
-                <p><strong>Presented by Jake Butler</strong></p>
-                <p>Founder, Corvo Labs</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- [snip: unchanged slide content from user-provided deck] -->
-
-    <script>
-        class SlidePresentation {
-            constructor() {
-                this.slides = document.querySelectorAll('.slide');
-                this.currentSlide = 0;
-                this.progressBar = document.querySelector('.progress-bar');
-                this.navDots = document.querySelector('.nav-dots');
-
-                this.init();
+            .keyboard-hint {
+                position: fixed;
+                bottom: 1.5rem;
+                left: 50%;
+                transform: translateX(-50%);
+                font-size: var(--small-size);
+                color: var(--gray-600);
+                opacity: 0.6;
+                z-index: 100;
+                transition: opacity 0.5s ease;
             }
+        </style>
+    </head>
+    <body>
+        <!-- Progress bar -->
+        <div class="progress-bar"></div>
 
-            init() {
-                this.createNavDots();
-                this.setupIntersectionObserver();
-                this.bindKeyboard();
-                this.bindWheel();
-                this.bindTouch();
-                this.updateProgress();
-                this.updateNavDots();
+        <!-- Navigation dots -->
+        <nav class="nav-dots"></nav>
 
-                if (this.slides[0]) {
-                    this.slides[0].classList.add('visible');
+        <!-- Keyboard hint -->
+        <div class="keyboard-hint">Use arrow keys or scroll to navigate</div>
+
+        <!-- SLIDE 1: TITLE SLIDE -->
+        <section class="slide title-slide">
+            <div
+                class="slide-content"
+                style="text-align: center; align-items: center"
+            >
+                <div class="logo-container">
+                    <img
+                        src="corvo-labs-wide.svg"
+                        alt="Corvo Labs"
+                        onerror="this.style.display = 'none'"
+                    />
+                    <span class="logo-divider">+</span>
+                    <img
+                        src="https://cdn.prod.website-files.com/65935cf2af52e959dc66e215/6593707f9c234dd69d7e8f83_GV-logo.svg"
+                        alt="Growth Vanguard"
+                    />
+                </div>
+                <p class="subtitle reveal">A Strategic Partnership</p>
+                <div class="presenter-info reveal">
+                    <p><strong>Presented by Jake Butler</strong></p>
+                    <p>Founder, Corvo Labs</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 2: WHY WE'RE HERE TODAY -->
+        <section class="slide">
+            <div class="slide-content">
+                <h2 class="reveal section-header">The Opportunity</h2>
+                <div class="content-block reveal">
+                    <p>
+                        Growth Vanguard drives patient acquisition and marketing
+                        efficiency for healthtech companies.
+                    </p>
+                </div>
+                <div class="content-block reveal">
+                    <p>
+                        <strong
+                            >But even the best marketing can't compensate
+                            for:</strong
+                        >
+                    </p>
+                    <ul
+                        class="feature-list"
+                        style="margin-top: calc(var(--element-gap) * 0.8)"
+                    >
+                        <li>Broken product experiences that drive churn</li>
+                        <li>Operational systems that collapse under growth</li>
+                        <li>
+                            Unclear product direction that wastes acquisition
+                            spend
+                        </li>
+                    </ul>
+                </div>
+                <p
+                    class="reveal"
+                    style="
+                        font-size: var(--h3-size);
+                        font-family: var(--font-display);
+                        font-weight: 700;
+                        margin-top: var(--element-gap);
+                    "
+                >
+                    <span class="gradient-text"
+                        >That's where Corvo Labs comes in.</span
+                    >
+                </p>
+            </div>
+        </section>
+
+        <!-- SLIDE 3: WHAT WE DO -->
+        <section class="slide">
+            <div class="slide-content">
+                <h2 class="reveal section-header">Corvo Labs at a Glance</h2>
+                <div class="content-block reveal">
+                    <p
+                        style="
+                            font-size: var(--h3-size);
+                            font-family: var(--font-display);
+                            font-weight: 700;
+                            line-height: 1.3;
+                            margin-bottom: var(--element-gap);
+                        "
+                    >
+                        We unlock learning and de-risk decisions for teams under
+                        uncertainty.
+                    </p>
+                </div>
+                <div class="pill-grid reveal">
+                    <div class="pill">
+                        <h3>
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            >
+                                <path
+                                    d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"
+                                />
+                                <circle cx="12" cy="12" r="3" />
+                            </svg>
+                            0→1 Operations
+                        </h3>
+                        <p class="small">
+                            Building operational foundations for scale
+                        </p>
+                    </div>
+                    <div class="pill">
+                        <h3>
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            >
+                                <path d="M8 2v4" />
+                                <path d="M16 2v4" />
+                                <rect
+                                    width="18"
+                                    height="18"
+                                    x="3"
+                                    y="4"
+                                    rx="2"
+                                />
+                                <path d="M3 10h18" />
+                                <path d="m9 16 2 2 4-4" />
+                            </svg>
+                            Early Product Work
+                        </h3>
+                        <p class="small">
+                            Validating direction before major investment
+                        </p>
+                    </div>
+                    <div class="pill">
+                        <h3>
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            >
+                                <path
+                                    d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"
+                                />
+                            </svg>
+                            AI Adoption & Training
+                        </h3>
+                        <p class="small">
+                            Responsible AI integration for efficiency
+                        </p>
+                    </div>
+                </div>
+                <div
+                    class="content-block reveal"
+                    style="margin-top: var(--element-gap)"
+                >
+                    <p>
+                        <strong>Approach:</strong> Short, high-impact
+                        engagements (2-12 weeks) • Evidence-based, not
+                        opinion-based • Clear success criteria
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 4: OUR PHILOSOPHY -->
+        <section class="slide">
+            <div class="slide-content">
+                <h2 class="reveal section-header">How We Work</h2>
+                <blockquote class="reveal">
+                    "Most teams don't fail because they lack ideas, talent, or
+                    effort. They fail because they learn too slowly, too
+                    expensively, or too late."
+                </blockquote>
+                <div class="content-block reveal">
+                    <p><strong>Core Principles:</strong></p>
+                    <ul
+                        class="feature-list"
+                        style="margin-top: calc(var(--element-gap) * 0.8)"
+                    >
+                        <li>
+                            <strong>Learn first, commit later</strong> —
+                            Validate before scaling
+                        </li>
+                        <li>
+                            <strong>Action over analysis</strong> — Real users,
+                            real data, real experiments
+                        </li>
+                        <li>
+                            <strong>Speed with integrity</strong> — Move fast
+                            without cutting corners
+                        </li>
+                        <li>
+                            <strong>Clear stops</strong> — Success = reaching
+                            clarity, not spending all allocated time
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 5: MEET JAKE BUTLER -->
+        <section class="slide">
+            <div class="slide-content">
+                <h2 class="reveal section-header">
+                    15+ Years Building Healthcare & Consumer Products
+                </h2>
+                <div class="two-column">
+                    <div class="reveal">
+                        <h3>Healthcare Tech Leadership</h3>
+                        <div class="content-block">
+                            <h4
+                                style="
+                                    color: var(--accent);
+                                    margin-bottom: 0.2rem;
+                                    font-size: var(--body-size);
+                                "
+                            >
+                                Form Health (2021-2025)
+                            </h4>
+                            <p class="small">Head of Digital Patient Product</p>
+                            <ul class="feature-list small">
+                                <li>80+ patient NPS, 1+ daily interactions</li>
+                                <li>Improved provider utilization 30%+</li>
+                            </ul>
+                        </div>
+                        <div class="content-block">
+                            <h4
+                                style="
+                                    color: var(--accent);
+                                    margin-bottom: 0.2rem;
+                                    font-size: var(--body-size);
+                                "
+                            >
+                                Rally Health (2017-2021)
+                            </h4>
+                            <p class="small">Product Lead, Rally Recover</p>
+                            <ul class="feature-list small">
+                                <li>Led value-based care product</li>
+                                <li>Reduced post-surgical complications</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="reveal">
+                        <h3>Consumer Product Experience</h3>
+                        <div class="content-block">
+                            <h4
+                                style="
+                                    color: var(--accent);
+                                    margin-bottom: 0.2rem;
+                                    font-size: var(--body-size);
+                                "
+                            >
+                                MeYou Health (2011-2016)
+                            </h4>
+                            <p class="small">Product Manager, Walkadoo</p>
+                            <ul class="feature-list small">
+                                <li>Clinically validated (Johns Hopkins)</li>
+                                <li>
+                                    Initial ideation to scaled commercialization
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="content-block">
+                            <h4
+                                style="
+                                    color: var(--accent);
+                                    margin-bottom: 0.2rem;
+                                    font-size: var(--body-size);
+                                "
+                            >
+                                Life360 (2008-2010)
+                            </h4>
+                            <p class="small">Founding Product Manager</p>
+                            <ul class="feature-list small">
+                                <li>Won $300K Google grant</li>
+                                <li>Reduced CAC from $200+ to $43</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 6: THE PATTERN I'VE SEEN -->
+        <section class="slide">
+            <div class="slide-content">
+                <h2 class="reveal section-header">
+                    What Separates Success from Failure
+                </h2>
+                <div class="content-block reveal">
+                    <p
+                        style="
+                            font-size: var(--h3-size);
+                            font-family: var(--font-display);
+                            font-weight: 700;
+                            margin-bottom: var(--element-gap);
+                        "
+                    >
+                        The teams that succeeded
+                        <span class="gradient-text"
+                            >compressed their learning cycles</span
+                        >.
+                    </p>
+                </div>
+                <div class="two-column reveal">
+                    <div>
+                        <h3 style="color: var(--coral)">What worked:</h3>
+                        <ul class="feature-list">
+                            <li>Validate assumptions early with real users</li>
+                            <li>
+                                Document operational knowledge before it's
+                                critical
+                            </li>
+                            <li>
+                                Test product direction before major investment
+                            </li>
+                            <li>
+                                Build foundations that can scale before scaling
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 style="color: var(--text-secondary)">
+                            What didn't work (for others):
+                        </h3>
+                        <ul class="feature-list">
+                            <li>
+                                Scaling acquisition before product-market fit
+                            </li>
+                            <li>Building for months without user feedback</li>
+                            <li>Keeping critical processes undocumented</li>
+                            <li>
+                                Optimizing for speed at expense of foundations
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 7: SERVICE AREA 1 — OPERATIONS (0→1) -->
+        <section class="slide">
+            <div class="slide-content">
+                <h2 class="reveal section-header" style="color: var(--coral)">
+                    Building Operational Foundations for Scale
+                </h2>
+                <p
+                    class="subtitle reveal"
+                    style="margin-bottom: calc(var(--element-gap) * 1.2)"
+                >
+                    When rapid growth outpaces operational maturity
+                </p>
+                <div class="content-block reveal">
+                    <h3>The Problem:</h3>
+                    <ul class="feature-list">
+                        <li>
+                            Critical knowledge trapped in key employees' heads
+                        </li>
+                        <li>No documented SOPs or workflows</li>
+                        <li>
+                            Limited visibility into operational or financial
+                            data
+                        </li>
+                        <li>
+                            Systems that work now but will break under growth
+                        </li>
+                    </ul>
+                </div>
+                <div class="scenario-card reveal">
+                    <h4>
+                        What happens when GV drives acquisition without this
+                        foundation:
+                    </h4>
+                    <p class="small">
+                        High patient/user volume overwhelms staff → Quality
+                        degrades → Operational chaos → Growth marketing ROI
+                        suffers because the "bucket has a hole in it"
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 8A: SERVICE AREA 1 — OPERATIONS (OUR APPROACH - PART 1) -->
+        <section class="slide">
+            <div class="slide-content">
+                <h2 class="reveal section-header" style="color: var(--coral)">
+                    How Corvo Labs Solves This — Part 1
+                </h2>
+                <div class="phase-timeline reveal">
+                    <div class="phase operations">
+                        <h4>Phase 1: Discovery (Weeks 1-2)</h4>
+                        <ul>
+                            <li>Interview all key stakeholders</li>
+                            <li>Map current business workflows end-to-end</li>
+                            <li>
+                                Begin data consolidation from existing systems
+                            </li>
+                            <li>
+                                <strong>Deliverable:</strong> Discovery memo,
+                                workflow maps, draft SOP list
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="phase operations">
+                        <h4>Phase 2: Documentation & Systems (Weeks 3-5)</h4>
+                        <ul>
+                            <li>
+                                Create detailed SOPs with follow-up interviews
+                            </li>
+                            <li>
+                                Build operational dashboards (using existing
+                                tools)
+                            </li>
+                            <li>
+                                Document cost of goods vs. revenue by service
+                                line
+                            </li>
+                            <li>
+                                <strong>Deliverable:</strong> Complete SOP
+                                library, operational dashboards
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 8B: SERVICE AREA 1 — OPERATIONS (OUR APPROACH - PART 2) -->
+        <section class="slide">
+            <div class="slide-content">
+                <h2 class="reveal section-header" style="color: var(--coral)">
+                    How Corvo Labs Solves This — Part 2
+                </h2>
+                <div class="phase-timeline reveal">
+                    <div class="phase operations">
+                        <h4>Phase 3: Roadmap & Enablement (Weeks 6-8)</h4>
+                        <ul>
+                            <li>Synthesize into strategic roadmap</li>
+                            <li>
+                                Build prioritization framework clients can apply
+                                independently
+                            </li>
+                            <li>
+                                Identify automation opportunities (non-clinical
+                                workflows)
+                            </li>
+                            <li>Train team for independent maintenance</li>
+                            <li>
+                                <strong>Deliverable:</strong> Strategic roadmap,
+                                prioritization framework, trained team
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <p
+                    class="reveal"
+                    style="
+                        font-size: var(--h3-size);
+                        font-family: var(--font-display);
+                        font-weight: 700;
+                        margin-top: var(--content-gap);
+                        text-align: center;
+                    "
+                >
+                    <span class="gradient-text"
+                        >Success = clients can scale independently with clear
+                        visibility and documented processes</span
+                    >
+                </p>
+            </div>
+        </section>
+
+        <!-- SLIDE 9: WHAT A TYPICAL OPS ENGAGEMENT LOOKS LIKE -->
+        <section class="slide">
+            <div class="slide-content">
+                <h2 class="reveal section-header" style="color: var(--coral)">
+                    Operations Foundation — Example Scope
+                </h2>
+                <div class="content-block reveal">
+                    <h3>Client Profile:</h3>
+                    <p>
+                        Small-to-mid-sized practice (5-15 providers), growing
+                        rapidly, operational knowledge undocumented
+                    </p>
+                </div>
+                <div class="two-column reveal">
+                    <div>
+                        <h3>Common Challenges:</h3>
+                        <ul class="feature-list">
+                            <li>
+                                Critical processes exist only in key employees'
+                                heads
+                            </li>
+                            <li>Limited visibility into financials</li>
+                            <li>Systems starting to break</li>
+                            <li>Ready to scale but foundation isn't</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>Typical Outcomes:</h3>
+                        <ul class="feature-list">
+                            <li>Complete operational documentation</li>
+                            <li>Dashboard visibility into key metrics</li>
+                            <li>Foundation ready for 2-3X growth</li>
+                            <li>Team maintains systems independently</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 10: SERVICE AREA 2 — EARLY PRODUCT WORK -->
+        <section class="slide">
+            <div class="slide-content">
+                <h2 class="reveal section-header" style="color: var(--purple)">
+                    Validating Direction Before Major Investment
+                </h2>
+                <p
+                    class="subtitle reveal"
+                    style="margin-bottom: calc(var(--element-gap) * 1.2)"
+                >
+                    When product assumptions need testing before scaling spend
+                </p>
+                <div class="content-block reveal">
+                    <h3>Critical product questions:</h3>
+                    <ul class="feature-list">
+                        <li>Is this the right problem to solve?</li>
+                        <li>Will users actually engage with this feature?</li>
+                        <li>
+                            What's the minimum we need to ship to test our
+                            hypothesis?
+                        </li>
+                        <li>Should we invest in building this, or pivot?</li>
+                    </ul>
+                </div>
+                <div
+                    class="scenario-card reveal"
+                    style="border-left-color: var(--purple)"
+                >
+                    <h4 style="color: var(--purple)">
+                        What happens when GV drives acquisition without this
+                        clarity:
+                    </h4>
+                    <p class="small">
+                        Marketing promotes a product that doesn't resonate →
+                        Acquisition spend scales before PMF confirmed →
+                        Expensive pivots after significant marketing investment
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 11A: SERVICE AREA 2 — PRODUCT (OUR APPROACH - PART 1) -->
+        <section class="slide">
+            <div class="slide-content">
+                <h2 class="reveal section-header" style="color: var(--purple)">
+                    How Corvo Labs Validates Product Direction — Part 1
+                </h2>
+                <div class="phase-timeline reveal">
+                    <div class="phase product">
+                        <h4>Discovery & Hypothesis Formation (Weeks 1-2)</h4>
+                        <ul>
+                            <li>Stakeholder interviews + user research</li>
+                            <li>
+                                Map assumptions and identify riskiest unknowns
+                            </li>
+                            <li>
+                                Define success criteria and validation approach
+                            </li>
+                            <li>
+                                <strong>Deliverable:</strong> Discovery memo,
+                                hypothesis list, validation plan
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="phase product">
+                        <h4>Rapid Prototyping & Testing (Weeks 3-6)</h4>
+                        <ul>
+                            <li>
+                                Build lightweight prototypes (Figma, clickable
+                                demos, MVPs)
+                            </li>
+                            <li>Instrument for real usage data</li>
+                            <li>Run user testing sessions</li>
+                            <li>
+                                <strong>Deliverable:</strong> Tested prototypes,
+                                usage data, insights report
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 11B: SERVICE AREA 2 — PRODUCT (OUR APPROACH - PART 2) -->
+        <section class="slide">
+            <div class="slide-content">
+                <h2 class="reveal section-header" style="color: var(--purple)">
+                    How Corvo Labs Validates Product Direction — Part 2
+                </h2>
+                <div class="phase-timeline reveal">
+                    <div class="phase product">
+                        <h4>Recommendation & Roadmap (Weeks 7-8)</h4>
+                        <ul>
+                            <li>
+                                Synthesize findings into decision-grade evidence
+                            </li>
+                            <li>Recommend: Build, Pivot, or Sunset</li>
+                            <li>
+                                Provide prioritized feature roadmap (if "Build")
+                            </li>
+                            <li>
+                                Provide alternative directions (if "Pivot" or
+                                "Sunset")
+                            </li>
+                            <li>
+                                <strong>Deliverable:</strong> Executive summary,
+                                roadmap, next steps
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <p
+                    class="reveal"
+                    style="
+                        font-size: var(--h3-size);
+                        font-family: var(--font-display);
+                        font-weight: 700;
+                        margin-top: var(--content-gap);
+                        text-align: center;
+                    "
+                >
+                    <span class="gradient-text"
+                        >Success = high-confidence decision with real evidence,
+                        not opinions</span
+                    >
+                </p>
+            </div>
+        </section>
+
+        <!-- SLIDE 12: SERVICE AREA 2 — WHAT CLIENTS GET -->
+        <section class="slide">
+            <div class="slide-content">
+                <h2 class="reveal section-header" style="color: var(--purple)">
+                    What Clients Can Expect
+                </h2>
+                <div class="two-column reveal">
+                    <div>
+                        <h3>Deliverables:</h3>
+                        <ul class="feature-list">
+                            <li>
+                                <strong>Validated assumptions</strong> — Know
+                                what's true
+                            </li>
+                            <li>
+                                <strong>Real user feedback</strong> — Actual
+                                behavior data
+                            </li>
+                            <li>
+                                <strong>Decision-grade evidence</strong> —
+                                Build, Pivot, or Sunset
+                            </li>
+                            <li>
+                                <strong>Prioritized roadmap</strong> — What to
+                                build first
+                            </li>
+                            <li>
+                                <strong>Reusable frameworks</strong> — Tools for
+                                ongoing validation
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>Outcomes:</h3>
+                        <ul class="feature-list">
+                            <li>Avoid $100K+ in wasted development</li>
+                            <li>
+                                Align product and marketing around validated
+                                direction
+                            </li>
+                            <li>
+                                Increase confidence in PMF before scaling
+                                acquisition
+                            </li>
+                            <li>
+                                Faster time-to-learning (2-8 weeks vs. 6-12
+                                months)
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 13: SERVICE AREA 2 — EXAMPLE SCENARIOS -->
+        <section class="slide">
+            <div class="slide-content">
+                <h2 class="reveal section-header" style="color: var(--purple)">
+                    When This Work Matters Most
+                </h2>
+                <div class="reveal">
+                    <div
+                        class="scenario-card"
+                        style="border-left-color: var(--purple)"
+                    >
+                        <h4 style="color: var(--purple)">
+                            Scenario 1: Pre-Scale Validation
+                        </h4>
+                        <p class="small">
+                            <strong>Challenge:</strong> Onboarding completion
+                            only 40%. Fix onboarding or scale acquisition?<br />
+                            <strong>Corvo Labs:</strong> Run UX evaluation, test
+                            3 redesign hypotheses<br />
+                            <strong>GV Impact:</strong> Once onboarding is fixed
+                            (80%+ completion), acquisition spend has 2X the ROI
+                        </p>
+                    </div>
+                    <div
+                        class="scenario-card"
+                        style="border-left-color: var(--purple)"
+                    >
+                        <h4 style="color: var(--purple)">
+                            Scenario 2: Feature Prioritization
+                        </h4>
+                        <p class="small">
+                            <strong>Challenge:</strong> Telehealth platform has
+                            10 feature ideas but limited eng resources<br />
+                            <strong>Corvo Labs:</strong> Build prototypes, test
+                            with real users, prioritize by evidence<br />
+                            <strong>GV Impact:</strong> Marketing messaging
+                            aligns with validated value props
+                        </p>
+                    </div>
+                    <div
+                        class="scenario-card"
+                        style="border-left-color: var(--purple)"
+                    >
+                        <h4 style="color: var(--purple)">
+                            Scenario 3: Pivot or Persevere
+                        </h4>
+                        <p class="small">
+                            <strong>Challenge:</strong> Low engagement app. Is
+                            this a product or marketing problem?<br />
+                            <strong>Corvo Labs:</strong> Run validation sprint,
+                            test core value prop with users<br />
+                            <strong>GV Impact:</strong> If validated, scale
+                            acquisition. If not, avoid wasting spend on broken
+                            product
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 14: HOW CORVO LABS MAKES GROWTH VANGUARD BETTER -->
+        <section class="slide">
+            <div class="slide-content">
+                <h2 class="reveal section-header">
+                    The
+                    <span class="gradient-text">Force Multiplier</span> Effect
+                </h2>
+                <div class="pill-grid reveal">
+                    <div class="pill">
+                        <h3>
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            >
+                                <path d="m3 11 18-5v12L3 14v-3z" />
+                                <path d="M11.6 16.8a3 3 0 1 1-5.8-1.6" />
+                            </svg>
+                            Great Marketing, Broken Onboarding
+                        </h3>
+                        <p class="small">
+                            <strong>Without:</strong> High-intent users → poor
+                            onboarding → wasted spend
+                        </p>
+                        <p
+                            class="small"
+                            style="color: var(--coral); font-weight: 600"
+                        >
+                            With Corvo Labs: Fix onboarding → then scale → 2-3X
+                            better conversion
+                        </p>
+                    </div>
+                    <div class="pill">
+                        <h3>
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            >
+                                <path d="M3 3v18h18" />
+                                <path d="m19 9-5 5-4-4-3 3" />
+                            </svg>
+                            Scaling Without Foundation
+                        </h3>
+                        <p class="small">
+                            <strong>Without:</strong> Scale channels → systems
+                            collapse → churn
+                        </p>
+                        <p
+                            class="small"
+                            style="color: var(--coral); font-weight: 600"
+                        >
+                            With Corvo Labs: Build foundation → then scale →
+                            sustainable growth
+                        </p>
+                    </div>
+                    <div class="pill">
+                        <h3>
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            >
+                                <path
+                                    d="M17.5 12a1 1 0 1 1 0 9H9.006a7 7 0 1 1 6.702-9z"
+                                />
+                                <path
+                                    d="M21.832 9A3 3 0 0 0 19 7h-2.207a5.5 5.5 0 0 0-10.72.61"
+                                />
+                            </svg>
+                            Unclear Product Direction
+                        </h3>
+                        <p class="small">
+                            <strong>Without:</strong> Wrong messaging, wrong
+                            audience → inefficient spend
+                        </p>
+                        <p
+                            class="small"
+                            style="color: var(--purple); font-weight: 600"
+                        >
+                            With Corvo Labs: Validate PMF + positioning →
+                            efficient channel investment
+                        </p>
+                    </div>
+                    <div class="pill">
+                        <h3>
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            >
+                                <path
+                                    d="M15.39 4.39a1 1 0 0 0 1.68-.474 2.5 2.5 0 1 1 3.014 3.015 1 1 0 0 0-.474 1.68l1.683 1.682a2.414 2.414 0 0 1 0 3.414L19.61 15.39a1 1 0 0 1-1.68-.474 2.5 2.5 0 1 0-3.014 3.015 1 1 0 0 1 .474 1.68l-1.683 1.682a2.414 2.414 0 0 1-3.414 0L8.61 19.61a1 1 0 0 0-1.68.474 2.5 2.5 0 1 1-3.014-3.015 1 1 0 0 0 .474-1.68l-1.683-1.682a2.414 2.414 0 0 1 0-3.414L4.39 8.61a1 1 0 0 1 1.68.474 2.5 2.5 0 1 0 3.014-3.015 1 1 0 0 1-.474-1.68l1.683-1.682a2.414 2.414 0 0 1 3.414 0z"
+                                />
+                            </svg>
+                            PMF Uncertainty
+                        </h3>
+                        <p class="small">
+                            <strong>Without:</strong> Scale prematurely → burn
+                            runway → expensive pivot
+                        </p>
+                        <p
+                            class="small"
+                            style="color: var(--purple); font-weight: 600"
+                        >
+                            With Corvo Labs: Validate assumptions → then scale →
+                            capital-efficient growth
+                        </p>
+                    </div>
+                </div>
+                <p
+                    class="reveal"
+                    style="
+                        font-size: var(--h3-size);
+                        font-family: var(--font-display);
+                        font-weight: 700;
+                        margin-top: var(--element-gap);
+                        text-align: center;
+                    "
+                >
+                    Growth Vanguard's work becomes
+                    <span class="gradient-text"
+                        >more impactful, more measurable, and stickier</span
+                    >.
+                </p>
+            </div>
+        </section>
+
+        <!-- SLIDE 15: AI ADOPTION & TRAINING (BRIEF) -->
+        <section class="slide">
+            <div class="slide-content">
+                <h2 class="reveal section-header">
+                    AI Adoption & Team Empowerment
+                </h2>
+                <p
+                    class="subtitle reveal"
+                    style="margin-bottom: calc(var(--element-gap) * 1.2)"
+                >
+                    Supporting Capability
+                </p>
+                <div class="two-column reveal">
+                    <div>
+                        <h3>Services:</h3>
+                        <ul class="feature-list">
+                            <li>
+                                <strong>AI workflow automation</strong>
+                                (non-clinical)
+                            </li>
+                            <li><strong>Internal agent development</strong></li>
+                            <li><strong>AI training & enablement</strong></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3>Approach:</h3>
+                        <ul class="feature-list">
+                            <li>Focus on measurable efficiency gains</li>
+                            <li>
+                                Ethical AI implementation (patient safety, data
+                                privacy)
+                            </li>
+                            <li>Tool selection, not novelty</li>
+                        </ul>
+                    </div>
+                </div>
+                <div
+                    class="scenario-card reveal"
+                    style="margin-top: var(--element-gap)"
+                >
+                    <h4>Why it matters for GV clients:</h4>
+                    <p>
+                        Healthtech companies adopting AI can reinvest efficiency
+                        gains into growth. Better margins = more budget for
+                        acquisition.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 16: HOW WE WORK TOGETHER -->
+        <section class="slide">
+            <div class="slide-content">
+                <h2 class="reveal section-header">
+                    Making This Partnership Work
+                </h2>
+                <div class="reveal">
+                    <h3>When to Bring Corvo Labs In:</h3>
+                    <div class="scenario-card">
+                        <h4>
+                            Signal 1: Client is scaling but systems are breaking
+                        </h4>
+                        <p class="small">
+                            GV identifies operational gaps → Refer to Corvo Labs
+                            for 6-8 week ops foundation → GV resumes/accelerates
+                            acquisition
+                        </p>
+                    </div>
+                    <div class="scenario-card">
+                        <h4>Signal 2: Product direction is unclear</h4>
+                        <p class="small">
+                            GV recommends validation work → Corvo Labs runs 4-8
+                            week product validation sprint → GV scales
+                            acquisition with confidence
+                        </p>
+                    </div>
+                    <div class="scenario-card">
+                        <h4>
+                            Signal 3: Product/ops questions block growth
+                            strategy
+                        </h4>
+                        <p class="small">
+                            GV brings Corvo Labs into discovery → Corvo Labs
+                            provides clarity → GV and Corvo Labs co-develop
+                            integrated roadmap
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 17: WHY PARTNER WITH CORVO LABS -->
+        <section class="slide">
+            <div class="slide-content">
+                <h2 class="reveal section-header">
+                    What Growth Vanguard Gains
+                </h2>
+                <!-- Top row: 2 cards centered -->
+                <div
+                    class="reveal"
+                    style="
+                        display: grid;
+                        grid-template-columns: 1fr 1fr;
+                        gap: var(--element-gap);
+                        max-width: 750px;
+                        margin: 0 auto var(--element-gap);
+                    "
+                >
+                    <div class="pill">
+                        <h3>
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            >
+                                <path
+                                    d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"
+                                />
+                                <path d="m9 12 2 2 4-4" />
+                            </svg>
+                            Stronger Client Outcomes
+                        </h3>
+                        <p class="small">
+                            Your growth work has a solid foundation. Clients see
+                            sustainable results, not short-term spikes.
+                        </p>
+                    </div>
+                    <div class="pill">
+                        <h3>
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            >
+                                <polyline points="16 18 22 12 16 6" />
+                                <polyline points="8 6 2 12 8 18" />
+                            </svg>
+                            Expanded Service Offering
+                        </h3>
+                        <p class="small">
+                            Position GV as a holistic growth partner. "We drive
+                            acquisition AND make sure your business can handle
+                            it."
+                        </p>
+                    </div>
+                </div>
+                <!-- Bottom row: 3 cards centered -->
+                <div
+                    class="reveal"
+                    style="
+                        display: grid;
+                        grid-template-columns: repeat(3, 1fr);
+                        gap: var(--element-gap);
+                        max-width: 100%;
+                        margin: 0 auto;
+                    "
+                >
+                    <div class="pill">
+                        <h3>
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            >
+                                <rect
+                                    width="20"
+                                    height="14"
+                                    x="2"
+                                    y="5"
+                                    rx="2"
+                                />
+                                <line x1="2" x2="22" y1="10" y2="10" />
+                            </svg>
+                            Revenue Protection
+                        </h3>
+                        <p class="small">
+                            Clients don't churn because growth broke their
+                            operations. Longer relationships = more LTV.
+                        </p>
+                    </div>
+                    <div class="pill">
+                        <h3>
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            >
+                                <path
+                                    d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"
+                                />
+                                <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+                            </svg>
+                            Strategic Credibility
+                        </h3>
+                        <p class="small">
+                            GV becomes the trusted advisor who sees around
+                            corners. "Before you scale, let's make sure you're
+                            ready."
+                        </p>
+                    </div>
+                    <div class="pill">
+                        <h3>
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            >
+                                <rect
+                                    width="18"
+                                    height="18"
+                                    x="3"
+                                    y="3"
+                                    rx="2"
+                                />
+                                <path d="M7 7h.01" />
+                                <path d="M17 7h.01" />
+                                <path d="M7 17h.01" />
+                                <path d="M17 17h.01" />
+                            </svg>
+                            De-Risked Engagements
+                        </h3>
+                        <p class="small">
+                            Clear diagnosis: product problem vs. marketing
+                            problem. Better attribution of your impact.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 18: LOOKING FORWARD -->
+        <section class="slide">
+            <div class="slide-content">
+                <h2 class="reveal section-header">
+                    Looking Forward to Working Together
+                </h2>
+                <div class="content-block reveal">
+                    <p
+                        style="
+                            font-size: var(--h3-size);
+                            font-family: var(--font-display);
+                            font-weight: 700;
+                            line-height: 1.3;
+                            margin-bottom: var(--content-gap);
+                        "
+                    >
+                        Excited to be a resource for your team and your clients.
+                    </p>
+                </div>
+                <div class="content-block reveal">
+                    <h3>How to get started:</h3>
+                    <ul
+                        class="feature-list"
+                        style="margin-top: calc(var(--element-gap) * 0.8)"
+                    >
+                        <li>
+                            Think of me when a client has a product-skills gap
+                            or needs operational foundations
+                        </li>
+                        <li>
+                            Happy to jump on a quick call with any client to
+                            assess fit
+                        </li>
+                        <li>
+                            No pressure, no minimums — just here to help when
+                            the need is right
+                        </li>
+                    </ul>
+                </div>
+                <div
+                    class="content-block reveal"
+                    style="
+                        margin-top: var(--content-gap);
+                        padding: 1.25rem;
+                        background: var(--bg-secondary);
+                        border-radius: 12px;
+                        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+                    "
+                >
+                    <p>
+                        <strong>Jake Butler</strong><br />
+                        Founder, Corvo Labs<br />
+                        corvolabs.com
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 19: THANK YOU -->
+        <section class="slide thank-you-slide">
+            <div class="slide-content">
+                <h1 class="reveal">Thank You</h1>
+                <p
+                    class="reveal"
+                    style="
+                        font-size: var(--h2-size);
+                        margin-bottom: var(--content-gap);
+                    "
+                >
+                    Questions?
+                </p>
+                <div class="contact-info reveal">
+                    <p><strong>Jake Butler</strong></p>
+                    <p>Founder, Corvo Labs</p>
+                    <p style="margin-top: var(--element-gap)">corvolabs.com</p>
+                </div>
+            </div>
+        </section>
+
+        <script>
+            /* ===========================================
+           SLIDE PRESENTATION CONTROLLER
+           =========================================== */
+
+            class SlidePresentation {
+                constructor() {
+                    this.slides = document.querySelectorAll(".slide");
+                    this.currentSlide = 0;
+                    this.progressBar = document.querySelector(".progress-bar");
+                    this.navDots = document.querySelector(".nav-dots");
+
+                    this.init();
                 }
-            }
 
-            createNavDots() {
-                this.slides.forEach((slide, index) => {
-                    const dot = document.createElement('div');
-                    dot.className = 'nav-dot';
-                    if (index === 0) dot.classList.add('active');
-                    dot.addEventListener('click', () => this.goToSlide(index));
-                    this.navDots.appendChild(dot);
-                });
-            }
+                init() {
+                    this.createNavDots();
+                    this.setupIntersectionObserver();
+                    this.bindKeyboard();
+                    this.bindWheel();
+                    this.bindTouch();
+                    this.updateProgress();
+                    this.updateNavDots();
 
-            setupIntersectionObserver() {
-                const options = {
-                    root: null,
-                    threshold: 0.5
-                };
+                    if (this.slides[0]) {
+                        this.slides[0].classList.add("visible");
+                    }
+                }
 
-                const observer = new IntersectionObserver((entries) => {
-                    entries.forEach(entry => {
-                        if (entry.isIntersecting) {
-                            entry.target.classList.add('visible');
-                            this.currentSlide = Array.from(this.slides).indexOf(entry.target);
-                            this.updateProgress();
-                            this.updateNavDots();
+                createNavDots() {
+                    this.slides.forEach((slide, index) => {
+                        const dot = document.createElement("div");
+                        dot.className = "nav-dot";
+                        if (index === 0) dot.classList.add("active");
+                        dot.addEventListener("click", () =>
+                            this.goToSlide(index),
+                        );
+                        this.navDots.appendChild(dot);
+                    });
+                }
+
+                setupIntersectionObserver() {
+                    const options = {
+                        root: null,
+                        threshold: 0.5,
+                    };
+
+                    const observer = new IntersectionObserver((entries) => {
+                        entries.forEach((entry) => {
+                            if (entry.isIntersecting) {
+                                entry.target.classList.add("visible");
+                                this.currentSlide = Array.from(
+                                    this.slides,
+                                ).indexOf(entry.target);
+                                this.updateProgress();
+                                this.updateNavDots();
+                            }
+                        });
+                    }, options);
+
+                    this.slides.forEach((slide) => observer.observe(slide));
+                }
+
+                bindKeyboard() {
+                    document.addEventListener("keydown", (e) => {
+                        if (e.key === "ArrowRight" || e.key === " ") {
+                            e.preventDefault();
+                            this.nextSlide();
+                        } else if (e.key === "ArrowLeft") {
+                            e.preventDefault();
+                            this.prevSlide();
                         }
                     });
-                }, options);
+                }
 
-                this.slides.forEach(slide => observer.observe(slide));
-            }
+                bindWheel() {
+                    let wheelTimeout;
+                    document.addEventListener("wheel", (e) => {
+                        clearTimeout(wheelTimeout);
+                        wheelTimeout = setTimeout(() => {
+                            if (e.deltaY > 0) {
+                                this.nextSlide();
+                            } else {
+                                this.prevSlide();
+                            }
+                        }, 100);
+                    });
+                }
 
-            bindKeyboard() {
-                document.addEventListener('keydown', (e) => {
-                    if (e.key === 'ArrowRight' || e.key === ' ') {
-                        e.preventDefault();
-                        this.nextSlide();
-                    } else if (e.key === 'ArrowLeft') {
-                        e.preventDefault();
-                        this.prevSlide();
-                    }
-                });
-            }
+                bindTouch() {
+                    let touchStartY = 0;
 
-            bindWheel() {
-                let wheelTimeout;
-                document.addEventListener('wheel', (e) => {
-                    clearTimeout(wheelTimeout);
-                    wheelTimeout = setTimeout(() => {
-                        if (e.deltaY > 0) {
-                            this.nextSlide();
-                        } else {
-                            this.prevSlide();
+                    document.addEventListener("touchstart", (e) => {
+                        touchStartY = e.touches[0].clientY;
+                    });
+
+                    document.addEventListener("touchend", (e) => {
+                        const touchEndY = e.changedTouches[0].clientY;
+                        const diff = touchStartY - touchEndY;
+
+                        if (Math.abs(diff) > 50) {
+                            if (diff > 0) {
+                                this.nextSlide();
+                            } else {
+                                this.prevSlide();
+                            }
                         }
-                    }, 100);
-                });
-            }
+                    });
+                }
 
-            bindTouch() {
-                let touchStartY = 0;
+                nextSlide() {
+                    if (this.currentSlide < this.slides.length - 1) {
+                        this.goToSlide(this.currentSlide + 1);
+                    }
+                }
 
-                document.addEventListener('touchstart', (e) => {
-                    touchStartY = e.touches[0].clientY;
-                });
+                prevSlide() {
+                    if (this.currentSlide > 0) {
+                        this.goToSlide(this.currentSlide - 1);
+                    }
+                }
 
-                document.addEventListener('touchend', (e) => {
-                    const touchEndY = e.changedTouches[0].clientY;
-                    const diff = touchStartY - touchEndY;
+                goToSlide(index) {
+                    if (index >= 0 && index < this.slides.length) {
+                        this.slides[index].scrollIntoView({
+                            behavior: "smooth",
+                        });
+                    }
+                }
 
-                    if (Math.abs(diff) > 50) {
-                        if (diff > 0) {
-                            this.nextSlide();
+                updateProgress() {
+                    const progress =
+                        ((this.currentSlide + 1) / this.slides.length) * 100;
+                    this.progressBar.style.width = `${progress}%`;
+                }
+
+                updateNavDots() {
+                    const dots = this.navDots.querySelectorAll(".nav-dot");
+                    dots.forEach((dot, index) => {
+                        if (index === this.currentSlide) {
+                            dot.classList.add("active");
                         } else {
-                            this.prevSlide();
+                            dot.classList.remove("active");
                         }
-                    }
-                });
-            }
-
-            nextSlide() {
-                if (this.currentSlide < this.slides.length - 1) {
-                    this.goToSlide(this.currentSlide + 1);
+                    });
                 }
             }
 
-            prevSlide() {
-                if (this.currentSlide > 0) {
-                    this.goToSlide(this.currentSlide - 1);
+            // Initialize
+            new SlidePresentation();
+
+            // Hide keyboard hint after 3 seconds
+            setTimeout(() => {
+                const hint = document.querySelector(".keyboard-hint");
+                if (hint) {
+                    hint.style.opacity = "0";
+                    setTimeout(() => (hint.style.display = "none"), 500);
                 }
-            }
-
-            goToSlide(index) {
-                if (index >= 0 && index < this.slides.length) {
-                    this.slides[index].scrollIntoView({ behavior: 'smooth' });
-                }
-            }
-
-            updateProgress() {
-                const progress = ((this.currentSlide + 1) / this.slides.length) * 100;
-                this.progressBar.style.width = `${progress}%`;
-            }
-
-            updateNavDots() {
-                const dots = this.navDots.querySelectorAll('.nav-dot');
-                dots.forEach((dot, index) => {
-                    if (index === this.currentSlide) {
-                        dot.classList.add('active');
-                    } else {
-                        dot.classList.remove('active');
-                    }
-                });
-            }
-        }
-
-        new SlidePresentation();
-
-        setTimeout(() => {
-            const hint = document.querySelector('.keyboard-hint');
-            if (hint) {
-                hint.style.opacity = '0';
-                setTimeout(() => hint.style.display = 'none', 500);
-            }
-        }, 3000);
-    </script>
-</body>
+            }, 3000);
+        </script>
+    </body>
 </html>
