@@ -1,47 +1,45 @@
 'use client';
 
-import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { FormEvent, useState } from 'react';
 import { ArrowRight, Lock } from 'lucide-react';
 
 type PresentationViewerProps = {
-  html: string;
+  html: string | null;
   title: string;
-  password?: string;
   slug: string;
+  isUnlocked: boolean;
+  requiresPassword: boolean;
 };
 
-export function PresentationViewer({ html, title, password, slug }: PresentationViewerProps) {
+export function PresentationViewer({ html, title, slug, isUnlocked, requiresPassword }: PresentationViewerProps) {
   const [input, setInput] = useState('');
   const [error, setError] = useState('');
-  const [isUnlocked, setIsUnlocked] = useState(!password);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const storageKey = useMemo(() => `presentation-unlocked:${slug}`, [slug]);
-
-  useEffect(() => {
-    if (!password) {
-      setIsUnlocked(true);
-      return;
-    }
-
-    if (window.sessionStorage.getItem(storageKey) === 'true') {
-      setIsUnlocked(true);
-    }
-  }, [password, storageKey]);
-
-  const handleUnlock = (event: FormEvent<HTMLFormElement>) => {
+  const handleUnlock = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setIsSubmitting(true);
+    setError('');
 
-    if (!password || input === password) {
-      setError('');
-      setIsUnlocked(true);
-      window.sessionStorage.setItem(storageKey, 'true');
-      return;
+    try {
+      const response = await fetch(`/api/presentations/${slug}/unlock`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: input }),
+      });
+
+      if (!response.ok) {
+        setError('Incorrect password. Please try again.');
+        return;
+      }
+
+      window.location.reload();
+    } finally {
+      setIsSubmitting(false);
     }
-
-    setError('Incorrect password. Please try again.');
   };
 
-  if (!isUnlocked) {
+  if (!isUnlocked || (requiresPassword && !html)) {
     return (
       <main className="relative min-h-screen overflow-hidden bg-gradient-to-b from-white via-orange-50/40 to-white text-zinc-900">
         <div className="pointer-events-none absolute inset-0">
@@ -72,6 +70,7 @@ export function PresentationViewer({ html, title, password, slug }: Presentation
                 className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-3 text-zinc-900 outline-none transition focus:border-[#FF6B47]/70 focus:ring-4 focus:ring-[#FF6B47]/15"
                 placeholder="Enter password"
                 autoFocus
+                disabled={isSubmitting}
               />
 
               {error ? (
@@ -80,9 +79,10 @@ export function PresentationViewer({ html, title, password, slug }: Presentation
 
               <button
                 type="submit"
-                className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#FF6B47] to-[#9c40ff] px-4 py-3 font-semibold text-white transition hover:opacity-95 focus:outline-none focus:ring-4 focus:ring-[#FF6B47]/30"
+                disabled={isSubmitting}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#FF6B47] to-[#9c40ff] px-4 py-3 font-semibold text-white transition hover:opacity-95 focus:outline-none focus:ring-4 focus:ring-[#FF6B47]/30 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                Unlock presentation
+                {isSubmitting ? 'Checking...' : 'Unlock presentation'}
                 <ArrowRight className="h-4 w-4" />
               </button>
             </form>
@@ -94,7 +94,7 @@ export function PresentationViewer({ html, title, password, slug }: Presentation
 
   return (
     <main className="min-h-screen bg-zinc-950">
-      <iframe title={title} srcDoc={html} className="h-screen w-full border-0" />
+      <iframe title={title} srcDoc={html ?? ''} className="h-screen w-full border-0" />
     </main>
   );
 }

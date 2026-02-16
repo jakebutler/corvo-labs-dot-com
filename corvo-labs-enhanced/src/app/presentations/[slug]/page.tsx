@@ -1,7 +1,13 @@
+import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 
 import { PresentationViewer } from '@/components/presentations/presentation-viewer';
-import { getPresentation, getPresentationHtml } from '@/lib/presentations';
+import {
+  getPresentation,
+  getPresentationAccessCookieName,
+  getPresentationHtml,
+  getPresentationPassword,
+} from '@/lib/presentations';
 
 type PresentationPageProps = {
   params: Promise<{ slug: string }>;
@@ -15,14 +21,22 @@ export default async function PresentationPage({ params }: PresentationPageProps
     notFound();
   }
 
-  const html = await getPresentationHtml(presentation.fileName);
+  const password = getPresentationPassword(presentation);
+  const requiresPassword = Boolean(password);
+
+  const cookieStore = await cookies();
+  const accessCookie = cookieStore.get(getPresentationAccessCookieName(slug));
+  const isUnlocked = !requiresPassword || accessCookie?.value === 'true';
+
+  const html = isUnlocked ? await getPresentationHtml(presentation.fileName) : null;
 
   return (
     <PresentationViewer
       slug={slug}
       html={html}
       title={presentation.title}
-      password={presentation.password}
+      isUnlocked={isUnlocked}
+      requiresPassword={requiresPassword}
     />
   );
 }
