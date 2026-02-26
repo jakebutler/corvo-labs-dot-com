@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
-import { ArrowRight, Calendar, Clock, Search, Filter, Mail, BookOpen, Lightbulb, TrendingUp, Award } from 'lucide-react'
+import { ArrowRight, Calendar, Clock, BookOpen, Lightbulb, TrendingUp, Award } from 'lucide-react'
 import { EnhancedCTA } from '@/components/enhanced-cta'
 import { ShimmerButton } from '@/components/magicui/shimmer-button'
 import { AnimatedGradientText } from '@/components/magicui/animated-gradient-text'
@@ -24,91 +24,16 @@ const staggerContainer = {
     }
 }
 
-const categories = [
-    { id: 'all', label: 'All Posts', count: 0 },
-    { id: 'strategy', label: 'AI Strategy', count: 0 },
-    { id: 'implementation', label: 'Implementation', count: 0 },
-    { id: 'innovation', label: 'Innovation', count: 0 },
-    { id: 'workflows', label: 'Workflows', count: 0 }
-]
-
 interface BlogListProps {
     posts: BlogPost[]
 }
 
 export function BlogList({ posts }: BlogListProps) {
-    const [selectedCategory, setSelectedCategory] = useState('all')
-    const [searchTerm, setSearchTerm] = useState('')
-    const [email, setEmail] = useState('')
-    const [isSubscribed, setIsSubscribed] = useState(false)
-    const [isSubmitting, setIsSubmitting] = useState(false)
-    const [subscribeError, setSubscribeError] = useState<string | null>(null)
-
-    const filteredPosts = posts.filter(post => {
-        const matchesCategory = selectedCategory === 'all' || post.category === selectedCategory
-        const matchesSearch = post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            post.excerpt.toLowerCase().includes(searchTerm.toLowerCase())
-        return matchesCategory && matchesSearch
-    })
-
-    const handleSubscribe = async (e: React.FormEvent) => {
-        e.preventDefault()
-
-        setSubscribeError(null)
-
-        if (!email || !email.trim()) {
-            setSubscribeError('Please enter your email address')
-            return
-        }
-
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-        if (!emailRegex.test(email.trim())) {
-            setSubscribeError('Please enter a valid email address')
-            return
-        }
-
-        setIsSubmitting(true)
-
-        try {
-            const response = await fetch('/api/newsletter/subscribe', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ email: email.trim(), source: 'blog' }),
-            })
-
-            const data = await response.json()
-
-            if (!response.ok) {
-                const errorMessage = data.error || 'Failed to subscribe. Please try again later.'
-                setSubscribeError(errorMessage)
-                return
-            }
-
-            setIsSubscribed(true)
-            setEmail('')
-            setSubscribeError(null)
-
-            setTimeout(() => {
-                setIsSubscribed(false)
-            }, 5000)
-
-        } catch (error) {
-            console.error('Error subscribing to newsletter:', error)
-            setSubscribeError(
-                error instanceof Error
-                    ? 'Network error. Please check your connection and try again.'
-                    : 'An unexpected error occurred. Please try again later.'
-            )
-        } finally {
-            setIsSubmitting(false)
-        }
-    }
+    const filteredPosts = posts
 
     return (
         <>
-            <section className="min-h-[60vh] flex items-center justify-center bg-white">
+            <section className="py-16 md:py-20 bg-white">
                 <div className="container mx-auto px-4">
                     <motion.div
                         initial="hidden"
@@ -130,149 +55,15 @@ export function BlogList({ posts }: BlogListProps) {
                         </motion.h1>
                         <motion.p
                             variants={fadeIn}
-                            className="text-body text-xl md:text-2xl text-gray-600 leading-relaxed mb-8"
+                            className="text-body text-xl md:text-2xl text-gray-600 leading-relaxed"
                         >
                             Expert insights on implementing AI in healthcare workflows, industry trends, and best practices from our team of healthcare AI specialists.
                         </motion.p>
-                        <motion.div
-                            variants={fadeIn}
-                            className="flex flex-col sm:flex-row gap-4 justify-center"
-                        >
-                            <Link href="#newsletter">
-                                <ShimmerButton className="px-8 py-3 text-lg inline-flex items-center justify-center">
-                                    <span className="text-white font-semibold">Subscribe to Newsletter</span>
-                                    <Mail className="ml-2 h-4 w-4" />
-                                </ShimmerButton>
-                            </Link>
-                        </motion.div>
                     </motion.div>
                 </div>
             </section>
 
-            <section id="newsletter" className="py-16 bg-accent text-white">
-                <div className="container mx-auto px-4">
-                    <motion.div
-                        initial="hidden"
-                        whileInView="visible"
-                        viewport={{ once: true }}
-                        variants={staggerContainer}
-                        className="max-w-4xl mx-auto text-center"
-                    >
-                        <motion.div variants={fadeIn}>
-                            <Mail className="h-16 w-16 mx-auto mb-6" />
-                            <h2 className="text-display text-3xl md:text-4xl xl:text-5xl mb-4">
-                                Get Weekly Healthcare AI Insights
-                            </h2>
-                            <p className="text-body text-xl opacity-90 mb-8 leading-relaxed">
-                                Join 5,000+ healthcare leaders receiving expert analysis, implementation guides, and industry trends every week.
-                            </p>
-                        </motion.div>
-
-                        <motion.form
-                            variants={fadeIn}
-                            onSubmit={handleSubscribe}
-                            className="max-w-md mx-auto"
-                        >
-                            <div className="flex flex-col sm:flex-row gap-3">
-                                <input
-                                    type="email"
-                                    value={email}
-                                    onChange={(e) => {
-                                        setEmail(e.target.value)
-                                        if (subscribeError) {
-                                            setSubscribeError(null)
-                                        }
-                                    }}
-                                    placeholder="Enter your work email"
-                                    className="flex-1 px-4 py-3 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-white/50 disabled:opacity-50 disabled:cursor-not-allowed"
-                                    required
-                                    disabled={isSubmitting}
-                                />
-                                <ShimmerButton
-                                    type="submit"
-                                    background="#ffffff"
-                                    shimmerColor="#FF6B47"
-                                    className="px-6 py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
-                                    disabled={isSubmitting}
-                                >
-                                    <span className="text-accent font-semibold">{isSubmitting ? 'Subscribing...' : 'Subscribe'}</span>
-                                </ShimmerButton>
-                            </div>
-
-                            {isSubscribed && (
-                                <motion.div
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0, y: -10 }}
-                                    className="mt-3 text-sm opacity-90 text-green-200"
-                                >
-                                    ✓ Successfully subscribed! Check your email for confirmation.
-                                </motion.div>
-                            )}
-
-                            {subscribeError && (
-                                <motion.div
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    className="mt-3 text-sm opacity-90 text-red-200"
-                                >
-                                    {subscribeError}
-                                </motion.div>
-                            )}
-
-                            <p className="text-sm opacity-75 mt-4">
-                                Unsubscribe anytime. We respect your privacy and will never share your email.
-                            </p>
-                        </motion.form>
-                    </motion.div>
-                </div>
-            </section>
-
-            <section className="py-12 bg-white border-b">
-                <div className="container mx-auto px-4">
-                    <motion.div
-                        initial="hidden"
-                        whileInView="visible"
-                        viewport={{ once: true }}
-                        variants={staggerContainer}
-                        className="max-w-4xl mx-auto"
-                    >
-                        <div className="grid md:grid-cols-2 gap-6">
-                            <motion.div variants={fadeIn}>
-                                <div className="relative">
-                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                                    <input
-                                        type="text"
-                                        value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
-                                        placeholder="Search articles..."
-                                        className="w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent/50"
-                                    />
-                                </div>
-                            </motion.div>
-
-                            <motion.div variants={fadeIn}>
-                                <div className="flex items-center space-x-2">
-                                    <Filter className="h-5 w-5 text-gray-500" />
-                                    <select
-                                        value={selectedCategory}
-                                        onChange={(e) => setSelectedCategory(e.target.value)}
-                                        className="flex-1 px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent/50"
-                                    >
-                                        {categories.map(category => (
-                                            <option key={category.id} value={category.id}>
-                                                {category.label} ({category.count})
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-                            </motion.div>
-                        </div>
-                    </motion.div>
-                </div>
-            </section>
-
-            <section className="py-20 bg-white">
+            <section className="pt-4 pb-20 bg-white">
                 <div className="container mx-auto px-4">
                     <motion.div
                         initial="hidden"
