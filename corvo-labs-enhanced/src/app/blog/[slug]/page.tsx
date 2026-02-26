@@ -5,6 +5,7 @@ import { MDXRemote } from 'next-mdx-remote/rsc'
 import Link from 'next/link'
 import { ArrowLeft, Calendar, Clock, User, Share2 } from 'lucide-react'
 import { EnhancedCTA } from '@/components/enhanced-cta'
+import remarkGfm from 'remark-gfm'
 
 // Define components mapping for MDX
 const components = {
@@ -37,6 +38,26 @@ const components = {
     ),
     code: (props: any) => (
         <code {...props} className="bg-gray-100 text-accent font-mono px-1.5 py-0.5 rounded text-sm" />
+    ),
+    table: (props: any) => (
+        <div className="my-8 overflow-x-auto rounded-xl border border-gray-200 bg-white">
+            <table {...props} className="min-w-full border-collapse text-left text-base text-gray-700 !my-0 m-0" />
+        </div>
+    ),
+    thead: (props: any) => (
+        <thead {...props} className="bg-gray-50" />
+    ),
+    tbody: (props: any) => (
+        <tbody {...props} className="divide-y divide-gray-100" />
+    ),
+    tr: (props: any) => (
+        <tr {...props} className="border-b border-gray-100 last:border-b-0" />
+    ),
+    th: (props: any) => (
+        <th {...props} className="px-4 py-3 text-sm font-semibold uppercase tracking-wide text-gray-700" />
+    ),
+    td: (props: any) => (
+        <td {...props} className="px-4 py-3 align-top text-base text-gray-700" />
     ),
     BlogImage: (props: any) => {
         // Support className for styling via MDX attributes
@@ -88,23 +109,28 @@ export async function generateMetadata({ params }: PageProps) {
         }
     }
 
+    const fullTitle = post.subtitle ? `${post.title}: ${post.subtitle}` : post.title
+    const socialImages = post.coverImage
+        ? [{ url: post.coverImage, alt: post.coverImageAlt || fullTitle }]
+        : []
+
     return {
-        title: `${post.title} | Corvo Labs Blog`,
+        title: `${fullTitle} | Corvo Labs Blog`,
         description: post.excerpt,
         openGraph: {
-            title: post.title,
+            title: fullTitle,
             description: post.excerpt,
             type: 'article',
             publishedTime: post.date,
             authors: [post.author],
             tags: post.tags,
-            images: post.coverImage ? [post.coverImage] : [],
+            images: socialImages,
         },
         twitter: {
             card: 'summary_large_image',
-            title: post.title,
+            title: fullTitle,
             description: post.excerpt,
-            images: post.coverImage ? [post.coverImage] : [],
+            images: socialImages,
         },
     }
 }
@@ -119,7 +145,7 @@ export default async function BlogPostPage({ params }: PageProps) {
 
     return (
         <>
-            <article className="min-h-screen bg-white pb-20 pt-32">
+            <article className="min-h-screen bg-white pb-20 pt-0">
                 {/* Navigation */}
                 <div className="container mx-auto px-4 mb-12">
                     <Link
@@ -146,9 +172,26 @@ export default async function BlogPostPage({ params }: PageProps) {
                                 ))}
                             </div>
 
+                            {post.coverImage && (
+                                <figure className="mb-10 mx-auto w-2/5">
+                                    <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-soft-lg">
+                                        <img
+                                            src={post.coverImage}
+                                            alt={post.coverImageAlt || post.title}
+                                            className="w-full h-auto"
+                                        />
+                                    </div>
+                                </figure>
+                            )}
+
                             <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-gray-900 mb-8 leading-tight">
                                 {post.title}
                             </h1>
+                            {post.subtitle && (
+                                <p className="text-2xl md:text-3xl text-gray-700 font-display font-semibold mb-8 leading-tight">
+                                    {post.subtitle}
+                                </p>
+                            )}
 
                             <div className="flex flex-wrap items-center justify-center gap-6 text-gray-500 text-sm md:text-base border-t border-b border-gray-100 py-6">
                                 <div className="flex items-center">
@@ -168,7 +211,15 @@ export default async function BlogPostPage({ params }: PageProps) {
 
                         {/* Content */}
                         <div className="prose prose-lg prose-gray max-w-none">
-                            <MDXRemote source={post.content} components={components} />
+                            <MDXRemote
+                                source={post.content}
+                                components={components}
+                                options={{
+                                    mdxOptions: {
+                                        remarkPlugins: [remarkGfm],
+                                    },
+                                }}
+                            />
                         </div>
 
                         {/* Share / Footer */}
