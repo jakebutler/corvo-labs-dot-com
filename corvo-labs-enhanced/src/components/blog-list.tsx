@@ -283,7 +283,10 @@ export function BlogList({ posts }: BlogListProps) {
                     >
 
                         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                            {filteredPosts.map((post) => (
+                            {filteredPosts.map((post) => {
+                                const displayTitle = post.subtitle ? `${post.title}: ${post.subtitle}` : post.title
+
+                                return (
                                 <Link key={post.slug} href={`/blog/${post.slug}`}>
                                     <motion.article
                                         variants={fadeIn}
@@ -292,7 +295,7 @@ export function BlogList({ posts }: BlogListProps) {
                                         <div className="aspect-w-16 aspect-h-9 bg-gray-200 h-40 relative overflow-hidden">
                                             {/* Placeholder for image if not present, or Next.js Image */}
                                             {post.coverImage ? (
-                                                <img src={post.coverImage} alt={post.title} className="object-cover w-full h-full" />
+                                                <img src={post.coverImage} alt={post.coverImageAlt || displayTitle} className="object-cover w-full h-full" />
                                             ) : (
                                                 <div className="w-full h-full bg-gradient-to-br from-accent/20 to-purple-500/20" />
                                             )}
@@ -308,7 +311,7 @@ export function BlogList({ posts }: BlogListProps) {
                                                     <span>{post.readTime}</span>
                                                 </div>
                                             </div>
-                                            <h3 className="text-lg font-bold text-black mb-2 line-clamp-2">{post.title}</h3>
+                                            <h3 className="text-lg font-bold text-black mb-2 line-clamp-2">{displayTitle}</h3>
                                             <p className="text-gray-600 text-sm mb-4 line-clamp-3 flex-1">{post.excerpt}</p>
                                             <div className="flex flex-wrap gap-2 mb-4">
                                                 {post.tags.slice(0, 2).map((tag, idx) => (
@@ -335,7 +338,8 @@ export function BlogList({ posts }: BlogListProps) {
                                         </div>
                                     </motion.article>
                                 </Link>
-                            ))}
+                                )
+                            })}
                         </div>
 
                         {filteredPosts.length === 0 && (

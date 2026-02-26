@@ -1,0 +1,279 @@
+---
+title: "From 4 Minutes to 4 Seconds"
+subtitle: "How We Rebuilt Kinisi's LLM Program Generation Pipeline"
+date: "2026-02-26"
+excerpt: "Five rounds of optimization on Kinisi's 12-week fitness program pipeline, from multi-minute waits to a 4-second median time to first actionable week."
+author: "Jake Butler"
+tags: ["LLM Workflows", "Context Engineering", "Latency Optimization", "Observability", "AI Product Design"]
+coverImage: "/images/blog/kinisi/kinisi-hero-finish.png"
+coverImageAlt: "Playful finish-line illustration of three characters racing to the end, symbolizing Kinisi's speed gains from minutes to seconds"
+readTime: "12 min read"
+category: "workflows"
+featured: true
+published: true
+---
+
+*Five rounds of optimization on a fitness AI – what I changed, what I measured, and what actually moved the needle.*
+
+---
+
+Many product problems are born of frustration and impatience. This was very much the case for myself and [Kinisi](https://kinisi.corvolabs.com), a fitness program app. The program generation flow worked. It produced thoughtful, coherent 12-week plans. But it made you sit there and twiddle your thumbs while it assembled them. Nothing to show you in the meantime. I used a classic, perhaps amateurish, trick in my first pass by routing users back to their dashboard while the system worked in the background, but this wasn't fooling anyone. Definitely not me.
+
+*Cue Law & Order dun-dun sound effect.* This post is an account of what I changed, what I measured, and what I learned. The use case is a simpler linear LLM chain, not a truly agentic flow. There's no complex tool use, no branching decision tree. That's 100% intentional, and we'll dig into why. The lessons around progressive delivery, context design, routing architecture, and observability apply to most production LLM systems.
+
+---
+
+## The Philosophical Problem Belies the Technical One
+
+Before getting into architecture, I want to frame why this work felt urgent beyond just "users are waiting too long."
+
+When an LLM chain is generating a personalized output — something a user will live with and act on — there's a window of time where the system knows things the user doesn't. It has made decisions about their program. It has exracted context from their intake. It has resolved which exercises fit their constraints, and organized 12 weeks of training.
+
+The old approach kept all of that hidden until the end. We delivered a fully realized, finished artifact. The problem is that we lost every opportunity for the user to correct us along the way.
+
+Showing the week 1 details of the fitness program early is partly about perceived speed. But architecturally, the new version opens the door to alignment early on and steerage: the first week is generated and shown to the user before all the subsequent weeks. If something's off (e.g. wrong equipment, wrong intensity, movement they can't do), this can be surfaced before the system spends another few minutes building around a wrong assumption. We don't have that feedback loop wired in yet, but we designed the delivery pipeline to support it.
+
+That's what drove this more than anything - not just speed, but alignment.
+
+---
+
+## What We Were Starting From
+
+Kinisi generates personalized 12-week fitness programs from user-provided goals, equipment, experience level, injury history, and behavioral context. The exercise library it draws from is a curated set of 1,500 approved exercises, normalized from several source datasets and reviewed for safety and inclusion.
+
+At baseline, the program generation flow produced a **strategy artifact** first: a program title, description, and phase breakdown across the 12 weeks. Then it would hydrate detailed week-by-week session plans. Strategy generation worked well. Week hydration was what created the wait — users were reporting multi-minute waits before seeing anything actionable, and I wasn't proud of the UX I'd built around it.
+
+<BlogImage
+  src="/images/blog/kinisi/kinisi-chain-before-after.svg"
+  alt="Before/after architecture of Kinisi's program generation pipeline"
+  aria-label="Diagram comparing the old hidden serial generation flow with the new progressive skeleton-and-hydration pipeline in Kinisi"
+/>
+
+---
+
+## The Exercise Library: When the Obvious Tool Was Wrong
+
+Before getting to latency, there's a chapter of this story that shaped how I think about tool selection for bounded-domain LLM systems.
+
+When I first needed to include exercises in generated programs, I reached for RAG. It was mid-2025, retrieval-augmented generation was the pattern everyone was talking about, and embedding a 1,500-item exercise library seemed worth an experiment to see if it worked. It did. Kinda.
+
+The failure was subtle. RAG works well when you're doing semantic similarity retrieval, or finding the most contextually related content from a large corpus. But exercise selection in a structured fitness program has a different shape. You need exercises that satisfy *multiple simultaneous constraints*: equipment available, target muscle groups, injury accommodations, difficulty progression, movement pattern diversity across a training week. RAG embedding similarity doesn't compose well across constraint dimensions. You get what's "most similar," not what's most *suitable*.
+
+I also tried a relational approach using SQL filters against structured exercise fields. Better for hard constraints, worse for the holistic, context-aware reasoning that produces a program that actually makes sense.
+
+Where I landed was counterintuitive: pass the entire exercise library as a structured index directly in the prompt context.
+
+Here's why it works: a 1,500-exercise index, encoded as compact YAML-style entries (name, category, primary muscle groups, equipment requirements, difficulty, movement pattern), fits comfortably within a modern context window with room to spare. With the index in context, the model does the selection work itself. It applies all constraints simultaneously, understands nuance, respects progressions and substitution logic — and it does it in a single pass, with no additional API calls, no retrieval latency, and no missed results from imperfect embedding similarity.
+
+This maps to a pattern many agentic coding frameworks use where instead of treating knowledge retrieval as a runtime problem, you maintain a structured context document and load it into the prompt. When your dataset is the right size and semantic similarity is less vital, this approach tends to be faster, more accurate, and simpler to reason about than a vector pipeline.
+
+My mental model for when RAG makes sense: large corpora (too big for context), access patterns well-served by semantic similarity, or external data you can't afford to load fully in the prompt context. For a bounded, curated library with multi-constraint selection needs, context engineering beat RAG every time I measured it.
+
+<BlogImage
+  src="/images/blog/kinisi/kinisi-exercise-retrieval.svg"
+  alt="Why index-in-context beat RAG and SQL for exercise retrieval"
+  aria-label="Diagram contrasting RAG, relational filters, and full index-in-context selection for constrained exercise retrieval"
+/>
+
+A secondary finding that surprised me: longer, more detailed system prompts didn't produce better programs. The quality uplift came almost entirely from richer *user-specific* context — facts extracted from their intake, confirmed constraints, specific equipment and injury details. A highly detailed prompt for a generic user profile moved the needle far less than a focused prompt with specific, confirmed facts about that particular person. This changed how I thought about prompt investment. In my case, context curation matters more than prompt elaboration.
+
+---
+
+## Getting Context Right Before Getting Speed Right
+
+With the exercise retrieval strategy improved, I focused on making the context itself better before touching latency.
+
+The original intake flow asked users for structured data upfront via a set of specific questions about their goals, equipment access, and experience. This created two problems with friction for the user, and loss of signal. People don't naturally describe their fitness needs in form fields. They describe them in sentences, with nuance and context that a form can't capture. Our system would benefit from this improved signal.
+
+I shifted to a **free-text first** model. The user writes or speaks whatever they want; their goals, history, limitations, preferences. An LLM analyzes the input, extracts structured facts, and generates *only the follow-up questions that are actually missing*. If someone describes their home gym in detail, we don't ask about equipment. If they mention a knee injury, Kinisi asks for specifics. The system generates the minimum confirmation surface needed to fill the gaps.
+
+<BlogImage
+  src="/images/blog/kinisi/kinisi-intake-flow.svg"
+  alt="Free-text-first intake flow with extraction, gap prompts, and confirmation"
+  aria-label="Flow diagram showing Kinisi intake from free-text input to LLM extraction, targeted follow-up questions, and user confirmation"
+/>
+
+Before generation begins, we confirm what we've extracted with the user. This serves two purposes.
+
+1) Quality. We now have richer, more specific context, confirmed to be accurate. Ambiguity that used to surface as a wrong program surfaces instead as a follow-up question before we've spent any generation tokens.
+
+2) What behavioral economists call the **"IKEA effect"**. People who contribute to the creation of something value it more highly. By asking users to confirm what the system understood about them (equipment, limitations, goals, style preferences) we're not just quality-checking; we're building investment. When the program appears, it feels collaborative rather than delivered.
+
+---
+
+## Five Rounds of Speed ~Dating~ Optimization
+
+With context quality addressed, I turned to latency. Here's what changed across each round, and what we actually measured.
+
+### Round 1: Skeleton seeding and progressive reveal
+
+The first structural change: **seed a full program skeleton immediately, then hydrate it asynchronously in parallel**.
+
+On strategy approval, the system now:
+1. Inserts placeholder entries for all 12 weeks into the database
+2. Renders the program view immediately, showing the skeleton
+3. Begins week-by-week hydration in the background — all weeks in parallel
+
+Users could see the shape of their program right away. The wait was still there, but they were watching it fill in rather than staring at a loading indicator. This changed the perceived experience meaningfully, even before making the actual generation faster.
+
+**What we measured (exp_2026_02_15_program_build_ab_v1, Corvo-routed):**
+
+| Metric | Legacy baseline | Hybrid v2 | Change |
+|---|---|---|---|
+| Median time to week 1 | 24.5s | 27.5s | +12.6% |
+| Median total completion | 235.3s | 85.0s | **−63.9%** |
+
+Total completion dropped from ~4 minutes to ~1.5 minutes, which was a meaningful win. But the median for week 1 was actually slightly *worse*. And when I looked at the distribution rather than just the median, the picture got more interesting — week 1 times were all over the place.
+
+### Round 2: Learning why parallelization alone wasn't enough
+
+Splitting the program into per-week requests and running them in parallel was the right idea. What I hadn't thought through was what happens when week 1 fails and needs to retry.
+
+Here's the failure mode: week 1 kicks off in parallel with weeks 2 through 12. Week 1 times out or returns an invalid schema. It gets scheduled for a retry. By now, several of the other weeks have already claimed slots in the generation queue. Week 1's retry goes to the back of the line. The user is now waiting for weeks 2, 3, 4... to complete before their first workout finally arrives. A system designed to show week 1 fastest had built in an edge case where week 1 could arrive dead last.
+
+This explained the wide distribution in week 1 completion times. When week 1 succeeded on the first attempt, it was fast. When it didn't, it could be dramatically slower than the old serial approach.
+
+The fix was to stop treating week 1 as just another parallel task. We forced strict serialization for week 1: it runs first, alone, with its own routing configuration and timeout budget. Only after week 1 is persisted does the scheduler open the parallel window for weeks 2 through 12. The parallelization win is preserved for the bulk of the program. Week 1 is guaranteed to arrive first, regardless of what happens downstream.
+
+<BlogImage
+  src="/images/blog/kinisi/kinisi-retry-queue-problem.svg"
+  alt="Retry queue edge case that delayed week 1 in a parallel scheduler"
+  aria-label="Diagram of the week-1 retry queue failure mode and the fix to isolate week-1 generation before opening parallel generation for later weeks"
+/>
+
+### Round 3: Prioritizing week 1
+
+Even with parallelization, week 1 wasn't guaranteed to arrive first. The scheduler could start weeks 1, 2, and 3 simultaneously, and if week 2 happened to complete first, that's what the user saw.
+
+We added an explicit **week-1 priority path**: week 1 is always generated first, on its own fast-routing configuration, before the parallel window opens for the remaining weeks. This connects directly back to the alignment principle. We want the user to see week 1 specifically, not just *a* week, because week 1 is what they're going to do first.
+
+**What we measured (exp_2026_02_16_week1_priority_ab_v1):**
+
+| Metric | Hybrid v2 | Hybrid v3 | Change |
+|---|---|---|---|
+| Median time to week 1 | 102.3s | 26.3s | **−74.3%** |
+| Median total completion | 594.6s | 469.3s | **−21.1%** |
+| Cost per run | $0.0398 | $0.0416 | +4.3% |
+
+For the week-1 fast path specifically, measured in isolation (exp_2026_02_16_program_build_stage2_hybrid_v3_week1_fast):
+
+| Metric | Value |
+|---|---|
+| Median time to week 1 | **4.2 seconds** |
+| vs hybrid v2 baseline | **−92.3%** |
+| Failure rate | 0/12 runs |
+
+A 4-second median time to first actionable workout. That's the number we were chasing.
+
+---
+
+## The Thing Arize Caught That We Almost Missed
+
+Here is a story about why observability matters and what "silently failing" really looks like in an LLM pipeline.
+
+After one of the experiment rounds, I was reviewing telemetry in Arize and noticed something odd - a high percentage of traces were tagged as fallback. Not failures. The builds were completing and programs were being written. But they felt generic in a way that didn't match what the input context warranted.
+
+Here's what was happening: our week generation had a sanitization step that fell back to a generic schedule template if the model output didn't parse into a valid blueprint. The fallback path was working exactly as designed. The problem was that it was *silent*. There was no distinct telemetry event for "I used the fallback schedule." It was being tagged as a successful generation. Nothing in the observability layer indicated that something had gone wrong upstream. The model had timed out, the output had failed schema validation, and the user had quietly received a generic program instead of a personalized one, but there was no loud warning.
+
+We'd built a system that reliably produced *something*. It didn't reliably produce the *right thing*.
+
+The fix had two parts:
+
+**Telemetry:** added dedicated `week_blueprint_validation_failed` and `week_blueprint_retry` events, making fallbacks explicit and distinguishable from genuine success. We also reclassified soft fallbacks from `error` to `info` level, which had been inflating the apparent error rate and making it harder to see real issues.
+
+**Behavior:** added a retry loop before accepting fallback content — if the model output fails blueprint validation, the system retries before falling back to a generic schedule. The primary model timeout was also extended for week generation, which was the upstream cause of most validation failures.
+
+**Validation smoke test result (exp_2026_02_17_reliability_smoke_b_v3_r2):**
+- `errorRatePct = 0`
+- `weeksWithFallbackNotes = []` — no silent fallbacks
+
+The lesson isn't specific to LLM systems: a system that handles errors silently isn't reliable, it's *quietly unreliable*. The worst kind of reliable. The difference matters when you're trying to improve it. You can't optimize what you can't observe clearly, and you definitely can't trust the metrics you're running experiments on if the underlying telemetry is misclassifying outcomes.
+
+We also plan on taking advantage of Arize's other functionality like evals, LLM-as-judge, and durable prompt versioning via Arize Prompt Hub for future experiment rounds.
+
+---
+
+## Routing as a Control Plane
+
+Once generation was working reliably and quickly, we focused on the infrastructure layer between the application and the LLM providers.
+
+Kinisi runs through **Corvo Cortex**, an LLM routing gateway also built by Corvo Labs. Rather than hardcoding provider and model selection in application code, Kinisi sends routing *hints* with each request — what stage of generation is executing, what the optimization objective is (`speed`, `balanced`, or `quality`), what latency budget is acceptable. Corvo handles actual provider selection, fallback logic, and routing policy. Of course, the client can also pass in specific model, inference provider, etc. for fine-grained control.
+
+We ran experiments with direct OpenRouter calls versus Corvo-routed calls, but were getting too much noise in the data from other experiment issues. Once those were resolved, there was negligible difference in latency between Corvo Cortex and OpenRouter, but Corvo Cortex allowed us much finer control over our request logic.
+
+More than the raw numbers, Corvo Cortex's architecture gives us flexibility that's hard to put a single number on. When we want to try a different provider, adjust timeout budgets by stage, or implement a hedging strategy, we change the routing policy in one place without touching application code. Experiment results are attributable to specific routing configurations. And the per-stage control means week 1 generation can be routed aggressively for speed while later weeks trade some speed for cost efficiency.
+
+For week 1 specifically, we implemented an optional **hedged request**: launch the primary generation call, and if it hasn't resolved within a threshold window, launch a secondary call in parallel. Accept whichever returns a valid blueprint first, drop the other. This improves tail-latency behavior without materially affecting the common case.
+
+<BlogImage
+  src="/images/blog/kinisi/kinisi-corvo-routing.svg"
+  alt="Corvo Cortex routing control plane for stage-specific LLM policies"
+  aria-label="Architecture diagram of Corvo Cortex routing hints, provider policy selection, fallbacks, and optional hedged requests by generation stage"
+/>
+
+---
+
+## On Agents: Why This Is a Chain, Not an Agent
+
+This came up during design and it's worth addressing directly.
+
+The Kinisi program generation flow is a linear chain, not an agentic system. There's no dynamic tool selection, no branching decision structure, no self-directed goal pursuit. It would be possible to frame the exercise library reference as a tool call — but doing so would introduce additional latency without adding any capability we don't already have through context injection. The "tool call" would just be loading the exercise index, which we already do.
+
+Agents make sense when a system needs to make decisions about *how* to accomplish something: which tools to use, what order to pursue goals, when to stop and verify. For program generation, the flow is well-defined: capture context, confirm understanding, generate strategy, build weeks, resolve exercises. There's no ambiguity about what to do next at each step.
+
+If Kinisi were to start generating *new* exercises, evaluating whether they meet safety criteria, and making decisions about whether to add them to the library — that would benefit from an agentic architecture. The decision structure there is genuinely variable. For executing a known pipeline with structured inputs and outputs, a well-designed chain with explicit stages is faster, cheaper, more debuggable, and more predictable than an agent.
+
+---
+
+## What We Know and What We're Still Building Toward
+
+I want to be direct about data confidence, because I've seen too many posts present early experiment results as production-validated metrics.
+
+Here's what the experiment data shows, with honest labeling:
+
+| Round | Change | Signal type | Key result |
+|---|---|---|---|
+| Baseline | Strategy-only, serial generation | Observed | ~235s median completion (Corvo-routed) |
+| Hybrid v2 | Skeleton seeding + progressive reveal | Measured | 85s completion (−63.9%) |
+| Hybrid v3 | Week-1 priority path | Measured | 26.3s to week 1 (−74.3%), 469s completion (−21.1%) |
+| Week-1 fast path | Stage-specific routing + week-1 isolation | Measured | 4.2s to week 1 (−92.3%) |
+
+These numbers come from controlled test runs with small sample sizes. They tell us the direction and approximate magnitude are real. They don't tell us production p50/p95 at scale with statistical rigor — that requires durable dashboards for TTFT and TPS by stage, provider, and model, which are now in the instrumentation backlog.
+
+What we'll publish when that data is ready: production latency deltas per stage and provider, hedge win rates, and schema validation rates. In the meantime: the system is meaningfully faster, quality is higher, and the observability scaffolding now exists to measure future changes properly.
+
+---
+
+## What We'd Do Differently Earlier
+
+A few things I'd move up in priority if I were starting fresh:
+
+**Instrument before you optimize.** We spent several experiment rounds building up telemetry coverage as we went. Starting with a proper observability baseline would have made the silent fallback issue visible from the beginning and would have given us a cleaner before/after comparison.
+
+**Treat routing as architecture from day one.** We introduced the routing control plane partway through. Starting with the pattern of "application sends hints, gateway executes routing policy" from the beginning would have made experiments cleaner and provider changes less disruptive.
+
+**Test what you think you know.** The context-window exercise index felt like a hack when I first tried it. It turned out to be the right tool for the actual problem. RAG would have been slower, more complex, and less accurate for this specific use case. Try the simple thing first.
+
+---
+
+## Takeaways
+
+**1. Alignment is a delivery problem.**
+The faster you can show a user what the system is producing, the sooner they can steer it. Progressive delivery isn't just a UX pattern; it's an alignment strategy.
+
+**2. Context quality beats prompt complexity.**
+The single largest quality improvement came from better user-specific context, not from more elaborate system prompts. Invest in getting the intake right.
+
+**3. Right tool for your actual scale.**
+We nearly built a vector retrieval pipeline for a problem that a structured context document solved better. Evaluate your dataset size and access patterns before reaching for RAG.
+
+**4. Silent fallbacks are worse than explicit errors.**
+A system that handles errors gracefully is good. A system that handles them invisibly is producing metrics you can't trust. Make every failure mode observable and named.
+
+**5. Separate routing from application logic.**
+Treating the routing layer as a control plane, not an implementation detail, gives you the ability to experiment, swap providers, and tune per-stage behavior without touching application code.
+
+**6. Test your theories.**
+Some of what we found was counterintuitive. Shorter focused prompts with richer context outperformed longer detailed prompts. The context-window index outperformed vector retrieval. Week-1 prioritization helped total completion time, not just time-to-first-week. Hypotheses are starting points, not conclusions. The data changes your mind.
+
+---

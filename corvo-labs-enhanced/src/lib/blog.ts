@@ -7,10 +7,12 @@ const postsDirectory = path.join(process.cwd(), 'content/blog')
 export type BlogPost = {
     slug: string
     title: string
+    subtitle?: string
     date: string
     excerpt: string
     author: string
     coverImage?: string
+    coverImageAlt?: string
     tags: string[]
     content: string
     published?: boolean
@@ -38,10 +40,12 @@ export function getBlogPosts(): BlogPost[] {
                 slug,
                 content,
                 title: data.title,
+                subtitle: data.subtitle,
                 date: data.date,
                 excerpt: data.excerpt,
                 author: data.author,
                 coverImage: data.coverImage,
+                coverImageAlt: data.coverImageAlt,
                 tags: data.tags || [],
                 published: data.published !== false,
                 featured: data.featured || false,
@@ -80,10 +84,12 @@ export function getBlogPost(slug: string): BlogPost | null {
             slug,
             content,
             title: data.title,
+            subtitle: data.subtitle,
             date: data.date,
             excerpt: data.excerpt,
             author: data.author,
             coverImage: data.coverImage,
+            coverImageAlt: data.coverImageAlt,
             tags: data.tags || [],
             published: data.published !== false,
             featured: data.featured || false,
