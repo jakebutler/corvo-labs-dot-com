@@ -1,0 +1,132 @@
+---
+title: "The Context Problem"
+subtitle: "What Manus and OpenAI Got Right — And What You Can Do Today"
+date: "2026-03-09"
+excerpt: "If you've built anything with AI agents, you've hit the wall. The real culprit isn't model limitations or rate limits — it's a memory problem. Here's how Manus and OpenAI diagnosed it, and what any builder can do about it today."
+author: "Jake Butler"
+tags: ["Context Engineering", "AI Agents", "LLM Workflows", "Latency Optimization"]
+coverImage: "/images/blog/context-problem/confused-groundhog.jpg"
+coverImageAlt: "A confused groundhog standing at a forked path, surrounded by contradictory signs — a metaphor for an AI agent lost without persistent context"
+readTime: "9 min read"
+category: "workflows"
+featured: true
+published: true
+---
+
+If you've built anything with AI agents, you've hit the "wall". The agent starts a task, loops through a handful of tool calls, and somewhere around the umpteenth API roundtrip, things get slow, expensive, and unreliable. Most builders chalk it up to model limitations or API rate limits. The real culprit is simpler: your agent has a memory problem.
+
+## The Groundhog Day Machine
+
+Standard AI APIs are stateless. Every time your agent calls a tool and gets a result, it wakes up on the next call with no memory of what just happened — so your code sends the entire conversation history all over again. Tool call response. Full context. Tool call response. Full context. Every loop.
+
+This is fine for a chatbot exchanging a few messages. It's a disaster for an agent doing real work.
+
+<BlogImage
+  src="/images/blog/context-problem/groundhog-loop.svg"
+  alt="The Groundhog Day Loop: the agent wakes up stateless on every call, resending the full growing context each time"
+/>
+
+Manus, the AI agent company, measured this in production. Their agents average a [**100:1 input-to-output token ratio**](https://manus.im/blog/Context-Engineering-for-AI-Agents-Lessons-from-Building-Manus), i.e. for every token the model generates, it's consuming 100 tokens of context. A typical task involves around 50 tool calls. Each new tool response adds to a context that gets resent in full, over and over, growing with every step.
+
+<BlogImage
+  src="/images/blog/context-problem/context-explosion.svg"
+  alt="Context window explosion across tool calls — call 1 starts at ~2K tokens, call 10 reaches ~20K, call 50 hits ~100K"
+/>
+
+Manus founder Yichao "Peak" Ji's insight? *"If I had to choose just one metric, I'd argue that the KV-cache hit rate is the single most important metric for a production-stage AI agent. It directly affects both latency and cost."* <sup>[1]</sup>
+
+At uncached rates, that's an expensive problem. With Claude Sonnet, the difference between a cached and uncached token is 10x: **$0.30/MTok versus $3/MTok**. For a long-running agent, that gap compounds fast.
+
+## Two Industry Responses
+
+When Manus published their [context engineering breakdown](https://manus.im/blog/Context-Engineering-for-AI-Agents-Lessons-from-Building-Manus) in July 2025, and when OpenAI announced [WebSocket mode for their Responses API](https://github.com/openai/openai-python/releases/tag/v2.22.0) in early 2026, the industry was converging on the same diagnosis from two very different directions.
+
+### Manus: Change What the Agent Carries
+
+Manus's approach lives entirely at the application layer. Rather than rethinking the networking protocol, they changed how the agent relates to its own data.
+
+The core insight: not all context needs to live in the context window. Large observations like a full PDF, a scraped web page, or a lengthy API response get written to disk. The agent keeps a pointer (a file path or URL) instead of the content itself. If it needs those details ten steps later, it reads them back in. The context window stays lean; the information stays accessible.
+
+They describe this as **progressive disclosure**: detailed instructions are nested further down in the file system, discoverable only when the agent navigates to where the work actually happens. A high-level plan lives at the root. Step-by-step details live closer to where those steps are executed.
+
+They also use what amounts to **attention anchoring**: the agent continuously rewrites a `todo.md` file with its current objectives, pushing the global plan into the most recent part of its attention span. In long contexts, models tend to lose track of goals stated early on. Reciting them regularly keeps the agent oriented.
+
+One more notable choice: they leave errors in the context deliberately. *"Erasing failure removes evidence,"* Ji wrote. *"And without evidence, the model can't adapt."* <sup>[1]</sup>
+
+The elegance of this approach is what it *doesn't* require. No infrastructure changes. No protocol work. Just smarter decisions about what the agent carries in its head versus what it stores on disk.
+
+### OpenAI: Change the Highway
+
+OpenAI came at the same problem from the infrastructure layer. Their [WebSocket mode for the Responses API](https://platform.openai.com/docs/guides/websocket-mode) shifts from stateless REST to persistent, stateful connections.
+
+<BlogImage
+  src="/images/blog/context-problem/rest-vs-websocket.svg"
+  alt="REST vs WebSocket: REST resends the full context on every call; WebSocket keeps a persistent connection so only new data is transmitted"
+/>
+
+With REST, every API call is independent. The server has no memory of the previous call, so the client resends everything — the full context — on every request. With WebSockets, the connection stays open. The server maintains the previous state in a connection-local in-memory cache, and the client only sends what's new.
+
+For agentic workflows with 20 or more tool calls, [OpenAI's own benchmarks](https://platform.openai.com/docs/guides/websocket-mode) show **up to 40% faster end-to-end execution**. [Theo of t3.gg](https://www.youtube.com/watch?v=sFEDAkJy9Dc), who analyzed the release in depth, highlighted bandwidth reductions upward of 90% — not because compute got cheaper, but because you stop shipping the same kilobytes of context on every roundtrip.
+
+The trade-off is real. WebSockets are [significantly harder to scale than REST](https://www.youtube.com/watch?v=VALZXxeAOA4). Stateful connections require sticky sessions to keep users pinned to the same server, pub/sub patterns to sync state across distributed nodes, and fallback strategies for when a server drops mid-session. OpenAI called this "non-trivial," which is accurate. Manus's solution required no infrastructure work at all. OpenAI's required solving one of the harder distributed systems problems in production AI.
+
+[Cline](https://x.com/cline/status/2026031848791630033), the AI coding agent, tested the WebSocket integration early and reported that the initial numbers were striking enough to warrant immediate adoption. The efficiency gains for high-tool-call workflows were hard to ignore.
+
+## What You Can Do Today
+
+Here's the practical point: you don't need Manus's VM sandbox or OpenAI's WebSocket infrastructure to apply the underlying principle.
+
+The insight — that structured, discoverable, persistent storage beats loading everything into the context window — is available to any builder right now. And practitioners are independently arriving at the same conclusion.
+
+### Teresa Torres: Nested CLAUDE.md Files as a Personal OS
+
+Product thinking consultant Teresa Torres [published her own take](https://www.producttalk.org/give-claude-code-a-memory/) on this problem shortly after Claude Code launched, and her setup is a clean illustration of progressive disclosure in everyday practice.
+
+She built a three-layer memory architecture using Claude Code's native `CLAUDE.md` file support:
+
+- **Global** (`~/.claude/CLAUDE.md`) — universal preferences that load in every session: communication style, how to ask clarifying questions, output format defaults
+- **Project-level** (`project/CLAUDE.md`) — context specific to that directory: the technology stack, writing style for a blog, testing conventions for a codebase
+- **Reference files** — separate documents for business profiles, product descriptions, customer research, and competitive context that Claude fetches *only when the task requires them*
+
+That third layer is the key. Torres isn't pre-loading everything that might be useful. She's making information *discoverable* rather than *mandatory*. The goal is for Claude to get "exactly what it needs for the task at hand" — not a comprehensive briefing on everything that could possibly be relevant.
+
+This is Manus's progressive disclosure principle applied to a solo practitioner's personal workflow. No infrastructure required. No agent framework. Just a thoughtful directory structure and the discipline to keep context organized by relevance rather than completeness.
+
+### My Setup: A Living `/docs` Directory
+
+I've taken a similar approach in my own agent workflows, with a few additions that make it more dynamic.
+
+My setup: a `/docs` directory at the root of each project, containing three core files:
+
+- **`changelog.md`** — a running record of what changed and when, always appended and never overwritten
+- **`projectstatus.md`** — current state: what's done, what's in progress, what's blocked; always overwritten and never appended
+- **`spec.md`** — the high-level specification, with links to more detailed feature files in subdirectories as needed
+
+These aren't static documentation. They're live context. A documentation subagent updates them automatically before compaction (so the agent doesn't lose the thread of a long session) and on every commit (so the record stays current), while I can also manually start the workflow with a slash command whenever I want a snapshot.
+
+The result: any agent picking up a task starts with a clear, current picture of the project — not from a massive system prompt stuffed with everything that might be relevant, but from structured files it can navigate and reference as needed. The context window stays focused. The history stays accessible on disk.
+
+This is progressive disclosure applied to your own development workflow. High-level state at the top. Details where they're relevant. The agent discovers what it needs when it needs it, rather than carrying everything everywhere.
+
+## The Trend Is Toward Persistent State
+
+Manus optimized what agents carry. OpenAI optimized the channel they use to carry it. Both are responses to the same underlying shift: AI agents are no longer doing one-shot tasks. They're running long, multi-step workflows where context management matters as much as the model itself.
+
+Anthropic's engineering team [framed it plainly](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents): *"Context engineering represents a fundamental shift in how we build with LLMs. As models become more capable, the challenge isn't just crafting the perfect prompt — it's thoughtfully curating what information enters the model's limited attention budget at each step."*
+
+The builders who internalize that framing — context as a resource to be managed, not a buffer to be filled — are going to have a meaningful edge as agent workflows get longer and more demanding.
+
+At Corvo Labs, this is central to how we think about building agents that can operate reliably at scale.
+
+---
+
+## References
+
+1. Yichao "Peak" Ji — [Context Engineering for AI Agents: Lessons from Building Manus](https://manus.im/blog/Context-Engineering-for-AI-Agents-Lessons-from-Building-Manus), Manus Blog (July 2025)
+2. Theo (t3.gg) — [I can't believe nobody's done this before...](https://www.youtube.com/watch?v=sFEDAkJy9Dc), YouTube
+3. Mehul Mohan — [WebSocket complexity and scaling deep dive](https://www.youtube.com/watch?v=VALZXxeAOA4), YouTube
+4. Cline — [WebSocket mode testing results](https://x.com/cline/status/2026031848791630033), Twitter/X
+5. OpenAI — [WebSocket Mode documentation](https://platform.openai.com/docs/guides/websocket-mode), OpenAI Platform
+6. OpenAI — [openai-python v2.22.0 release](https://github.com/openai/openai-python/releases/tag/v2.22.0), GitHub
+7. Anthropic Engineering — [Effective Context Engineering for AI Agents](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents)
+8. Teresa Torres — [Give Claude Code a Memory](https://www.producttalk.org/give-claude-code-a-memory/), Product Talk
