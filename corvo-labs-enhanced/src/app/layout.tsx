@@ -41,6 +41,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <script
+          data-harbor-site="nd7b9hfs46qqxvvvq7g4t17jv183aq40"
+          src="https://outgoing-oyster-428.convex.site/api/harbor-seo.js?siteId=nd7b9hfs46qqxvvvq7g4t17jv183aq40"
+          async
+        />
+      </head>
       <body className={cn("min-h-screen bg-white text-gray-900 antialiased", cabinetGrotesk.variable)}>
         <ScrollProgress />
         <EnhancedNav />
