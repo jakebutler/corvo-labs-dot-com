@@ -38,6 +38,38 @@ const categories = [
 
 const projects = [
   {
+    id: 7,
+    title: "lower dB",
+    category: "ai-tools",
+    client: "thelowerdb.com",
+    location: "United States",
+    duration: "Ongoing",
+    challenge: "People researching GLP-1 medications face a landscape polluted by affiliate-driven content, sponsored rankings, and sensationalized reporting. Finding factual, evidence-backed information without sales pressure is nearly impossible, leaving patients to navigate complex medical decisions through noise rather than signal.",
+    solution: "Built a patient-first GLP-1 intelligence desk that combines independent editorial journalism with a multi-agent AI research and writing platform. The name references both 'decibels' (lowering the noise) and the reduction in 'food noise' that GLP-1 patients describe. No sponsored content, no affiliate rankings, no conversion framing—just rigorous, sourced journalism.",
+    process: [
+      "Designed 11-agent pipeline: Research Planner, Source Collector, Claims Analyst, Gap-Fill Search, Outline Architect, Writer, Editor, Humanizer, Fact Checker, SEO Packager, and CMS Bridge",
+      "Implemented multi-LLM orchestration across Claude Sonnet 4.6, DeepSeek v3.1, GPT-4.1-mini, and GLM-5-Turbo for specialized tasks",
+      "Built risk-routing system for high-stakes medical content requiring stricter editorial review",
+      "Integrated Firecrawl for source collection and Tavily for gap-fill research enrichment",
+      "Engineered human-in-the-loop approval gates with full artifact transparency"
+    ],
+    results: [
+      "17+ telehealth provider dossiers with neutral, sourced profiles",
+      "25-article editorial slate covering drugs, providers, costs, side effects, research, and policy",
+      "Full fact-check pipeline with FDA labels, peer-reviewed literature, and government guidance as source hierarchy",
+      "Sub-$2 per article production cost with complete audit trail"
+    ],
+    technologies: [
+      "Next.js 16 App Router",
+      "Convex (reactive backend)",
+      "Trigger.dev (durable workflows)",
+      "Claude Sonnet 4.6 / DeepSeek v3.1 / GPT-4.1-mini",
+      "Arize Phoenix (observability)",
+      "Clerk Auth"
+    ],
+    image: "/images/lower-db.jpg"
+  },
+  {
     id: 1,
     title: "Kinisi",
     category: "patient",
