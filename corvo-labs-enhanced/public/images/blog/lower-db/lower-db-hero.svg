@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">the lower dB — hero</title>
+  <desc id="desc">Geometric Mondrian-style graphic for the lower dB: emerald green, mustard yellow, off-white blocks, black grid lines, and headline text.</desc>
+  <defs>
+    <style>
+      .line { fill: none; stroke: #000000; stroke-width: 10; stroke-linecap: square; }
+      .cream { fill: #F9F9F5; }
+      .emerald { fill: #008055; }
+      .mustard { fill: #F4C430; }
+      .forest { fill: #1A2B23; }
+      .white { fill: #ffffff; }
+      .txt { font-family: system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif; fill: #141414; }
+      .t1 { font-size: 32px; font-weight: 700; }
+      .t2 { font-size: 64px; font-weight: 800; letter-spacing: -0.03em; }
+      .t3 { font-size: 24px; font-weight: 400; }
+    </style>
+  </defs>
+  <!-- Cells (bottom to top painting order for clean overlaps) -->
+  <rect class="cream" width="1200" height="630"/>
+  <rect class="emerald" x="0" y="0" width="380" height="360"/>
+  <rect class="white" x="40" y="40" width="64" height="64"/>
+  <rect class="cream" x="380" y="0" width="340" height="240"/>
+  <rect class="mustard" x="380" y="240" width="340" height="90"/>
+  <rect class="cream" x="380" y="330" width="340" height="300"/>
+  <rect class="mustard" x="380" y="480" width="200" height="150"/>
+  <rect class="cream" x="720" y="0" width="360" height="630"/>
+  <rect class="emerald" x="0" y="480" width="380" height="80"/>
+  <rect class="cream" x="0" y="360" width="380" height="120"/>
+  <rect class="mustard" x="0" y="360" width="240" height="120"/>
+  <rect class="emerald" x="580" y="480" width="140" height="150"/>
+  <rect class="forest" x="1080" y="0" width="120" height="630"/>
+  <!-- Grid -->
+  <line class="line" x1="0" y1="0" x2="1200" y2="0"/>
+  <line class="line" x1="0" y1="630" x2="1200" y2="630"/>
+  <line class="line" x1="0" y1="0" x2="0" y2="630"/>
+  <line class="line" x1="1200" y1="0" x2="1200" y2="630"/>
+  <line class="line" x1="1080" y1="0" x2="1080" y2="630"/>
+  <line class="line" x1="720" y1="0" x2="720" y2="630"/>
+  <line class="line" x1="380" y1="0" x2="380" y2="630"/>
+  <line class="line" x1="0" y1="360" x2="720" y2="360"/>
+  <line class="line" x1="0" y1="480" x2="720" y2="480"/>
+  <line class="line" x1="240" y1="360" x2="240" y2="480"/>
+  <line class="line" x1="380" y1="240" x2="720" y2="240"/>
+  <line class="line" x1="380" y1="330" x2="720" y2="330"/>
+  <line class="line" x1="580" y1="480" x2="580" y2="630"/>
+  <line class="line" x1="380" y1="480" x2="720" y2="480"/>
+  <!-- Headline -->
+  <text class="txt t1" x="760" y="220">the</text>
+  <text class="txt t2" x="760" y="310">lower dB</text>
+  <text class="txt t3" x="760" y="380">The intelligence desk for GLP-1 news,</text>
+  <text class="txt t3" x="760" y="418">research, and access.</text>
+</svg>

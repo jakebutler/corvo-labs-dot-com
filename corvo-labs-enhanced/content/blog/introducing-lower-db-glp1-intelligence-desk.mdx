@@ -1,0 +1,103 @@
+---
+title: "Introducing the lower dB"
+subtitle: "Why We Built an Intelligence Desk for the GLP-1 Landscape"
+date: "2026-04-03"
+excerpt: "If you search for information about GLP-1 medications right now, you will find a lot of content. The problem is what kind of content you find—and why we built an independent patient-first desk."
+author: "Jake Butler"
+tags: ["Health Tech", "GLP-1", "Product Launch", "Corvo Labs", "AI Editorial"]
+coverImage: "/images/blog/lower-db/lower-db-hero.svg"
+coverImageAlt: "Geometric Mondrian-style graphic for the lower dB, featuring emerald green, mustard yellow, and off-white blocks with the text the lower dB and tagline about GLP-1 news, research, and access."
+readTime: "6 min read"
+category: "innovation"
+featured: true
+published: true
+---
+
+If you search for information about GLP-1 medications right now, you will find a lot of content. That is not the problem. The problem is what kind of content you find.
+
+The top results for searches like "best GLP-1 for weight loss" or "Ozempic vs Mounjaro" are dominated by telehealth clinics marketing their own prescribing services, affiliate sites ranking providers they get paid to recommend, and health publishers running headlines optimized for clicks rather than clarity. The information *is* out there, but it is mixed in with commercial interests. Patients trying to make serious medical decisions about which drug to ask their clinician about, what side effects are actually normal, whether their insurance will cover treatment, or how compounding regulations have changed, have to do real work just to find a straight answer.
+
+That gap between what patients need and what the web serves them is why we built **the lower dB**.
+
+## What the lower dB is
+
+[The lower dB](https://thelowerdb.com) is a patient-first editorial news site covering GLP-1 and GIP/GLP-1 weight-loss medications, and obesity treatment more broadly. The name references both decibels, lowering the noise in a confusing medical landscape, and the reduction in "food noise" that patients on these medications describe. The tagline is straightforward: *the intelligence desk for GLP-1 news, research, and access.*
+
+The editorial model is independent. No sponsored content. No affiliate rankings. No clinic partnerships. No conversion framing. Every article is sourced, every provider profile is neutral, and the voice is plainspoken; medically literate without being clinical, direct without being preachy.
+
+This is not a health blog. It is not a clinic directory with editorial on top. It is closer to an AP-wire-style desk for a specific medical category that millions of people are navigating right now with inadequate tools.
+
+<BlogImage
+  src="/images/blog/lower-db/screenshot-homepage.svg"
+  alt="lower dB homepage with hero headline The Patient Intelligence Desk for GLP-1 News, Research, and Access and interactive brief section"
+/>
+
+## Who it's for
+
+The primary audience is US adults who are on, considering, or researching GLP-1 medications. These are people who are medically literate but not clinicians. They are skeptical of telehealth marketing. They want specific, sourced answers to specific questions - not generic wellness content repackaged around trending drug names.
+
+Many of them are already on a medication and navigating the harder second-order questions: side effects that their prescriber didn't mention, insurance coverage that changed mid-year, whether compounded versions are still legal, or how to protect muscle mass during rapid weight loss. Those are the questions the lower dB is built to answer.
+
+## What's live today
+
+The site launched with a 20+ article editorial slate covering six topic areas: drugs and mechanisms, provider comparisons, cost and access, side effects, research, and policy. The Weekly Digest consolidates recent news in GLP-1 and medical weight loss research, policy, and pharma news, and what it means for readers of the lower dB. This is available both on the website and in your inbox.
+
+There are 16 neutral provider dossiers covering the telehealth weight-loss companies patients actually encounter like Form Health, Mochi Health, Ro, Hims & Hers, Noom Medical, and others. Each dossier covers clinical model, medication access, insurance acceptance, cost, and what the program actually includes, written without ranking or recommendation.
+
+There is also a detailed explainer that walks through how GLP-1 and GIP therapies work at the mechanism level, a curated reading library tracking over 15 independent publications in the obesity and metabolic health space, and a treatment library covering FDA-approved medications, compounding, and the regulatory landscape.
+
+The coverage is specific enough to be useful. The article on [how GLP-1 drugs work](https://thelowerdb.com/articles/how-glp1s-work) covers receptor binding, gastric emptying, appetite signaling in the hypothalamus, glucose-dependent insulin response, and GIP dual-agonist mechanisms -- all written for patients, not clinicians. The article on [what "food noise" means](https://thelowerdb.com/articles/what-is-food-noise) explains why that phrase persists across patient communities and what the biology behind it actually looks like. The piece on [compounded vs. FDA-approved GLP-1s in 2026](https://thelowerdb.com/articles/compounded-vs-fda-approved-glp1s-2026) tracks the current enforcement timeline and what patients need to verify before purchasing.
+
+<BlogImage
+  src="/images/blog/lower-db/screenshot-article-food-noise.svg"
+  alt="lower dB article page for What Food Noise Means and Why GLP-1 Patients Keep Using That Phrase"
+/>
+
+<BlogImage
+  src="/images/blog/lower-db/screenshot-companies.svg"
+  alt="lower dB companies section showing provider coverage roster and company profiles for the GLP-1 access market"
+/>
+
+## How we built it
+
+The lower dB runs on Next.js with a Convex reactive backend and Trigger.dev for durable workflow orchestration. But the more interesting part of the stack is the editorial pipeline.
+
+The site is powered by a multi-agent AI research and writing system. An article starts as a brief, moves through a durable multi-stage pipeline -- research planning, source collection, claims analysis, gap-fill search, outlining, drafting, editing, humanization, fact-checking, and SEO packaging -- and then lands in an admin review surface where a human operator can inspect every stage artifact, approve the piece, or request a targeted rerun from any specific stage without restarting the entire pipeline.
+
+That pipeline is not a novelty. It is the production system. Every article on the site went through it, and every article was reviewed and approved by a human before publication. The AI does the heavy lifting on research breadth and structural consistency. The human owns the editorial judgment.
+
+Publication enrichment including summaries, tags, key points, related articles, runs as a separate workflow with its own review surface. Deterministic fields like read time, citation counts, and content relationships stay out of prompt control entirely. The goal is a system where AI handles what it is good at and humans retain authority over what matters most.
+
+## Why Corvo Labs
+
+The lower dB is a [Corvo Labs](https://corvolabs.com) product. Corvo Labs is a health tech and product consultancy focused on responsible AI implementation, behavior change design, and shipping products that actually work in clinical and patient-facing contexts.
+
+This project represents what we think health tech product development should look like: opinionated editorial standards, a measurement-first approach to performance, transparent sourcing, and AI that augments human judgment rather than replacing it. The lower dB is both a product we believe in and a demonstration of how we build.
+
+## What's coming next: the build series
+
+We are publishing a three-part technical series next week that goes deeper into how the lower dB was built. Each post covers a distinct layer of the product.
+
+**Part 1: Making a Next.js + Convex App Feel Fast Again**
+
+How we measured and fixed perceived performance across admin and public routes. The short version: we added a baseline measurement layer, discovered that list views were doing detail-page work, separated summary-path data from artifact-path data, moved Clerk auth out of public routes, cut document sizes by 25-43%, and learned that the biggest speed wins come from asking "why is this code running here at all?"
+
+**Part 2: Building an AI Editorial Pipeline That Humans Actually Control**
+
+The architecture behind the multi-stage agent team. Durable execution with Trigger.dev, canonical artifact storage, stage-targeted replay, gap-fill search with GLM and Tavily, publication enrichment as its own editorial workflow, and a review surface that treats human oversight as a first-class system -- not an approval checkbox at the end.
+
+**Part 3: 79 Visual Assets in One Session -- Building a Medical Illustration Library with AI**
+
+How we developed two visual registers -- Excalidraw sketchy diagrams for technical content and woodcut/letterpress illustrations for reference cards -- established quality rules through iterative review, and produced a complete article illustration library spanning mechanism diagrams, comparison tables, decision-tree flowcharts, data-driven clinical charts, and patient-facing checklists.
+
+## What's ahead
+
+Beyond the build series, we are working on a weekly intelligence digest called *This Week in GLP-1s*. It will track new clinical trial data, FDA regulatory moves, insurance coverage changes, provider landscape shifts, and what patients are actually discussing across communities. The goal is to make it easy to stay current without having to piece together updates from a dozen scattered sources. More details on that soon.
+
+## Start reading
+
+The lower dB is live at [thelowerdb.com](https://thelowerdb.com). Here are a few good starting points:
+
+- [What "Food Noise" Means and Why GLP-1 Patients Keep Using That Phrase](https://thelowerdb.com/articles/what-is-food-noise) -- the most-read article on the site, and a good entry point for anyone curious about what patients actually experience on these medications.
+- [How GLP-1 Drugs Work](https://thelowerdb.com/articles/how-glp1s-work) -- a thorough explainer covering GLP-1 and GIP mechanisms, appetite signaling, and what the evidence actually supports, written for patients rather than clinicians.
+- [Compounded vs. FDA-Approved GLP-1s in 2026](https://thelowerdb.com/articles/compounded-vs-fda-approved-glp1s-2026) -- the current regulatory and enforcement landscape, sourced and dated, for patients trying to understand what is and isn't legal right now.
