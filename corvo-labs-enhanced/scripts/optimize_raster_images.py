@@ -14,11 +14,17 @@ WEBP_QUALITY = 90
 JPEG_QUALITY = 90
 
 
-def _webp_save_kwargs(img: Image.Image) -> dict:
+def _webp_save_kwargs(image: Image.Image) -> dict:
     save_kwargs: dict = {"format": "WEBP", "quality": WEBP_QUALITY, "method": 6}
-    if img.mode == "RGBA":
+    if image.mode == "RGBA":
         save_kwargs["lossless"] = False
     return save_kwargs
+
+
+def _normalize_mode(image: Image.Image) -> Image.Image:
+    if image.mode in ("RGB", "RGBA"):
+        return image
+    return image.convert("RGBA" if "A" in image.getbands() else "RGB")
 
 
 def optimize_one(path: Path) -> None:
@@ -31,9 +37,8 @@ def optimize_one(path: Path) -> None:
         return
 
     original = path.stat().st_size
-    img = Image.open(path)
-    if img.mode not in ("RGB", "RGBA"):
-        img = img.convert("RGBA" if "A" in img.getbands() else "RGB")
+    with Image.open(path) as src:
+        img = _normalize_mode(src.copy())
 
     # Existing WebP: never write WebP output to the same path as the source.
     if ext == ".webp":
@@ -48,37 +53,36 @@ def optimize_one(path: Path) -> None:
             print(f"no win: {path}")
         return
 
-    if ext in {".jpg", ".jpeg"}:
-        out_webp = path.with_suffix(".webp")
-        img.save(out_webp, **_webp_save_kwargs(img))
-        webp_size = out_webp.stat().st_size
+    final_webp = path.with_suffix(".webp")
+    cand_webp = path.with_suffix(".opt.webp")
 
-        tmp = path.with_suffix(".opt.jpg")
-        rgb = img.convert("RGB")
-        rgb.save(tmp, format="JPEG", quality=JPEG_QUALITY, optimize=True, progressive=True)
-        jpg_size = tmp.stat().st_size
+    if ext in {".jpg", ".jpeg"}:
+        img.save(cand_webp, **_webp_save_kwargs(img))
+        webp_size = cand_webp.stat().st_size
+
+        tmp_jpg = path.with_suffix(".opt.jpg")
+        img.convert("RGB").save(tmp_jpg, format="JPEG", quality=JPEG_QUALITY, optimize=True, progressive=True)
+        jpg_size = tmp_jpg.stat().st_size
+
         if webp_size <= jpg_size and webp_size < original:
-            if out_webp.resolve() != path.resolve():
-                path.unlink(missing_ok=True)
-            tmp.unlink(missing_ok=True)
-            print(f"OK {path.name} -> {out_webp.name}  {original} -> {webp_size} bytes")
+            path.unlink(missing_ok=True)
+            tmp_jpg.unlink(missing_ok=True)
+            cand_webp.replace(final_webp)
+            print(f"OK {path.name} -> {final_webp.name}  {original} -> {webp_size} bytes")
             return
         if jpg_size < original:
-            tmp.replace(path)
-            if out_webp.resolve() != path.resolve():
-                out_webp.unlink(missing_ok=True)
+            tmp_jpg.replace(path)
+            cand_webp.unlink(missing_ok=True)
             print(f"OK {path.name} optimized JPEG  {original} -> {jpg_size} bytes")
             return
-        tmp.unlink(missing_ok=True)
-        if out_webp.resolve() != path.resolve():
-            out_webp.unlink(missing_ok=True)
+        tmp_jpg.unlink(missing_ok=True)
+        cand_webp.unlink(missing_ok=True)
         print(f"no win: {path}")
         return
 
-    # PNG: compare WebP vs zlib-optimized PNG (ext is .png here)
-    out_webp = path.with_suffix(".webp")
-    img.save(out_webp, **_webp_save_kwargs(img))
-    webp_size = out_webp.stat().st_size
+    # PNG: compare WebP vs zlib-optimized PNG (only .png reaches here)
+    img.save(cand_webp, **_webp_save_kwargs(img))
+    webp_size = cand_webp.stat().st_size
 
     tmp_png = path.with_suffix(".opt.png")
     img.save(tmp_png, format="PNG", optimize=True, compress_level=9)
@@ -87,17 +91,16 @@ def optimize_one(path: Path) -> None:
     if webp_size < original and webp_size <= png_size:
         path.unlink()
         tmp_png.unlink(missing_ok=True)
-        print(f"OK {path.name} -> {out_webp.name}  {original} -> {webp_size} bytes")
+        cand_webp.replace(final_webp)
+        print(f"OK {path.name} -> {final_webp.name}  {original} -> {webp_size} bytes")
         return
     if png_size < original:
         tmp_png.replace(path)
-        if out_webp.resolve() != path.resolve():
-            out_webp.unlink(missing_ok=True)
+        cand_webp.unlink(missing_ok=True)
         print(f"OK {path.name} optimized PNG  {original} -> {png_size} bytes")
         return
     tmp_png.unlink(missing_ok=True)
-    if out_webp.resolve() != path.resolve():
-        out_webp.unlink(missing_ok=True)
+    cand_webp.unlink(missing_ok=True)
     print(f"no win: {path}")
 
 
