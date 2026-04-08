@@ -5,7 +5,7 @@ date: "2026-04-08"
 excerpt: "We had a production app that should have felt quick — straightforward frontend, Convex-backed state, ordinary routes — yet it felt slower than it had any right to feel. That gap between expectation and experience turned out to be the whole story: measurement first, then stripping accidental work from list views, auth, prefetch, and even our benchmarks."
 author: "Jake Butler"
 tags: ["Performance", "Web App"]
-coverImage: "/images/blog/lower-db-performance/hero-image.webp"
+coverImage: "/images/blog/lower-db/hero-image.webp"
 coverImageAlt: "Before-and-after Polaroid-style illustration of an otter mascot in a Next.js shirt: weary with a ball and chain versus sprinting in sunlight, symbolizing shedding accidental work for a faster app."
 readTime: "10 min read"
 category: "product development"
@@ -54,7 +54,7 @@ That kind of leak is easy to miss because nothing looks obviously wrong in the p
 The interesting part of this pass was not the route we started investigating. It was discovering that auth infrastructure had leaked into pages that didn't need it.
 
 <BlogImage
-  src="/images/blog/lower-db-performance/clerk-provider-scope.webp"
+  src="/images/blog/lower-db/clerk-before-after.svg"
   alt="Diagram titled Where was Clerk loading: before, ClerkProvider wrapped the entire app so auth code loaded on every page; after, public routes sit outside the wrapper and ClerkProvider only wraps admin and sign-in routes"
 />
 
@@ -82,7 +82,7 @@ The app didn't need one magical optimization. It needed a series of smaller corr
 On the public routes, the production before-and-after pass showed real gains: homepage load improved by roughly 194ms, company detail by 310ms, the reading index by 258ms on DOMContentLoaded. Document sizes dropped 25-43% on the directory pages after we switched to compact default views with explicit "view all" paths. Several of those routes also became fully static after we restructured them to stop depending on URL query parameters, which alone cut their median page-ready time nearly in half in local production builds.
 
 <BlogImage
-  src="/images/blog/lower-db-performance/directory-document-sizes.webp"
+  src="/images/blog/lower-db/document-size-reduction-web.webp"
   alt="Bar chart of directory page document sizes before and after optimization for /treatments, /providers, and /reading, showing roughly 25-43% reductions"
 />
 
