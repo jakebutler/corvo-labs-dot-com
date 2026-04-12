@@ -1,0 +1,84 @@
+---
+title: "Building a Robust, Redundant Editorial Agent Team"
+date: "2026-04-11"
+status: "scheduled"
+heroImage: "https://healthy-platypus-553.convex.cloud/api/storage/8eb5edb9-4ce2-4521-99ea-cfccae8b12ba"
+tags: ["editorial AI", "AI workflow design", "human-in-the-loop", "deterministic AI", "system design"]
+description: "How we built a 13-stage editorial AI pipeline and why the biggest gains came from narrowing boundaries, not writing better prompts."
+---
+
+![agent-team](https://healthy-platypus-553.convex.cloud/api/storage/8eb5edb9-4ce2-4521-99ea-cfccae8b12ba)Building an Editorial AI Pipeline by Narrowing Boundaries
+
+We built a 13-stage editorial AI pipeline that researches, writes, fact-checks, and packages articles for human review. The most important design decisions had nothing to do with prompts.
+
+The first version of the pipeline could produce articles. It just couldn't produce articles that a human reviewer could do anything useful with. The output was a wall of text with no traceability, no way to request a targeted fix, and no clear separation between "the research was bad" and "the writing was bad." That's where the real design work started.
+
+I knew going into this that more specificity at the task level would improve the system. What I didn't know was where it would help most. So instead of over-engineering upfront, I built in rounds of iteration and let the pipeline tell me where additional specificity, guardrails, and structure would make the biggest difference.
+
+## What we actually built
+
+The agent team is a research-and-writing system for editorial content on the lower dB. It takes an article brief, runs a durable multi-stage workflow, produces a fact-checked article package, and routes the result through an admin review surface before anything becomes publishable.
+
+The pipeline runs through 13 stages: brief and cost estimate, research plan, source collection, claims analysis, gap-fill search, outline, draft, edit, humanizer pass, fact check, SEO package, CMS bridge, and human review.
+
+![article-pipeline](https://healthy-platypus-553.convex.cloud/api/storage/e62b96f2-5738-4707-ad63-e7694f979855)One of the earliest and most important decisions was separating four concerns that would have been easy to collapse into one system:
+
+- **Execution:** Trigger.dev owns the long-running orchestration, retries, and fan-out.
+- **Artifacts:** Every stage writes its output to a canonical file store. Research plans, claims tables, search results, outlines, drafts, fact checks, usage ledgers. All inspectable, all durable.
+- **Operator state:** The admin UI handles job queues, review decisions, and rerun requests.
+- **Observability:** Arize captures traces and prompt metadata.
+
+![system-architecture](https://healthy-platypus-553.convex.cloud/api/storage/6832a3b6-f309-4510-ba2e-21238b939ce1)That split meant we could iterate on prompts, reruns, and review workflows without turning the workflow engine, the UI, and the storage model into one inseparable system. In plain terms - changing how we write articles doesn't require changing how we review them, and vice versa.
+
+## Review is a state machine, not an approval button
+
+The first version of human review was a single approve/reject decision at the end of the pipeline. That broke down fast.
+
+If a reviewer saw a problem in the outline but the draft was otherwise good, there was no way to rerun just the outline and everything downstream. The only option was to rerun the entire job. That's expensive, slow, and makes review feel careless.
+
+We added stage-targeted replay. A reviewer can now pick a stage and rerun from there. The skipped stages inherit their artifacts from the previous job. Source gathering still runs fresh. Preflight checks verify that inherited artifacts exist before execution starts. Each rerun creates a self-contained job with full traceability, so you can always trace what changed and where the rerun started.
+
+![stage-targeted-replay](https://healthy-platypus-553.convex.cloud/api/storage/3c47cc2b-4722-40eb-b3e0-f6734dc75050)This matters because human review happens throughout the process, not just at the end. The system is designed for a reviewer to catch a factual gap, request a targeted fix, and get a revised package back without paying to rebuild the entire research chain. That's what human-in-the-loop actually means in practice: not a rubber stamp after generation, but a feedback channel at every stage that matters.
+
+## Factual grounding needed a search stage, not a bigger prompt
+
+The original research path was good at synthesizing sources the system already had. It was weaker when the initial source set missed a specific provider fact or policy detail.
+
+The first instinct might be to add "also go find anything missing" to the writer or claims prompt. We tried something narrower instead. We added a dedicated gap-fill search stage between claims analysis and outline. After the pipeline extracts claims from the source material, a model reviews the claims table and identifies what's still unverified. It generates up to five targeted search queries, runs them through Tavily in parallel, and reruns claims analysis with the added evidence.
+
+![gap-fill-search](https://healthy-platypus-553.convex.cloud/api/storage/4337d0d6-a8e0-4cc7-8087-afe85e97f550)The gap-fill stage was designed to fail gracefully. If some searches return nothing useful, the pipeline continues with what it has rather than stalling the whole article. That resilience turned out to matter as much as the coverage improvement.
+
+The lesson - search is more reliable when driven by explicit claim gaps than by a broad "research more" instruction. A narrow, well-placed stage beat a smarter prompt.
+
+## Enrichment became its own editorial pipeline
+
+After the main article pipeline was working, we needed publication metadata like summaries, description lines, tags, key points, related articles. The first version was a single prompt that generated everything at once.
+
+That was too coarse. Reviewers wanted to approve the summary but regenerate the tags. Or lock the key points but tweak the description. A single-prompt approach made every rerun all-or-nothing.
+
+We split enrichment into focused tasks: summary, description, tags/category, and key points, each generated separately. Fields that could be computed deterministically stayed out of the model path entirely. Read time, citations, and related article rankings are all calculated by code, not generated by a prompt.
+
+![publication-enrichment-v2](https://healthy-platypus-553.convex.cloud/api/storage/6f835d28-ff2f-4813-8b74-f30db8c18cb7)Reviewers can now lock individual fields and request field-targeted reruns with specific guidance. Approved fields survive reruns. Each generation run carries provenance, so you can compare outputs across versions and build evaluation sets later.
+
+That shift was a recurring pattern - the system got more deterministic over time, and that was a feature, not a retreat from AI. Style guardrails, related-article selection, and citation handling all became more reliable when they moved out of prompt-only control and into code.
+
+## Production forced better infrastructure
+
+The jump from local iteration to production deployment exposed every weak assumption.
+
+When we needed to migrate existing articles to the new enrichment system, a one-shot script wasn't good enough. Partial failures needed explicit handling. Reruns couldn't depend on keeping a browser tab open. UI state and background task state had to stay aligned even when jobs ran for minutes.
+
+We moved enrichment onto Trigger-backed durable tasks with persisted batch and item records. Each backfill run is auditable, each item has explicit settlement status, and the system can recover from interruptions without duplicating work. The answer wasn't to make the prompts more reliable. It was to make the workflow infrastructure take responsibility for durability.
+
+## What the iteration taught us
+
+The implementation history is mostly a story of narrowing things down:
+
+- Narrower workflow responsibilities. Each stage does one job and writes one artifact.
+- Narrower rerun scopes. Reviewers fix what's wrong without rebuilding what's right.
+- Narrower prompt responsibilities. Anything that can be computed deterministically should be.
+- Narrower but stronger deterministic rules. Style guardrails enforced by code catch things that prompt instructions miss inconsistently.
+
+The pipeline got better every time it got more explicit about state, lineage, and ownership. Not when we wrote cleverer prompts.
+
+If there's one transferable idea here, it's this - treat AI generation as a durable, inspectable editorial workflow, not as one large prompt behind a button. The prompts matter, but the boundaries, the artifacts, the review state, and the feedback loops matter more.
