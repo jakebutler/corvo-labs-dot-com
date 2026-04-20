@@ -7,15 +7,15 @@ tags: ["AI workflow", "content operations", "image generation", "context enginee
 description: "How one team generated 79 reviewed visual assets across 20 articles in a single session—using structured prep, style constraints, and programmatic chart generation."
 ---
 
-![hero_image](https://healthy-platypus-553.convex.cloud/api/storage/36e351ad-0871-4ec5-819d-719310a9935e)How We Produced 79 Visual Assets in a Single Session
-
 By the time I sat down to generate visual assets for 20 articles, I'd already spent weeks in content review, fact-checking, and building out the editorial agent pipeline. I didn't realize it at the time, but that earlier work was the real preparation for this session.
 
 The lower dB had about 20 published articles with no supplemental visuals. For a reader-facing health content site, that's a problem. Visuals aren't decoration. They help readers understand the most complex and most important points in an article. They break up long-form content, reinforce important points, and increase comprehension. For health content in particular, the stakes are higher. A well-placed diagram can be the difference between a reader understanding how their medication works and bouncing to a simpler but less accurate source.
 
 I needed 2-5 assets per article, which meant potentially 100 images. I couldn't do this one at a time in Canva. I needed a system.
 
-![asset1_workflow_flowchart](https://healthy-platypus-553.convex.cloud/api/storage/45312ce6-9d2a-4570-a47a-4b36ae4c6749)## The prep work that made the session possible
+![Flowchart of the 79-asset generation workflow, from content audit through constraint-setting, first-article iteration, scaled generation, and final review](https://healthy-platypus-553.convex.cloud/api/storage/45312ce6-9d2a-4570-a47a-4b36ae4c6749)
+
+## The prep work that made the session possible
 
 Before touching any image tool, I did a full content audit of every article on the site. Not "which articles need pictures" but "what are the hardest concepts in each article, and where would a visual actually help a reader understand them?"
 
@@ -35,7 +35,9 @@ I chose Manus for the generation session because of its strength with structured
 
 The first batch came back close but not right. The legend on a clinical trial bar chart overlapped with the section label. I asked for it moved below the chart and changed from stacked to side-by-side to make better use of the space. A reference card checklist was generated at 16:9 aspect ratio, which made the text too small to read. It needed 4:3. One of the woodcut reference cards included a hand holding the card in a 3D perspective. That wasn't the style.
 
-![asset3_iteration_rules_card_v2](https://healthy-platypus-553.convex.cloud/api/storage/c2b3d04a-c0ea-4cac-b214-d13120ef86f2)Each round of feedback became a reusable rule. By the end of the first article, I had documented iteration rules that applied to every future asset:
+![Woodcut-style reference card listing the iteration rules locked in during the first article: legends below charts, 4:3 aspect ratio for reference cards, no 3D perspective, no generic labels, timeline format rules, and no side arrows on pyramid diagrams](https://healthy-platypus-553.convex.cloud/api/storage/c2b3d04a-c0ea-4cac-b214-d13120ef86f2)
+
+Each round of feedback became a reusable rule. By the end of the first article, I had documented iteration rules that applied to every future asset:
 
 - Legends always go below the chart, horizontal, outside the plot area.
 - Reference cards use 4:3 aspect ratio, not 16:9.
@@ -54,7 +56,9 @@ The scripts use a standardized boilerplate with the lower dB's brand colors, mon
 
 That's why those charts are consistent across 20 articles. An image model generating each one independently would have produced 20 slightly different visual styles, even with the same prompt. The LLM's role here was writing the scripts, not drawing the charts. That distinction matters for output quality.
 
-![asset2_llm_vs_programmatic](https://healthy-platypus-553.convex.cloud/api/storage/40c09236-1c68-4925-8efa-7b309005d2e6)## The output
+![Two-column comparison showing LLM image generation versus programmatic Matplotlib charts, with the LLM writing scripts rather than drawing the data-driven visuals](https://healthy-platypus-553.convex.cloud/api/storage/40c09236-1c68-4925-8efa-7b309005d2e6)
+
+## The output
 
 A few hours, 79 reviewed and approved visual assets across the full article library. The asset types ranged widely - mechanism pathway diagrams, comparison tables, flowcharts, decision trees, regulatory timelines, evidence panels, exercise priority pyramids, anatomical illustrations, reference card checklists, and every variety of data chart. Each asset was assigned a layout for placement in its article; either full-width to break the text flow, or inset to float alongside the text with wrapping, depending on whether the visual stands alone or supports the surrounding paragraph.
 
@@ -62,7 +66,9 @@ Every asset has a `visual-asset-requirements.md` documenting the original requir
 
 ## Systematizing it
 
-![asset4_session_timeline](https://healthy-platypus-553.convex.cloud/api/storage/86c849da-b72f-43c6-b5b9-773af312ed44)At the end of the Manus session, I had the LLM create a comprehensive style guide documenting everything: the brand principles, the prompts that worked for each asset type, the Matplotlib boilerplate, all nine iteration rules, export standards, and a QA checklist. That style guide became the canonical reference for all future visual asset work.
+![Timeline of the Manus session showing how the work compressed into a few hours once constraints, the first-article iteration loop, and the programmatic chart path were in place](https://healthy-platypus-553.convex.cloud/api/storage/86c849da-b72f-43c6-b5b9-773af312ed44)
+
+At the end of the Manus session, I had the LLM create a comprehensive style guide documenting everything: the brand principles, the prompts that worked for each asset type, the Matplotlib boilerplate, all nine iteration rules, export standards, and a QA checklist. That style guide became the canonical reference for all future visual asset work.
 
 Then we built the workflow into the lower dB's admin system itself. Editors can now propose a visual plan from an approved article draft, review and edit typed visual specs before generation begins, and approve final assets before publication. The generation providers mirror the same split that came out of the Manus session - `programmatic_svg` for diagrams, cards, timelines, and charts, and `openrouter_image` for model-backed illustrations.
 
