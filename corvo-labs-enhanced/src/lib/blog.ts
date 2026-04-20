@@ -42,16 +42,16 @@ export function getBlogPosts(): BlogPost[] {
                 title: data.title,
                 subtitle: data.subtitle,
                 date: data.date,
-                excerpt: data.excerpt,
-                author: data.author,
-                coverImage: data.coverImage,
-                coverImageAlt: data.coverImageAlt,
+                excerpt: data.excerpt || data.description || '',
+                author: data.author || 'Jake Butler',
                 tags: data.tags || [],
-                published: data.published !== false,
+                published: data.published !== false && data.status !== 'draft',
                 featured: data.featured || false,
                 readTime: data.readTime || '5 min read',
                 category: data.category || 'strategy',
                 ...data,
+                coverImage: data.coverImage || data.heroImage,
+                coverImageAlt: data.coverImageAlt || data.heroImageAlt,
             } as BlogPost
         })
 
@@ -86,16 +86,16 @@ export function getBlogPost(slug: string): BlogPost | null {
             title: data.title,
             subtitle: data.subtitle,
             date: data.date,
-            excerpt: data.excerpt,
-            author: data.author,
-            coverImage: data.coverImage,
-            coverImageAlt: data.coverImageAlt,
+            excerpt: data.excerpt || data.description || '',
+            author: data.author || 'Jake Butler',
             tags: data.tags || [],
-            published: data.published !== false,
+            published: data.published !== false && data.status !== 'draft',
             featured: data.featured || false,
             readTime: data.readTime || '5 min read',
             category: data.category || 'strategy',
             ...data,
+            coverImage: data.coverImage || data.heroImage,
+            coverImageAlt: data.coverImageAlt || data.heroImageAlt,
         } as BlogPost
     } catch (e) {
         return null
