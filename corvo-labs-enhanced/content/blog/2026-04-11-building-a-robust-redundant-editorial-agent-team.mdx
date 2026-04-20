@@ -3,11 +3,10 @@ title: "Building a Robust, Redundant Editorial Agent Team"
 date: "2026-04-11"
 status: "scheduled"
 heroImage: "https://healthy-platypus-553.convex.cloud/api/storage/8eb5edb9-4ce2-4521-99ea-cfccae8b12ba"
+heroImageAlt: "Illustration of a redundant team of editorial agents working alongside a human reviewer, representing the 13-stage editorial AI pipeline"
 tags: ["editorial AI", "AI workflow design", "human-in-the-loop", "deterministic AI", "system design"]
 description: "How we built a 13-stage editorial AI pipeline and why the biggest gains came from narrowing boundaries, not writing better prompts."
 ---
-
-![agent-team](https://healthy-platypus-553.convex.cloud/api/storage/8eb5edb9-4ce2-4521-99ea-cfccae8b12ba)Building an Editorial AI Pipeline by Narrowing Boundaries
 
 We built a 13-stage editorial AI pipeline that researches, writes, fact-checks, and packages articles for human review. The most important design decisions had nothing to do with prompts.
 
@@ -21,14 +20,18 @@ The agent team is a research-and-writing system for editorial content on the low
 
 The pipeline runs through 13 stages: brief and cost estimate, research plan, source collection, claims analysis, gap-fill search, outline, draft, edit, humanizer pass, fact check, SEO package, CMS bridge, and human review.
 
-![article-pipeline](https://healthy-platypus-553.convex.cloud/api/storage/e62b96f2-5738-4707-ad63-e7694f979855)One of the earliest and most important decisions was separating four concerns that would have been easy to collapse into one system:
+![Diagram of the 13-stage editorial pipeline, from brief and cost estimate through research, claims, gap-fill search, drafting, editing, fact check, SEO packaging, and human review](https://healthy-platypus-553.convex.cloud/api/storage/e62b96f2-5738-4707-ad63-e7694f979855)
+
+One of the earliest and most important decisions was separating four concerns that would have been easy to collapse into one system:
 
 - **Execution:** Trigger.dev owns the long-running orchestration, retries, and fan-out.
 - **Artifacts:** Every stage writes its output to a canonical file store. Research plans, claims tables, search results, outlines, drafts, fact checks, usage ledgers. All inspectable, all durable.
 - **Operator state:** The admin UI handles job queues, review decisions, and rerun requests.
 - **Observability:** Arize captures traces and prompt metadata.
 
-![system-architecture](https://healthy-platypus-553.convex.cloud/api/storage/6832a3b6-f309-4510-ba2e-21238b939ce1)That split meant we could iterate on prompts, reruns, and review workflows without turning the workflow engine, the UI, and the storage model into one inseparable system. In plain terms - changing how we write articles doesn't require changing how we review them, and vice versa.
+![System architecture diagram separating Trigger.dev execution, the canonical artifact store, the admin operator state, and Arize observability](https://healthy-platypus-553.convex.cloud/api/storage/6832a3b6-f309-4510-ba2e-21238b939ce1)
+
+That split meant we could iterate on prompts, reruns, and review workflows without turning the workflow engine, the UI, and the storage model into one inseparable system. In plain terms - changing how we write articles doesn't require changing how we review them, and vice versa.
 
 ## Review is a state machine, not an approval button
 
@@ -38,7 +41,9 @@ If a reviewer saw a problem in the outline but the draft was otherwise good, the
 
 We added stage-targeted replay. A reviewer can now pick a stage and rerun from there. The skipped stages inherit their artifacts from the previous job. Source gathering still runs fresh. Preflight checks verify that inherited artifacts exist before execution starts. Each rerun creates a self-contained job with full traceability, so you can always trace what changed and where the rerun started.
 
-![stage-targeted-replay](https://healthy-platypus-553.convex.cloud/api/storage/3c47cc2b-4722-40eb-b3e0-f6734dc75050)This matters because human review happens throughout the process, not just at the end. The system is designed for a reviewer to catch a factual gap, request a targeted fix, and get a revised package back without paying to rebuild the entire research chain. That's what human-in-the-loop actually means in practice: not a rubber stamp after generation, but a feedback channel at every stage that matters.
+![Flow of stage-targeted replay where a reviewer picks any pipeline stage to rerun, downstream stages rebuild from that point, and earlier artifacts are inherited from the prior job](https://healthy-platypus-553.convex.cloud/api/storage/3c47cc2b-4722-40eb-b3e0-f6734dc75050)
+
+This matters because human review happens throughout the process, not just at the end. The system is designed for a reviewer to catch a factual gap, request a targeted fix, and get a revised package back without paying to rebuild the entire research chain. That's what human-in-the-loop actually means in practice: not a rubber stamp after generation, but a feedback channel at every stage that matters.
 
 ## Factual grounding needed a search stage, not a bigger prompt
 
@@ -46,7 +51,9 @@ The original research path was good at synthesizing sources the system already h
 
 The first instinct might be to add "also go find anything missing" to the writer or claims prompt. We tried something narrower instead. We added a dedicated gap-fill search stage between claims analysis and outline. After the pipeline extracts claims from the source material, a model reviews the claims table and identifies what's still unverified. It generates up to five targeted search queries, runs them through Tavily in parallel, and reruns claims analysis with the added evidence.
 
-![gap-fill-search](https://healthy-platypus-553.convex.cloud/api/storage/4337d0d6-a8e0-4cc7-8087-afe85e97f550)The gap-fill stage was designed to fail gracefully. If some searches return nothing useful, the pipeline continues with what it has rather than stalling the whole article. That resilience turned out to matter as much as the coverage improvement.
+![Diagram of the gap-fill search stage: claims analysis identifies unverified claims, up to five targeted Tavily queries run in parallel, and claims analysis reruns with the added evidence](https://healthy-platypus-553.convex.cloud/api/storage/4337d0d6-a8e0-4cc7-8087-afe85e97f550)
+
+The gap-fill stage was designed to fail gracefully. If some searches return nothing useful, the pipeline continues with what it has rather than stalling the whole article. That resilience turned out to matter as much as the coverage improvement.
 
 The lesson - search is more reliable when driven by explicit claim gaps than by a broad "research more" instruction. A narrow, well-placed stage beat a smarter prompt.
 
@@ -58,7 +65,9 @@ That was too coarse. Reviewers wanted to approve the summary but regenerate the 
 
 We split enrichment into focused tasks: summary, description, tags/category, and key points, each generated separately. Fields that could be computed deterministically stayed out of the model path entirely. Read time, citations, and related article rankings are all calculated by code, not generated by a prompt.
 
-![publication-enrichment-v2](https://healthy-platypus-553.convex.cloud/api/storage/6f835d28-ff2f-4813-8b74-f30db8c18cb7)Reviewers can now lock individual fields and request field-targeted reruns with specific guidance. Approved fields survive reruns. Each generation run carries provenance, so you can compare outputs across versions and build evaluation sets later.
+![Second version of the enrichment pipeline with separate tasks for summary, description, tags, and key points, deterministic code paths for read time, citations, and related articles, and field-level locking for reviewers](https://healthy-platypus-553.convex.cloud/api/storage/6f835d28-ff2f-4813-8b74-f30db8c18cb7)
+
+Reviewers can now lock individual fields and request field-targeted reruns with specific guidance. Approved fields survive reruns. Each generation run carries provenance, so you can compare outputs across versions and build evaluation sets later.
 
 That shift was a recurring pattern - the system got more deterministic over time, and that was a feature, not a retreat from AI. Style guardrails, related-article selection, and citation handling all became more reliable when they moved out of prompt-only control and into code.
 
