@@ -7,6 +7,54 @@ import { ArrowLeft, Calendar, Clock, User, Share2 } from 'lucide-react'
 import { EnhancedCTA } from '@/components/enhanced-cta'
 import remarkGfm from 'remark-gfm'
 
+// Defined at module scope so the `p` renderer below can detect them by
+// reference. Detecting by function name is fragile: SWC/Terser can mangle
+// names in production, which would silently re-break the "<figure> inside
+// <p>" hydration bug this code exists to prevent.
+const BlogImage = (props: any) => {
+    const { src, alt, className, ...rest } = props
+    return (
+        <figure className="my-10 relative group">
+            <div className={`relative bg-white rounded-xl p-3 shadow-soft-lg border border-gray-100 transition-all duration-500 group-hover:shadow-soft-xl group-hover:-translate-y-1 ${className || ''}`}>
+                <img
+                    src={src}
+                    alt={alt}
+                    className="w-full h-auto rounded-lg"
+                    {...rest}
+                />
+            </div>
+            {alt && (
+                <figcaption className="text-center text-sm text-gray-400 mt-3 italic font-sans tracking-wide">
+                    {alt}
+                </figcaption>
+            )}
+        </figure>
+    )
+}
+
+// Renderer for plain markdown `![alt](src)` so posts authored in either
+// style (markdown image or <BlogImage />) pick up identical styling.
+const BlogImageMd = (props: any) => {
+    const { src, alt, ...rest } = props
+    return (
+        <figure className="my-10 relative group">
+            <div className="relative bg-white rounded-xl p-3 shadow-soft-lg border border-gray-100 transition-all duration-500 group-hover:shadow-soft-xl group-hover:-translate-y-1">
+                <img
+                    src={src}
+                    alt={alt}
+                    className="w-full h-auto rounded-lg"
+                    {...rest}
+                />
+            </div>
+            {alt && (
+                <figcaption className="text-center text-sm text-gray-400 mt-3 italic font-sans tracking-wide">
+                    {alt}
+                </figcaption>
+            )}
+        </figure>
+    )
+}
+
 // Define components mapping for MDX
 const components = {
     h1: (props: any) => (
@@ -56,66 +104,21 @@ const components = {
     td: (props: any) => (
         <td {...props} className="px-4 py-3 align-top text-base text-gray-700" />
     ),
-    BlogImage: function BlogImage(props: any) {
-        const { src, alt, className, ...rest } = props
-        return (
-            <figure className="my-10 relative group">
-                <div className={`relative bg-white rounded-xl p-3 shadow-soft-lg border border-gray-100 transition-all duration-500 group-hover:shadow-soft-xl group-hover:-translate-y-1 ${className || ''}`}>
-                    <img
-                        src={src}
-                        alt={alt}
-                        className="w-full h-auto rounded-lg"
-                        {...rest}
-                    />
-                </div>
-                {alt && (
-                    <figcaption className="text-center text-sm text-gray-400 mt-3 italic font-sans tracking-wide">
-                        {alt}
-                    </figcaption>
-                )}
-            </figure>
-        )
-    },
-    // Render plain markdown ![alt](src) images with the same card styling as
-    // <BlogImage /> so posts authored in either style look consistent. This
-    // lets Resonate-generated posts (which only use `![alt](url)`) pick up the
-    // standard image treatment without any MDX authoring changes.
-    img: function BlogImageMd(props: any) {
-        const { src, alt, ...rest } = props
-        return (
-            <figure className="my-10 relative group">
-                <div className="relative bg-white rounded-xl p-3 shadow-soft-lg border border-gray-100 transition-all duration-500 group-hover:shadow-soft-xl group-hover:-translate-y-1">
-                    <img
-                        src={src}
-                        alt={alt}
-                        className="w-full h-auto rounded-lg"
-                        {...rest}
-                    />
-                </div>
-                {alt && (
-                    <figcaption className="text-center text-sm text-gray-400 mt-3 italic font-sans tracking-wide">
-                        {alt}
-                    </figcaption>
-                )}
-            </figure>
-        )
-    },
+    BlogImage,
+    img: BlogImageMd,
     // Markdown wraps images in <p> by default. Our `img` / `BlogImage`
     // renderers emit a <figure>, which is invalid inside a <p>. Unwrap any
-    // paragraph whose only child is one of our image renderers.
+    // paragraph whose only child is one of our image renderers — detected by
+    // reference, so minification can't silently break it.
     p: (props: any) => {
         const { children, ...rest } = props
         const childArray = React.Children.toArray(children)
         const onlyChild = childArray.length === 1 ? childArray[0] : null
-        const onlyChildType: any =
+        const onlyChildType: unknown =
             onlyChild && typeof onlyChild === 'object' && 'type' in (onlyChild as any)
                 ? (onlyChild as any).type
                 : null
-        const typeName =
-            typeof onlyChildType === 'function'
-                ? onlyChildType.displayName || onlyChildType.name
-                : null
-        const isBlockImage = typeName === 'BlogImage' || typeName === 'BlogImageMd'
+        const isBlockImage = onlyChildType === BlogImage || onlyChildType === BlogImageMd
         if (isBlockImage) {
             return <>{children}</>
         }
