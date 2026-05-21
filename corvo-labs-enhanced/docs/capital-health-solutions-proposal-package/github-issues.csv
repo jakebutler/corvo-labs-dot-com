@@ -1,0 +1,63 @@
+Title,Body,Labels,Priority,Size,Acceptance Criteria
+EPIC: Project setup and deployment foundation,Create repo/app foundation for the Capital Health Solutions prototype under Corvo Labs hosting.,setup,P0,M,"Acceptance: Next.js app created, routes run locally, deploy target documented, README includes local setup and deployment instructions."
+Set up Next.js project for /capitalhealthsolutions route,Create Next.js app or monorepo route that supports hosting under corvolabs.com/capitalhealthsolutions.,"setup,website",P0,M,Acceptance: homepage renders at /capitalhealthsolutions locally and supports nested routes.
+Configure deployment on Vercel or Cloudflare Pages,Deploy review prototype to public URL under Corvo Labs domain.,setup,P0,M,"Acceptance: public preview URL works, custom path/domain plan documented."
+Add environment variable strategy,"Document required env vars for HubSpot, Twilio, AssemblyAI, Google Calendar, Trigger.dev, analytics.","setup,security-compliance",P0,S,Acceptance: .env.example created with no secrets committed.
+Create site-wide design tokens from option 02,"Translate option 02 colors, fonts, spacing, and component patterns into reusable Tailwind/theme config.",design-system,P0,M,"Acceptance: design tokens include midnight navy, glacier gray, burgundy, steel blue, typography, spacing."
+Build shared layout and navigation,"Create reusable nav/footer based on option 02, with routes for Services, Devices, Resources, Support, Proposal, Contact.","design-system,website",P0,M,"Acceptance: nav is responsive, sticky, and links to implemented pages."
+Adapt homepage option 02 into production component,Use selected prototype direction but replace placeholder content and unsupported claims.,website,P0,L,"Acceptance: homepage uses accurate CHS positioning, no fake names/claims, has consultation/SMS CTAs."
+Create interactive proposal page,"Build /proposal page with sections for strategy, automation, SMS, voice, HubSpot, website, roadmap, costs, issues.","proposal-page,website",P0,L,"Acceptance: page is polished, navigable, and can be shared with Milan/Dinesh."
+Create devices hub page,Build /devices hub for equipment categories and multi-brand positioning with Mindray emphasis.,website,P1,M,"Acceptance: includes category cards, CTA, internal links to details."
+Create device detail template,"Build reusable device detail page template with specs, use cases, FAQs, CTA, schema support.","website,seo-aeo",P1,M,"Acceptance: page supports model name, practice fit, feature table, FAQs, related articles."
+Create solutions hub page,Build /solutions page for practice segments and clinical workflows.,website,P1,M,Acceptance: links to vein clinics and vascular surgery group pages.
+Create vein clinics solution page,Build primary segment page for multi-provider vein clinics.,"website,content",P1,M,"Acceptance: page speaks to growth, training, support, config, workflow and CTA."
+Create vascular surgery groups solution page,Build primary segment page for vascular surgery groups.,"website,content",P1,M,"Acceptance: page speaks to imaging quality, multi-provider workflows, training, device fit."
+Create training page,"Build page for onboarding, hands-on training, technician support, and staff confidence.","website,content",P1,M,"Acceptance: includes training journey, scheduling CTA, FAQs."
+Create support page,"Build support hub with SMS/phone CTA, PHI warning, expected hours, escalation description.","website,support-ops",P0,M,"Acceptance: includes 415-VEINS-R-US placeholder, same-day business-hours expectation, safe SMS guidance."
+Create resources hub,"Build content hub with pillars, featured articles, filters, and internal linking.","website,content,seo-aeo",P0,M,Acceptance: first 4 articles are listed and linked.
+Publish article 1: Buyer’s guide,Write and publish ultimate buyer’s guide article.,"content,seo-aeo",P0,L,"Acceptance: complete article, answer blocks, FAQ section, internal links, metadata."
+Publish article 2: Portable vs console,Write and publish comparison article.,"content,seo-aeo",P0,M,"Acceptance: complete article, comparison table, CTAs, FAQs."
+Publish article 3: DVT setup,Write and publish DVT setup article with safety boundaries.,"content,seo-aeo",P0,M,"Acceptance: complete article, technical workflow not medical interpretation, FAQs."
+Publish article 4: Venous insufficiency mapping,Write and publish venous insufficiency workflow article with safe framing.,"content,seo-aeo",P0,M,"Acceptance: complete article, protocol/workflow framing, FAQs."
+Create case studies hub,Create hub for representative case studies with placeholders clearly marked.,"website,content",P2,M,Acceptance: no unsupported claims; case study templates ready.
+Create conference landing page,Build /conference page for Dinesh/Milan event lead capture and SMS CTA.,"conference,website",P0,M,"Acceptance: form, QR-friendly layout, SMS deep link, source selection."
+Create contact/consultation page,"Build consultation page optimized for phone, SMS, and form conversion.",website,P0,S,Acceptance: supports phone/SMS CTA and form submission path.
+Implement structured metadata,"Add SEO titles, descriptions, OG tags, and canonical URLs for all pages.",seo-aeo,P0,M,Acceptance: every page has metadata and canonical.
+Add JSON-LD Organization and LocalBusiness schema,Implement base schema for CHS.,seo-aeo,P0,S,Acceptance: schema validates with rich results/schema validator.
+Add Product schema to device pages,Add schema-ready product information for device detail pages.,seo-aeo,P1,S,Acceptance: product schema generated from page data.
+Add Article schema to resources,Add schema to article pages.,seo-aeo,P0,S,Acceptance: article schema validates.
+Add FAQ schema blocks,Implement reusable FAQ component with JSON-LD output.,"seo-aeo,website",P0,M,"Acceptance: FAQ schema on articles, support, training, device pages."
+Generate sitemap and robots.txt,Create sitemap and robots for prototype and eventual production use.,seo-aeo,P0,S,Acceptance: sitemap includes all routes; robots does not block crawlers unless intentionally configured.
+Create llms.txt,"Create AI-readable description of CHS, services, core pages, and safety constraints.",seo-aeo,P0,S,Acceptance: /llms.txt published and linked in proposal.
+Create pricing.md,"Create structured pricing explainer with quote-based pricing and factors, no unsupported exact pricing.",seo-aeo,P1,S,Acceptance: /pricing.md published.
+Create AGENTS.md,Create AI-agent interaction and safety guide for site content/support usage.,"seo-aeo,security-compliance",P1,S,Acceptance: /AGENTS.md published.
+Set up HubSpot account,Create new HubSpot account and configure base users.,hubspot,P0,M,"Acceptance: Dinesh, Milan, technician access configured."
+Configure HubSpot contacts/companies/deals/tickets,Create schema and pipelines for CRM and support operations.,hubspot,P0,L,Acceptance: fields/pipelines/ticket categories match proposal.
+Connect Gmail logging to HubSpot,"Enable email logging/tracking for Dinesh, Milan, and technician.",hubspot,P0,M,Acceptance: test emails log to contact/company timeline.
+Create HubSpot import templates,"Prepare CSV templates for contacts, companies, machines, deals, support history.","hubspot,data-migration",P0,M,Acceptance: templates include required fields and validation notes.
+Import initial contacts and companies,Import clean initial dataset.,"data-migration,hubspot",P1,M,Acceptance: sample records validated by Milan/Dinesh.
+Create machine record strategy,"Decide whether machine records live in HubSpot properties, Google Sheet, or synced external table.","hubspot,data-migration",P0,M,Acceptance: documented decision and first records linked.
+Build Cloudflare Worker for SMS webhook,Receive Twilio SMS webhook and perform routing/classification.,sms,P0,L,Acceptance: inbound test SMS creates/updates ticket and sends safe response.
+Add HubSpot lookup to SMS Worker,Match inbound phone number to HubSpot contact/company.,"sms,hubspot",P0,M,Acceptance: known customer lookup works; unknown path asks for identity.
+Implement SMS PHI warning,Send first-response warning not to share protected health information.,"sms,security-compliance",P0,S,Acceptance: first thread response includes PHI warning and bot disclosure.
+Implement SMS classification logic,"Classify support, onboarding, technical question, sales, scheduling, PHI-risk, urgency/frustration.","sms,support-ops",P0,M,Acceptance: classification stored on ticket and reviewable.
+Create HubSpot ticket from SMS,"Create or update ticket with message content, classification, customer, and priority.","sms,hubspot",P0,M,Acceptance: ticket contains transcript and relevant metadata.
+Notify technician by SMS/email,Send technician SMS/email notification for support tickets.,"sms,support-ops",P0,M,Acceptance: test ticket notifies technician with summary and link.
+Notify Dinesh on urgent/escalated issues,"Add escalation notification for urgent, frustrated, sales-sensitive, or PHI-risk cases.","sms,support-ops",P0,M,Acceptance: P0/P1 tickets trigger Dinesh notification.
+Implement SMS scheduling flow,Offer Google Calendar support windows via SMS.,"sms,calendar",P1,M,Acceptance: customer can receive/select support windows; event created.
+Set up Google Calendar support calendar,Create CHS Support Windows calendar with 8am–6pm PT availability.,calendar,P0,S,Acceptance: calendar exists with default support windows and event templates.
+Build AssemblyAI/Twilio voice agent backend,Create voice agent using Twilio Media Streams and AssemblyAI realtime transcription.,voice,P0,XL,"Acceptance: inbound call is answered, transcribed, classified, and summarized."
+Implement voice intent routing,"Route new sales calls quickly, support calls to ticketing/intake, urgent calls to transfer.","voice,support-ops",P0,L,Acceptance: test calls follow routing matrix.
+Implement live transfer logic,Transfer appropriate calls to Dinesh or technician.,voice,P0,M,Acceptance: transfer works with fallback if unavailable.
+Add call recording disclosure and storage plan,Add recording disclosure and decide where summaries/recordings are stored.,"voice,security-compliance",P0,M,Acceptance: disclosure played; transcript/summary saved to HubSpot.
+Create voice fallback handling,Fallback to callback ticket or voicemail-like flow when AI/transfer fails.,voice,P0,M,Acceptance: system fails safely and notifies internal team.
+Build Trigger.dev workflow for daily owner digest,"Send daily summary of leads, follow-ups, tickets, and escalations.","hubspot,trigger,automation",P1,M,Acceptance: daily digest generated from HubSpot data.
+Build renewal/replacement workflow,Flag customers around approximate 5-year replacement window.,"hubspot,automation",P1,M,Acceptance: contacts/companies get tasks and draft follow-up suggestions.
+Build quote follow-up workflow,Create follow-up tasks after quotes and no-response windows.,"hubspot,automation",P1,M,Acceptance: overdue quote tasks appear in dashboard.
+Build conference follow-up workflow,Automate post-conference source tagging and follow-up task/email drafts.,"conference,automation,hubspot",P0,M,Acceptance: conference leads receive appropriate tasks and draft messages.
+Create support knowledge base content model,Define public/gated support content and retrieval format for support bot.,"support-ops,content",P1,M,Acceptance: content types and metadata defined.
+Add analytics,Add GA4/PostHog or lightweight analytics to prototype.,analytics,P1,S,Acceptance: page views and CTA clicks tracked.
+Add form event tracking,"Track consultation, SMS click, phone click, conference form, article CTA events.",analytics,P1,S,Acceptance: events visible in analytics dashboard.
+QA accessibility and responsive layout,Test mobile/desktop and accessibility basics.,qa,P0,M,Acceptance: no major layout breaks; keyboard/semantic structure acceptable.
+QA support bot safety cases,"Test PHI, pricing, warranty, medical advice, angry customer, unknown contact scenarios.","qa,security-compliance",P0,L,Acceptance: all safety cases route correctly.
+Write implementation handoff docs,Create documentation for Milan to maintain system with light support.,"setup,docs",P0,M,"Acceptance: docs include architecture, env vars, common fixes, workflows."
