@@ -1,0 +1,5 @@
+Contact: mailto:help@corvolabs.com
+Expires: 2027-05-20T00:00:00.000Z
+Canonical: https://corvolabs.com/.well-known/security.txt
+Policy: https://corvolabs.com/contact
+Preferred-Languages: en
