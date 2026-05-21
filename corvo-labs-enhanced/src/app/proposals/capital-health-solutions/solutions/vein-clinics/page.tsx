@@ -1,0 +1,1 @@
+export default function Page(){return <main className='min-h-screen bg-white text-slate-900 p-10'><h1 className='text-4xl font-semibold mb-4'>solutions/vein-clinics</h1><p>Capital Health Solutions proposal section implementation for first-pass prototype.</p></main>}

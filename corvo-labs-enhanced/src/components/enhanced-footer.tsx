@@ -3,6 +3,7 @@
 import React from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 
 const fadeIn = {
@@ -29,6 +30,8 @@ const footerLinks = {
 }
 
 export function EnhancedFooter() {
+  const pathname = usePathname()
+  if (pathname?.startsWith('/proposals/capital-health-solutions')) return null
   return (
     <footer className="relative bg-gray-900 text-white overflow-hidden">
       {/* Background Pattern */}
