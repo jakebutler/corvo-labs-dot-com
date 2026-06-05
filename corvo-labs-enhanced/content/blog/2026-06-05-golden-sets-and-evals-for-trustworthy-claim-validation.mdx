@@ -1,0 +1,69 @@
+---
+title: "Golden sets and evals for trustworthy claim validation"
+date: "2026-06-05"
+subtitle: "Why claim validation needs curated examples, calibrated evals, and human review."
+description: "A practical Corvo Labs draft on golden sets, evaluator calibration, and review artifacts for trustworthy claim validation."
+author: "Jake Butler"
+tags: ["AI evaluation", "claim validation", "FreshProof"]
+heroImage: "/images/corvo-labs-stacked.svg"
+heroImageAlt: "Corvo Labs stacked logo mark."
+readTime: "3 min read"
+category: "strategy"
+featured: false
+status: "scheduled"
+---
+
+If you're building systems that decide whether a claim is supported by a source, the hard part isn't the model. It's knowing whether your pipeline is actually right — and staying right as you change it.
+
+That requires three things most teams underinvest in: curated golden sets, calibrated evaluators, and human review for the cases where source quality is genuinely ambiguous.
+
+## Why golden sets come first
+
+A golden set is a small, deliberately constructed collection of claim/source pairs with known correct judgments. Not a dump of production traffic. Not a synthetic benchmark. A curated set where each example exists because it tests something specific:
+
+- A claim that paraphrases the source faithfully
+- A claim that contradicts a single qualifier
+- A claim supported by one sentence but undermined by another
+- A claim where the source is technically correct but outdated
+- A claim where two sources disagree
+
+Without this, every change to your prompts, retrieval, or model feels like progress because the loudest examples improve. A golden set turns "feels better" into a number you can defend.
+
+Keep it small enough to review by hand. Grow it when you discover a new failure mode in production, not on a schedule.
+
+## Evaluators need calibration too
+
+LLM-as-judge is convenient and often reasonable, but an uncalibrated evaluator is just another opinion. Before trusting an evaluator's verdicts at scale, check it against your golden set the same way you'd check the system under test. Measure agreement with human labels. Look at where it disagrees and why.
+
+A few practical habits:
+
+- Track evaluator agreement as a first-class metric, not a footnote
+- Re-run evaluator calibration whenever you change the judging prompt or model version
+- Prefer narrow, specific evaluators ("does the source contain this exact numeric claim?") over broad ones ("is this well-supported?")
+
+If your evaluator drifts and you don't notice, your dashboards will look healthy while your system regresses.
+
+## Human review is not a fallback — it's a signal
+
+Some claims are genuinely ambiguous. The source is partially relevant. The wording is technically defensible but misleading. The claim hinges on a definition the source never gives.
+
+These cases are not failures of the pipeline. They're the cases that should route to a human, with the model's reasoning attached. Two reasons:
+
+1. Human judgments on hard cases are the raw material for the next version of your golden set.
+2. The volume and distribution of "needs review" decisions is itself a quality signal. A sudden spike usually means retrieval changed, source quality shifted, or the claim distribution moved.
+
+Build the review path early, even if traffic is low. Retrofitting it later is painful, and you'll have spent months without the data it produces.
+
+## A working loop
+
+The pieces fit together like this:
+
+1. Curated golden set defines what "correct" means for your domain.
+2. The pipeline runs against it on every meaningful change.
+3. Calibrated evaluators score production traffic, with their own agreement measured against the golden set.
+4. Ambiguous cases route to human review.
+5. Reviewed cases — especially the surprising ones — feed back into the golden set.
+
+None of this requires sophisticated tooling to start. A spreadsheet of examples, a script that runs them, and a habit of reviewing disagreements will outperform most teams' eval setups.
+
+The goal isn't to prove the system is perfect. It's to know, with evidence, where it's reliable and where it isn't — and to keep that map current as the system changes.
