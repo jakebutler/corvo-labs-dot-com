@@ -7,63 +7,68 @@ author: "Jake Butler"
 tags: ["AI evaluation", "claim validation", "FreshProof"]
 heroImage: "/images/corvo-labs-stacked.svg"
 heroImageAlt: "Corvo Labs stacked logo mark."
-readTime: "3 min read"
+readTime: "4 min read"
 category: "strategy"
 featured: false
 status: "scheduled"
 ---
 
-If you're building systems that decide whether a claim is supported by a source, the hard part isn't the model. It's knowing whether your pipeline is actually right — and staying right as you change it.
+Claim validation systems fail in a specific, predictable way: they look great in demos and fall apart the first time a reviewer asks "why did it pass this one?" The fix isn't a better prompt. It's a golden set, a real eval loop, and review artifacts that trace back to individual claims.
 
-That requires three things most teams underinvest in: curated golden sets, calibrated evaluators, and human review for the cases where source quality is genuinely ambiguous.
+This post walks through how we think about that stack at Corvo Labs, using FreshProof-style claim validation as the working example.
 
-## Why golden sets come first
+## The practical problem
 
-A golden set is a small, deliberately constructed collection of claim/source pairs with known correct judgments. Not a dump of production traffic. Not a synthetic benchmark. A curated set where each example exists because it tests something specific:
+A claim validation system takes a piece of content — a marketing page, a label, a clinical summary — extracts the factual claims, and checks each one against policy, evidence, or both. The naive version is a single LLM call: "here is the content, here is the policy, tell me what's wrong."
 
-- A claim that paraphrases the source faithfully
-- A claim that contradicts a single qualifier
-- A claim supported by one sentence but undermined by another
-- A claim where the source is technically correct but outdated
-- A claim where two sources disagree
+That version passes the first ten examples you try. Then a reviewer flags a borderline claim, you tweak the prompt, and three previously-passing examples silently regress. There's no way to know unless you measure.
 
-Without this, every change to your prompts, retrieval, or model feels like progress because the loudest examples improve. A golden set turns "feels better" into a number you can defend.
+## Golden sets are the unglamorous foundation
 
-Keep it small enough to review by hand. Grow it when you discover a new failure mode in production, not on a schedule.
+A golden set is a curated collection of inputs with known, human-adjudicated expected outputs at the claim level. Not document-level. Claim-level.
 
-## Evaluators need calibration too
+The real design work is in the curation:
 
-LLM-as-judge is convenient and often reasonable, but an uncalibrated evaluator is just another opinion. Before trusting an evaluator's verdicts at scale, check it against your golden set the same way you'd check the system under test. Measure agreement with human labels. Look at where it disagrees and why.
+- **Coverage of policy edge cases**, not just the obvious violations. The interesting examples are the ones where two reviewers might disagree on first read.
+- **Negative examples that look positive**, and vice versa. A claim that uses hedged language but is still non-compliant. A claim that sounds aggressive but is fully substantiated.
+- **Stable labels with rationale**. Each expected judgment needs a short written reason, so when the model disagrees you can tell whether the model is wrong or the label was sloppy.
 
-A few practical habits:
+Golden sets are small on purpose. A few hundred well-adjudicated claims beats ten thousand auto-labeled ones, because you'll actually trust the eval results.
 
-- Track evaluator agreement as a first-class metric, not a footnote
-- Re-run evaluator calibration whenever you change the judging prompt or model version
-- Prefer narrow, specific evaluators ("does the source contain this exact numeric claim?") over broad ones ("is this well-supported?")
+## What evals expose that prompts hide
 
-If your evaluator drifts and you don't notice, your dashboards will look healthy while your system regresses.
+Once you have a golden set, you run the system against it on every meaningful change. The interesting output isn't the aggregate pass rate — it's the diffs.
 
-## Human review is not a fallback — it's a signal
+A few patterns we see repeatedly:
 
-Some claims are genuinely ambiguous. The source is partially relevant. The wording is technically defensible but misleading. The claim hinges on a definition the source never gives.
+- **Brittle policy assumptions.** The system implicitly assumes claims are written in a particular voice or structure. Reword the same claim and the judgment flips. Evals catch this because the golden set includes paraphrases.
+- **Category collapse.** The model handles 80% of claim types well and one category badly, but the aggregate metric hides it. Slice the eval by claim type and the failure becomes obvious.
+- **Policy drift.** Someone updates the policy doc, the prompt picks up new language, and old decisions silently change. Without a golden set you find out from a reviewer; with one you find out in CI.
 
-These cases are not failures of the pipeline. They're the cases that should route to a human, with the model's reasoning attached. Two reasons:
+The useful split is between **system evals** (does the pipeline behave correctly on known inputs) and **policy evals** (does the policy itself produce the judgments humans actually want). The second one is harder and more important.
 
-1. Human judgments on hard cases are the raw material for the next version of your golden set.
-2. The volume and distribution of "needs review" decisions is itself a quality signal. A sudden spike usually means retrieval changed, source quality shifted, or the claim distribution moved.
+## Claim-level traceability in review artifacts
 
-Build the review path early, even if traffic is low. Retrofitting it later is painful, and you'll have spent months without the data it produces.
+The other half of trustworthy validation is what the reviewer sees. If the output is a document-level verdict with a paragraph of reasoning, reviewers can't efficiently agree or disagree. They have to re-read everything.
 
-## A working loop
+Review artifacts should be structured per claim:
 
-The pieces fit together like this:
+- The extracted claim, verbatim.
+- The specific policy rule or evidence it was checked against.
+- The judgment and a short rationale.
+- A pointer back to the source span in the original content.
 
-1. Curated golden set defines what "correct" means for your domain.
-2. The pipeline runs against it on every meaningful change.
-3. Calibrated evaluators score production traffic, with their own agreement measured against the golden set.
-4. Ambiguous cases route to human review.
-5. Reviewed cases — especially the surprising ones — feed back into the golden set.
+This does two things. It makes review fast, because a reviewer can scan and accept or override claim by claim. And it produces structured feedback data — every override is a labeled example that can flow back into the golden set.
 
-None of this requires sophisticated tooling to start. A spreadsheet of examples, a script that runs them, and a habit of reviewing disagreements will outperform most teams' eval setups.
+That feedback loop is what turns a static eval into a system that improves over time without anyone hand-writing new test cases.
 
-The goal isn't to prove the system is perfect. It's to know, with evidence, where it's reliable and where it isn't — and to keep that map current as the system changes.
+## What to copy
+
+If you're building anything in this shape, the minimum viable version is:
+
+1. A golden set of 100–300 claims with claim-level expected judgments and written rationale.
+2. An eval harness that runs on every prompt, policy, or model change and reports diffs, not just aggregates.
+3. Review artifacts that decompose to the claim level and capture overrides as structured data.
+4. A weekly or monthly loop where overrides are triaged and the strongest ones graduate into the golden set.
+
+None of this is exotic. It's measurement first, applied to a problem where the alternative is hoping the prompt still works. For claim validation specifically, that hope is not a strategy — reviewers will notice, and so will whoever is downstream of the decisions.
