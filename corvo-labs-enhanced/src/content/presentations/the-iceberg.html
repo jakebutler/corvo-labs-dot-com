@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>The Iceberg — Corvo Labs</title>
+<link rel="preconnect" href="https://api.fontshare.com">
+<link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=clash-display@400,500,600,700&f[]=satoshi@400,500,700&display=swap">
+<style>
+/* ============================================================
+   DESIGN TOKENS
+   ============================================================ */
+:root {
+  --bg:       #050b13;
+  --ocean-2:  #071525;
+  --ink:      #eaf3fa;
+  --muted:    #5f7d92;
+  --accent:   #3fa7e0;
+  --cyan:     #4dd9e8;
+  --cyan-dim: rgba(77,217,232,0.08);
+  --text-1:   #dff0f4;
+  --text-2:   #8ab4c8;
+  --text-3:   rgba(138,180,200,0.5);
+
+  --title-size: clamp(2.4rem, 6vw, 5.5rem);
+  --h2-size:    clamp(1.7rem, 3.8vw, 3rem);
+  --h3-size:    clamp(1.2rem, 2.4vw, 1.9rem);
+  --body-size:  clamp(1rem, 1.6vw, 1.15rem);
+  --small-size: clamp(0.72rem, 1.1vw, 0.88rem);
+
+  --pad:  clamp(1.5rem, 5vw, 5rem);
+  --gap:  clamp(0.8rem, 2vw, 2rem);
+  --ease: cubic-bezier(0.16,1,0.3,1);
+  --dur:  0.7s;
+}
+
+/* ============================================================
+   RESET
+   ============================================================ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-snap-type:y mandatory;scroll-behavior:smooth;height:100%;background:var(--bg)}
+body{font-family:'Satoshi',sans-serif;background:var(--bg);color:var(--text-1);height:100%;overflow-x:hidden}
+
+/* ============================================================
+   SLIDE SYSTEM
+   ============================================================ */
+.slide{
+  width:100vw;height:100vh;height:100dvh;
+  scroll-snap-align:start;overflow:hidden;
+  position:relative;display:flex;
+  flex-direction:column;justify-content:center;
+  align-items:flex-start;padding:var(--pad);
+}
+
+/* ============================================================
+   PROGRESS + DOTS
+   ============================================================ */
+#progress{
+  position:fixed;top:0;left:0;height:2px;
+  background:var(--cyan);width:0%;
+  transition:width 0.4s var(--ease);z-index:200;
+  box-shadow:0 0 10px var(--cyan);
+}
+#dots{
+  position:fixed;right:clamp(1rem,2.5vw,2rem);top:50%;
+  transform:translateY(-50%);display:flex;
+  flex-direction:column;gap:10px;z-index:200;
+  transition:opacity 0.3s;
+}
+#dots.hidden-for-berg{opacity:0;pointer-events:none}
+.dot-main{
+  width:6px;height:6px;border-radius:50%;
+  background:var(--text-3);cursor:pointer;
+  transition:background 0.3s,transform 0.3s,box-shadow 0.3s;border:none;padding:0;
+}
+.dot-main.active{background:var(--cyan);transform:scale(1.5);box-shadow:0 0 8px var(--cyan)}
+
+/* ============================================================
+   REVEAL ANIMATIONS
+   ============================================================ */
+.reveal{opacity:0;transform:translateY(28px);
+  transition:opacity var(--dur) var(--ease),transform var(--dur) var(--ease)}
+.reveal-left{opacity:0;transform:translateX(-40px);
+  transition:opacity var(--dur) var(--ease),transform var(--dur) var(--ease)}
+.slide.active .reveal,.slide.active .reveal-left{opacity:1;transform:none}
+.stagger>*:nth-child(1){transition-delay:0.05s}
+.stagger>*:nth-child(2){transition-delay:0.15s}
+.stagger>*:nth-child(3){transition-delay:0.25s}
+.stagger>*:nth-child(4){transition-delay:0.35s}
+.stagger>*:nth-child(5){transition-delay:0.45s}
+.stagger>*:nth-child(6){transition-delay:0.55s}
+
+/* ============================================================
+   TYPOGRAPHY
+   ============================================================ */
+h1,h2,h3{font-family:'Clash Display',sans-serif;line-height:1.1}
+.title  {font-size:var(--title-size);font-weight:700;color:var(--text-1)}
+.heading{font-size:var(--h2-size);font-weight:600;color:var(--text-1)}
+.subhead{font-size:var(--h3-size);font-weight:500;color:var(--cyan)}
+.body   {font-size:var(--body-size);font-weight:400;color:var(--text-2);line-height:1.65;max-width:58ch}
+em{font-style:normal;color:var(--cyan)}
+
+/* particles */
+.particles{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.particle{position:absolute;width:2px;height:2px;border-radius:50%;
+  background:var(--cyan);opacity:0;animation:ptcl-drift linear infinite}
+@keyframes ptcl-drift{
+  0%{opacity:0;transform:translateY(0)}
+  10%{opacity:0.5}90%{opacity:0.15}
+  100%{opacity:0;transform:translateY(-80vh)}
+}
+
+/* ============================================================
+   ICEBERG SLIDE — artifact integration
+   ============================================================ */
+#slide-iceberg{
+  padding:0;align-items:center;justify-content:center;
+  background:#050b13;
+}
+#ib-svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+
+/* HUD */
+.ib-hud{position:absolute;inset:0;pointer-events:none}
+.ib-hud>*{pointer-events:auto}
+.ib-copy{
+  position:absolute;left:0;top:240px;width:680px;
+  padding:32px 56px 32px 96px;
+  background:linear-gradient(90deg,rgba(5,11,19,0.92) 0%,rgba(5,11,19,0.70) 62%,transparent 100%);
+}
+.ib-copy h2{
+  font-family:'Clash Display',sans-serif;
+  font-size:96px;font-weight:700;letter-spacing:-0.028em;
+  color:#fff;line-height:.96;
+  opacity:0;transform:translateY(6px);transition:opacity .35s ease,transform .45s ease;
+}
+.ib-copy .ib-lede{
+  margin-top:28px;font-family:'Satoshi',sans-serif;
+  font-size:26px;line-height:1.5;color:#d3e3ee;font-weight:400;max-width:520px;
+  opacity:0;transform:translateY(6px);transition:opacity .35s .06s ease,transform .45s .06s ease;
+}
+.ib-copy .ib-lede .hl{color:#4dd9e8}
+.ib-copy .ib-sub{
+  margin-top:22px;font-family:'Satoshi',sans-serif;
+  font-size:24px;line-height:1.5;color:#5f7d92;
+  opacity:0;transform:translateY(6px);transition:opacity .35s .12s ease,transform .45s .12s ease;
+}
+.ib-copy.visible h2,.ib-copy.visible .ib-lede,.ib-copy.visible .ib-sub{
+  opacity:1;transform:translateY(0)
+}
+.ib-copy.title-mode{
+  left:50%;top:12vh;transform:translateX(-50%);
+  width:min(90vw,900px);background:none;
+  text-align:center;padding:0 2rem;
+}
+.ib-copy.title-mode h2{
+  font-size:clamp(4rem,9vw,7.5rem);font-weight:700;color:#fff;
+  text-shadow:0 2px 40px rgba(0,0,0,0.6);
+}
+.ib-copy.title-mode .ib-lede{
+  font-size:clamp(1.1rem,2.5vw,1.8rem);color:#d3e3ee;
+  max-width:50ch;margin-left:auto;margin-right:auto;
+  text-shadow:0 1px 12px rgba(0,0,0,0.5);
+}
+.ib-copy.title-mode .ib-sub{
+  font-size:clamp(0.9rem,1.6vw,1.2rem);color:#6e8aa0;
+}
+.ib-back{
+  margin-top:28px;font-family:'Satoshi',sans-serif;
+  font-size:19px;color:#7ea7c0;letter-spacing:.01em;cursor:pointer;
+  display:inline-flex;align-items:center;gap:9px;
+  opacity:0;transition:opacity .4s;
+}
+.ib-back svg{width:18px;height:18px}
+.ib-copy.zoomed .ib-back{opacity:1}
+/* hint */
+.ib-hint{position:absolute;right:148px;bottom:88px;
+  display:flex;align-items:center;gap:12px;
+  font-family:'Satoshi',sans-serif;font-size:21px;color:#6e8aa0;
+  letter-spacing:.005em;transition:opacity .4s;pointer-events:none}
+/* advance hint */
+.ib-advance{position:absolute;left:96px;bottom:88px;
+  font-family:'Satoshi',sans-serif;font-size:19px;color:#3a6070;
+  letter-spacing:.01em;transition:opacity .4s;pointer-events:none;
+  display:flex;align-items:center;gap:8px;}
+.ib-advance svg{width:18px;height:18px;opacity:.7}
+
+/* artifact motion */
+@keyframes twinkle{0%,100%{opacity:.6}50%{opacity:1}}
+.ib-node{animation:twinkle 4.2s ease-in-out infinite;animation-delay:var(--d)}
+@keyframes ib-drift{0%{transform:translateY(0)}100%{transform:translateY(-46px)}}
+.ib-mote{animation:ib-drift linear infinite}
+
+/* ============================================================
+   DEEP DIVE SLIDES (after iceberg)
+   ============================================================ */
+.deep-slide{
+  background:radial-gradient(ellipse at 50% 0%,#071e38 0%,#04080f 60%);
+}
+
+/* slide label (top-left) */
+.slide-label{
+  position:absolute;top:clamp(1.2rem,3vw,2.5rem);left:var(--pad);
+  font-size:var(--small-size);font-weight:500;letter-spacing:0.12em;
+  text-transform:uppercase;color:var(--text-3);
+}
+
+/* ============================================================
+   BULLET LISTS (• not —)
+   ============================================================ */
+.bullets{list-style:none;display:flex;flex-direction:column;
+  gap:clamp(0.5rem,1.2vh,1rem);margin-top:var(--gap)}
+.bullets li{font-size:var(--body-size);color:var(--text-2);
+  padding-left:1.4em;position:relative;line-height:1.5}
+.bullets li::before{content:'•';position:absolute;left:0;color:var(--cyan);opacity:0.7}
+
+/* ============================================================
+   STEP CARDS
+   ============================================================ */
+.steps{display:flex;flex-direction:column;gap:clamp(0.6rem,1.2vh,1rem);
+  margin-top:var(--gap);max-width:min(90vw,640px)}
+.step{display:flex;gap:1.2em;align-items:flex-start;
+  background:rgba(7,21,37,0.7);border-left:2px solid var(--cyan);
+  padding:clamp(0.7rem,1.2vw,1.1rem) clamp(0.8rem,1.5vw,1.4rem);
+  border-radius:0 6px 6px 0}
+.step-num{font-family:'Clash Display',sans-serif;font-size:clamp(1.4rem,2.5vw,2rem);
+  font-weight:700;color:var(--cyan);opacity:0.5;line-height:1;flex-shrink:0;min-width:2ch}
+.step-text h4{font-family:'Clash Display',sans-serif;font-size:var(--h3-size);
+  font-weight:600;color:var(--text-1);margin-bottom:0.2em}
+.step-text p{font-size:var(--body-size);color:var(--text-2);line-height:1.5}
+
+/* ============================================================
+   DATA TABLE
+   ============================================================ */
+.data-table{width:100%;max-width:min(85vw,740px);border-collapse:collapse;
+  font-size:var(--small-size);margin-top:var(--gap)}
+.data-table th{font-weight:600;font-size:var(--small-size);text-transform:uppercase;
+  letter-spacing:0.1em;color:var(--text-3);padding:0.5em 1em 0.5em 0;
+  border-bottom:1px solid rgba(77,217,232,0.15);text-align:left}
+.data-table td{padding:0.55em 1em 0.55em 0;color:var(--text-2);
+  border-bottom:1px solid rgba(255,255,255,0.04);vertical-align:middle}
+.data-table tr.hl td{color:var(--text-1)}
+.score{font-family:'Clash Display',sans-serif;font-weight:600;color:var(--cyan)}
+.score-dim{color:var(--text-3)}
+.bar-wrap{display:flex;align-items:center;gap:0.6em}
+.bar{height:4px;border-radius:2px;background:var(--cyan);min-width:4px}
+
+/* ============================================================
+   STAT CARDS
+   ============================================================ */
+.stat-row{display:flex;gap:var(--gap);flex-wrap:wrap;margin-top:var(--gap)}
+.stat-card{background:var(--cyan-dim);border:1px solid rgba(77,217,232,0.18);
+  border-radius:8px;padding:clamp(0.8rem,1.5vw,1.4rem) clamp(1rem,2vw,2rem);min-width:130px}
+.stat-num{font-family:'Clash Display',sans-serif;font-size:clamp(1.8rem,4vw,3.2rem);
+  font-weight:700;color:var(--cyan);line-height:1}
+.stat-label{font-size:var(--small-size);color:var(--text-3);margin-top:0.3em;
+  text-transform:uppercase;letter-spacing:0.08em}
+
+/* ============================================================
+   CALLOUT
+   ============================================================ */
+.callout{background:var(--cyan-dim);border-left:3px solid var(--cyan);
+  border-radius:0 8px 8px 0;
+  padding:clamp(1rem,2vw,1.8rem) clamp(1.2rem,2.5vw,2.2rem);
+  max-width:min(90vw,680px);margin-top:var(--gap)}
+.callout p{font-family:'Clash Display',sans-serif;
+  font-size:clamp(1rem,2.2vw,1.5rem);font-weight:500;color:var(--text-1);line-height:1.4}
+
+/* ============================================================
+   CLOSE SLIDE
+   ============================================================ */
+#slide-close{
+  align-items:center;text-align:center;
+}
+
+/* ============================================================
+   KEYBOARD HINT
+   ============================================================ */
+#hint{
+  position:fixed;bottom:clamp(1rem,2.5vw,2rem);left:50%;
+  transform:translateX(-50%);font-size:var(--small-size);
+  color:var(--text-3);display:flex;gap:0.6em;align-items:center;
+  transition:opacity 1s;z-index:150;
+}
+#hint kbd{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);
+  border-radius:3px;padding:0.1em 0.4em;font-family:inherit}
+#hint.hidden{opacity:0;pointer-events:none}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media(max-height:700px){
+  :root{--pad:clamp(1rem,3vw,2.5rem);--gap:clamp(0.5rem,1.2vh,1rem);
+    --title-size:clamp(1.8rem,5vw,3.5rem);--h2-size:clamp(1.2rem,2.8vw,2.2rem)}
+}
+@media(max-height:600px){#dots{display:none}}
+@media(max-width:760px){#dots{display:none}}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.2s!important}
+}
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+<nav id="dots" aria-label="Slide navigation"></nav>
+<div id="hint"><kbd>→</kbd> to advance · <kbd>←</kbd> back</div>
+
+
+<!-- ==============================================================
+     SLIDE 1: INTERACTIVE ICEBERG
+     ============================================================== -->
+<section class="slide" id="slide-iceberg">
+<div class="particles" id="ptcl"></div>
+<svg id="ib-svg" viewBox="840 -100 1100 600" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+<defs>
+ <radialGradient id="bgGlow" cx="50%" cy="33%" r="62%">
+  <stop offset="0%" stop-color="#15364f"/><stop offset="44%" stop-color="#0a1b2b"/><stop offset="100%" stop-color="#050b13"/></radialGradient>
+ <linearGradient id="wlGrad" x1="0" y1="0" x2="1" y2="0">
+  <stop offset="0%" stop-color="#5cc8f0" stop-opacity="0"/><stop offset="28%" stop-color="#7ad9ff" stop-opacity="0.5"/>
+  <stop offset="50%" stop-color="#e3f9ff" stop-opacity="0.98"/><stop offset="72%" stop-color="#7ad9ff" stop-opacity="0.5"/>
+  <stop offset="100%" stop-color="#5cc8f0" stop-opacity="0"/></linearGradient>
+ <radialGradient id="nodeGlow" cx="50%" cy="50%" r="50%">
+  <stop offset="0%" stop-color="#eafdff" stop-opacity="1"/><stop offset="22%" stop-color="#8fe6ff" stop-opacity="0.9"/>
+  <stop offset="60%" stop-color="#3aa6e0" stop-opacity="0.32"/><stop offset="100%" stop-color="#3aa6e0" stop-opacity="0"/></radialGradient>
+ <radialGradient id="tipGlow" cx="46%" cy="30%" r="60%">
+  <stop offset="0%" stop-color="#ffffff" stop-opacity="0.5"/><stop offset="100%" stop-color="#ffffff" stop-opacity="0"/></radialGradient>
+ <radialGradient id="subGlow" cx="50%" cy="18%" r="70%">
+  <stop offset="0%" stop-color="#8fe2ff" stop-opacity="0.42"/><stop offset="60%" stop-color="#3aa6e0" stop-opacity="0.06"/><stop offset="100%" stop-color="#3aa6e0" stop-opacity="0"/></radialGradient>
+ <filter id="soft" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="7"/></filter>
+ <filter id="rim" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="5"/></filter>
+ <filter id="txtGlow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="2.2"/></filter>
+ <clipPath id="clipBelow"><path d="M1099.0 408.0 L1069.0 516.0 L1089.0 640.0 L1145.0 760.0 L1227.0 870.0 L1309.0 950.0 L1369.0 994.0 L1407.0 1012.0 L1459.0 984.0 L1545.0 906.0 L1631.0 804.0 L1697.0 676.0 L1725.0 536.0 L1691.0 408.0Z"/></clipPath>
+ <clipPath id="clipAbove"><path d="M1099.0 408.0 L1097.0 330.0 L1151.0 258.0 L1139.0 210.0 L1197.0 176.0 L1245.0 108.0 L1299.0 146.0 L1325.0 88.0 L1375.0 76.0 L1435.0 170.0 L1471.0 132.0 L1535.0 212.0 L1557.0 172.0 L1609.0 248.0 L1659.0 298.0 L1691.0 364.0 L1691.0 408.0Z"/></clipPath>
+</defs>
+<rect width="1920" height="1080" fill="url(#bgGlow)"/>
+<g id="ib-berg">
+<path d="M1099.0 408.0 L1069.0 516.0 L1089.0 640.0 L1145.0 760.0 L1227.0 870.0 L1309.0 950.0 L1369.0 994.0 L1407.0 1012.0 L1459.0 984.0 L1545.0 906.0 L1631.0 804.0 L1697.0 676.0 L1725.0 536.0 L1691.0 408.0Z" fill="none" stroke="#7fe0ff" stroke-opacity="0.7" stroke-width="5" filter="url(#rim)"/>
+<g id="ib-below">
+<path d="M1494.9 408.0L1096.2 410.8L1690.9 406.4Z" fill="#31a1d6" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1077.5 481.9L1081.5 490.1L1069.6 514.8Z" fill="#2b91c6" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1077.5 481.9L1087.4 445.2L1081.5 490.1Z" fill="#2991c7" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1711.2 494.8L1690.9 406.4L1724.6 538.0Z" fill="#2990c6" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1630.4 618.5L1613.3 551.4L1717.1 583.2Z" fill="#2581b5" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1717.1 583.2L1613.3 551.4L1724.6 538.0Z" fill="#2483b8" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1613.3 551.4L1711.2 494.8L1724.6 538.0Z" fill="#2587bd" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1663.5 460.7L1613.3 551.4L1593.7 512.4Z" fill="#2a8fc3" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1711.2 494.8L1613.3 551.4L1663.5 460.7Z" fill="#288dc3" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1599.8 446.7L1663.5 460.7L1593.7 512.4Z" fill="#2c94c9" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1214.2 726.1L1266.5 817.6L1172.0 794.0Z" fill="#165b90" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1488.1 723.8L1407.8 845.0L1316.2 751.6Z" fill="#175e92" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1316.2 751.6L1209.4 658.0L1247.7 616.8Z" fill="#1f70a5" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1214.2 726.1L1209.4 658.0L1316.2 751.6Z" fill="#19669c" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1699.5 451.3L1663.5 460.7L1690.9 406.4Z" fill="#2b97cd" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1711.2 494.8L1699.5 451.3L1690.9 406.4Z" fill="#2d98cd" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1707.7 628.7L1630.4 618.5L1717.1 583.2Z" fill="#247db1" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1663.5 460.7L1641.6 433.1L1690.9 406.4Z" fill="#2f9cd1" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1599.8 446.7L1641.6 433.1L1663.5 460.7Z" fill="#2a96cc" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1641.6 433.1L1494.9 408.0L1690.9 406.4Z" fill="#2e9dd3" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1641.6 433.1L1599.8 446.7L1494.9 408.0Z" fill="#2e9cd1" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1613.3 551.4L1537.5 516.2L1593.7 512.4Z" fill="#278abf" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1537.5 516.2L1599.8 446.7L1593.7 512.4Z" fill="#2a91c6" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1599.8 446.7L1537.5 516.2L1494.9 408.0Z" fill="#2a94ca" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1537.5 516.2L1496.3 531.8L1494.9 408.0Z" fill="#278fc5" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1118.0 427.0L1087.4 445.2L1096.2 410.8Z" fill="#2b99cf" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1161.4 436.4L1118.0 427.0L1096.2 410.8Z" fill="#2b99cf" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1081.5 490.1L1161.2 497.8L1069.6 514.8Z" fill="#298ec4" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1161.2 497.8L1073.7 558.7L1069.6 514.8Z" fill="#278abf" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1161.2 497.8L1118.0 427.0L1161.4 436.4Z" fill="#2c97cc" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1087.4 445.2L1161.2 497.8L1081.5 490.1Z" fill="#2890c6" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1118.0 427.0L1161.2 497.8L1087.4 445.2Z" fill="#2a94ca" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1479.5 706.3L1488.1 723.8L1316.2 751.6Z" fill="#19659a" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1481.7 677.7L1479.5 706.3L1316.2 751.6Z" fill="#1e6b9f" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1533.9 752.6L1622.4 746.2L1631.7 803.3Z" fill="#1b6296" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1622.4 746.2L1653.5 762.0L1631.7 803.3Z" fill="#1a6195" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1707.7 628.7L1646.5 640.2L1630.4 618.5Z" fill="#1f75ab" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1646.5 640.2L1707.7 628.7L1700.0 678.3Z" fill="#1d72a7" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1489.4 960.5L1479.4 957.6L1515.4 933.1Z" fill="#104275" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1142.1 758.6L1214.2 726.1L1172.0 794.0Z" fill="#196095" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1128.8 718.2L1142.1 758.6L1108.4 678.7Z" fill="#1d699e" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1123.3 674.3L1128.8 718.2L1108.4 678.7Z" fill="#1c6ca1" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1089.4 642.1L1123.3 674.3L1108.4 678.7Z" fill="#1e71a6" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1209.4 658.0L1123.3 674.3L1089.4 642.1Z" fill="#1f73a7" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1142.1 758.6L1158.3 707.9L1214.2 726.1Z" fill="#1a659a" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1158.3 707.9L1142.1 758.6L1128.8 718.2Z" fill="#1b679b" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1691.6 460.0L1711.2 494.8L1663.5 460.7Z" fill="#2891c7" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1699.5 451.3L1691.6 460.0L1663.5 460.7Z" fill="#2c97cc" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1691.6 460.0L1699.5 451.3L1711.2 494.8Z" fill="#2c96ca" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1518.0 528.4L1537.5 516.2L1613.3 551.4Z" fill="#2587bd" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1537.5 516.2L1518.0 528.4L1496.3 531.8Z" fill="#278abf" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1518.0 528.4L1613.3 551.4L1630.4 618.5Z" fill="#2684b9" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1481.7 677.7L1518.0 528.4L1630.4 618.5Z" fill="#227bb0" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1496.3 531.8L1518.0 528.4L1451.5 599.2Z" fill="#2483b9" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1518.0 528.4L1481.7 677.7L1451.5 599.2Z" fill="#217bb0" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1496.3 531.8L1388.8 425.2L1494.9 408.0Z" fill="#2c96cc" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1388.8 425.2L1367.4 422.9L1494.9 408.0Z" fill="#2b9ad0" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1494.9 408.0L1297.0 410.5L1096.2 410.8Z" fill="#30a0d5" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1367.4 422.9L1297.0 410.5L1494.9 408.0Z" fill="#309fd4" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1079.7 597.0L1209.4 658.0L1089.4 642.1Z" fill="#2278ad" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1161.2 497.8L1079.7 597.0L1073.7 558.7Z" fill="#2887bc" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1266.5 817.6L1197.7 832.5L1172.0 794.0Z" fill="#16588c" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1259.4 848.2L1197.7 832.5L1266.5 817.6Z" fill="#145388" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1197.7 832.5L1259.4 848.2L1227.4 867.8Z" fill="#145186" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1604.5 838.4L1533.9 752.6L1631.7 803.3Z" fill="#175a8e" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1526.4 722.3L1533.9 752.6L1488.1 723.8Z" fill="#1d689c" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1479.5 706.3L1526.4 722.3L1488.1 723.8Z" fill="#1d6a9e" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1526.4 722.3L1479.5 706.3L1481.7 677.7Z" fill="#1b699f" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1526.4 722.3L1481.7 677.7L1630.4 618.5Z" fill="#2072a6" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1646.5 640.2L1526.4 722.3L1630.4 618.5Z" fill="#2073a8" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1533.9 752.6L1526.4 722.3L1622.4 746.2Z" fill="#1b669a" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1526.4 722.3L1646.5 640.2L1622.4 746.2Z" fill="#1e6ca0" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1646.5 640.2L1672.5 719.5L1622.4 746.2Z" fill="#1c6a9f" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1672.5 719.5L1653.5 762.0L1622.4 746.2Z" fill="#1c669a" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1542.6 902.3L1547.4 908.2L1515.4 933.1Z" fill="#11477b" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1547.4 908.2L1542.6 902.3L1573.2 873.7Z" fill="#124a7e" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1542.6 902.3L1489.9 841.5L1573.2 873.7Z" fill="#134e82" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1489.9 841.5L1604.5 838.4L1573.2 873.7Z" fill="#155286" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1604.5 838.4L1489.9 841.5L1533.9 752.6Z" fill="#15578c" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1283.5 810.2L1214.2 726.1L1316.2 751.6Z" fill="#1a6195" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1283.5 810.2L1266.5 817.6L1214.2 726.1Z" fill="#155a8f" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1407.8 845.0L1283.5 810.2L1316.2 751.6Z" fill="#15588d" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1327.1 886.3L1283.5 810.2L1407.8 845.0Z" fill="#135185" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1283.5 810.2L1259.4 848.2L1266.5 817.6Z" fill="#125388" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1199.2 668.3L1209.4 658.0L1214.2 726.1Z" fill="#1d6da2" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1158.3 707.9L1199.2 668.3L1214.2 726.1Z" fill="#1d6ca0" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1380.7 515.9L1496.3 531.8L1451.5 599.2Z" fill="#2686bb" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1380.7 515.9L1388.8 425.2L1496.3 531.8Z" fill="#288ec4" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1388.8 425.2L1380.7 515.9L1367.4 422.9Z" fill="#2e99cd" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1380.7 515.9L1297.0 410.5L1367.4 422.9Z" fill="#2d98cd" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1297.0 410.5L1380.7 515.9L1250.6 510.2Z" fill="#2991c7" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1201.9 510.4L1161.2 497.8L1161.4 436.4Z" fill="#2b92c8" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1201.9 510.4L1250.6 510.2L1247.7 616.8Z" fill="#2687bc" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1209.4 658.0L1201.9 510.4L1247.7 616.8Z" fill="#237eb3" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1079.7 597.0L1201.9 510.4L1209.4 658.0Z" fill="#237eb3" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1201.9 510.4L1079.7 597.0L1161.2 497.8Z" fill="#298bbf" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1236.8 414.8L1161.4 436.4L1096.2 410.8Z" fill="#2e9dd2" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1297.0 410.5L1236.8 414.8L1096.2 410.8Z" fill="#2f9fd4" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1236.8 414.8L1297.0 410.5L1250.6 510.2Z" fill="#2d99ce" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1236.8 414.8L1201.9 510.4L1161.4 436.4Z" fill="#2e99ce" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1201.9 510.4L1236.8 414.8L1250.6 510.2Z" fill="#288fc6" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1253.5 899.0L1197.7 832.5L1227.4 867.8Z" fill="#134f83" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1253.5 899.0L1271.7 886.1L1275.9 914.8Z" fill="#12497d" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1259.4 848.2L1271.7 886.1L1227.4 867.8Z" fill="#114c81" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1271.7 886.1L1253.5 899.0L1227.4 867.8Z" fill="#114a7f" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1688.4 688.1L1646.5 640.2L1700.0 678.3Z" fill="#1c6ea4" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1672.5 719.5L1688.4 688.1L1700.0 678.3Z" fill="#1b6aa0" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1688.4 688.1L1672.5 719.5L1646.5 640.2Z" fill="#1d6ea3" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1482.3 803.6L1407.8 845.0L1488.1 723.8Z" fill="#15598e" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1533.9 752.6L1482.3 803.6L1488.1 723.8Z" fill="#185f94" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1489.9 841.5L1482.3 803.6L1533.9 752.6Z" fill="#195c90" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1482.3 803.6L1472.1 864.7L1407.8 845.0Z" fill="#145387" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1472.1 864.7L1482.3 803.6L1489.9 841.5Z" fill="#145387" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1479.4 957.6L1472.1 864.7L1515.4 933.1Z" fill="#12477b" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1472.1 864.7L1542.6 902.3L1515.4 933.1Z" fill="#11487c" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1472.1 864.7L1489.9 841.5L1542.6 902.3Z" fill="#155083" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1421.2 885.6L1472.1 864.7L1479.4 957.6Z" fill="#11487c" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1421.2 885.6L1327.1 886.3L1407.8 845.0Z" fill="#144f82" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1288.8 883.9L1283.5 810.2L1327.1 886.3Z" fill="#104d82" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1283.5 810.2L1288.8 883.9L1259.4 848.2Z" fill="#145286" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1288.8 883.9L1271.7 886.1L1259.4 848.2Z" fill="#134e82" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1271.7 886.1L1288.8 883.9L1275.9 914.8Z" fill="#0e477b" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1310.1 950.5L1284.5 924.3L1327.1 886.3Z" fill="#0e4478" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1288.8 883.9L1284.5 924.3L1275.9 914.8Z" fill="#0f467a" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1284.5 924.3L1288.8 883.9L1327.1 886.3Z" fill="#11497d" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1284.5 924.3L1253.5 899.0L1275.9 914.8Z" fill="#10467a" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1358.9 946.6L1310.1 950.5L1327.1 886.3Z" fill="#0d4276" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1421.2 885.6L1358.9 946.6L1327.1 886.3Z" fill="#0d4479" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1443.1 995.7L1358.9 946.6L1421.2 885.6Z" fill="#0f4275" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1460.4 985.2L1443.1 995.7L1421.2 885.6Z" fill="#0a3c71" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1460.4 985.2L1479.4 957.6L1489.4 960.5Z" fill="#0f3f72" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1394.2 1007.4L1378.8 1000.8L1421.8 1002.9Z" fill="#083468" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1472.1 864.7L1430.0 872.0L1407.8 845.0Z" fill="#124e82" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1430.0 872.0L1421.2 885.6L1407.8 845.0Z" fill="#134f83" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1421.2 885.6L1430.0 872.0L1472.1 864.7Z" fill="#114b80" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1310.1 950.5L1358.9 946.6L1326.8 961.9Z" fill="#0b3c71" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1358.9 946.6L1346.1 981.8L1326.8 961.9Z" fill="#0b3b70" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1358.9 946.6L1443.1 995.7L1421.8 1002.9Z" fill="#0b396d" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1378.8 1000.8L1358.9 946.6L1421.8 1002.9Z" fill="#0d3b6f" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1358.9 946.6L1370.2 996.8L1346.1 981.8Z" fill="#0e3d70" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1378.8 1000.8L1370.2 996.8L1358.9 946.6Z" fill="#0b396d" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+<path d="M1394.2 1007.4L1421.8 1002.9L1405.9 1015.0Z" fill="#0c376a" stroke="#8fe0ff" stroke-opacity="0.18" stroke-width="1"/>
+</g>
+<g clip-path="url(#clipBelow)"><ellipse cx="1395.0" cy="558.0" rx="320" ry="380" fill="url(#subGlow)"/></g>
+<g id="ib-waterline">
+  <rect x="815.0" y="398.0" width="1160" height="20" fill="url(#wlGrad)" filter="url(#soft)"/>
+  <rect x="815.0" y="406.0" width="1160" height="4" fill="url(#wlGrad)"/>
+  <path d="M835.0 401.0 q140 -7 280 0 t280 0 t280 0 t280 0" fill="none" stroke="#bff0ff" stroke-opacity="0.3" stroke-width="1.4"/>
+  <path d="M835.0 413.0 q140 -7 280 0 t280 0 t280 0 t280 0" fill="none" stroke="#bff0ff" stroke-opacity="0.3" stroke-width="1.4"/>
+</g>
+<g id="ib-above">
+<path d="M1174.8 289.7L1100.5 368.8L1097.0 330.5Z" fill="#eaf4fa" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1688.7 406.5L1098.7 408.4L1392.6 405.4Z" fill="#c2e8f7" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1100.5 368.8L1098.7 408.4L1097.0 330.5Z" fill="#daf0f9" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1536.2 388.2L1688.7 406.5L1392.6 405.4Z" fill="#c0e6f6" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1604.5 289.1L1536.2 388.2L1536.6 211.4Z" fill="#ddeef7" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1122.1 294.1L1174.8 289.7L1097.0 330.5Z" fill="#edf6fb" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1429.2 224.5L1501.7 169.4L1536.6 211.4Z" fill="#e4f1f9" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1241.3 275.6L1210.3 319.0L1174.8 289.7Z" fill="#ecf5fa" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1277.7 369.8L1210.3 319.0L1241.3 275.6Z" fill="#e7f3f9" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1604.5 289.1L1636.6 347.5L1536.2 388.2Z" fill="#d6eaf6" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1688.7 406.5L1636.6 347.5L1693.8 387.5Z" fill="#c2e4f5" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1536.2 388.2L1636.6 347.5L1688.7 406.5Z" fill="#c6e6f6" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1656.4 298.8L1636.6 347.5L1604.5 289.1Z" fill="#d6eaf6" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1611.5 247.8L1604.5 289.1L1536.6 211.4Z" fill="#dcedf7" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1151.8 259.8L1166.2 215.7L1174.8 289.7Z" fill="#ecf5fa" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1222.2 206.9L1241.3 275.6L1174.8 289.7Z" fill="#ecf5fa" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1166.2 215.7L1222.2 206.9L1174.8 289.7Z" fill="#edf6fb" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1222.2 206.9L1317.8 226.5L1241.3 275.6Z" fill="#ebf5fa" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1317.8 226.5L1222.2 206.9L1297.1 144.5Z" fill="#eff7fb" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1317.8 226.5L1277.7 369.8L1241.3 275.6Z" fill="#e6f2f9" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1174.8 289.7L1156.6 404.4L1100.5 368.8Z" fill="#e0f1f9" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1210.3 319.0L1156.6 404.4L1174.8 289.7Z" fill="#e8f3f9" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1156.6 404.4L1098.7 408.4L1100.5 368.8Z" fill="#cdecf8" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1098.7 408.4L1156.6 404.4L1392.6 405.4Z" fill="#c6eaf8" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1548.1 191.3L1580.0 208.3L1536.6 211.4Z" fill="#e2f0f8" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1580.0 208.3L1611.5 247.8L1536.6 211.4Z" fill="#e2f0f8" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1122.1 294.1L1150.5 269.5L1174.8 289.7Z" fill="#eff7fb" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1150.5 269.5L1151.8 259.8L1174.8 289.7Z" fill="#eef6fb" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1151.8 259.8L1150.5 269.5L1122.1 294.1Z" fill="#ecf5fa" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1166.2 215.7L1142.6 232.8L1136.5 211.9Z" fill="#eff7fb" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1151.8 259.8L1142.6 232.8L1166.2 215.7Z" fill="#f2f8fc" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1222.2 206.9L1223.4 165.6L1297.1 144.5Z" fill="#f2f8fc" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1438.3 363.7L1317.8 226.5L1429.2 224.5Z" fill="#e4f1f9" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1438.3 363.7L1536.2 388.2L1392.6 405.4Z" fill="#c8e8f6" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1277.7 369.8L1438.3 363.7L1392.6 405.4Z" fill="#cceaf7" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1317.8 226.5L1438.3 363.7L1277.7 369.8Z" fill="#e3f1f8" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1536.2 388.2L1438.3 363.7L1536.6 211.4Z" fill="#dbedf7" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1438.3 363.7L1429.2 224.5L1536.6 211.4Z" fill="#e1f0f8" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1213.8 391.4L1210.3 319.0L1277.7 369.8Z" fill="#dceff9" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1213.8 391.4L1156.6 404.4L1210.3 319.0Z" fill="#d7eff9" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1213.8 391.4L1277.7 369.8L1392.6 405.4Z" fill="#caeaf7" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1156.6 404.4L1213.8 391.4L1392.6 405.4Z" fill="#c6e9f7" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1636.6 347.5L1688.5 363.0L1693.8 387.5Z" fill="#cbe7f5" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1673.7 342.7L1688.5 363.0L1636.6 347.5Z" fill="#d1e9f5" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1656.4 298.8L1676.7 329.6L1636.6 347.5Z" fill="#d6eaf6" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1676.7 329.6L1673.7 342.7L1636.6 347.5Z" fill="#d1e8f4" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1676.7 329.6L1688.5 363.0L1673.7 342.7Z" fill="#cfe7f4" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1350.1 82.8L1347.3 110.5L1324.6 90.1Z" fill="#f4f9fc" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1347.3 110.5L1309.2 116.8L1324.6 90.1Z" fill="#f3f9fc" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1347.3 110.5L1350.1 82.8L1375.0 77.0Z" fill="#f3f9fc" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1309.2 116.8L1347.3 110.5L1297.1 144.5Z" fill="#f1f8fc" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1347.3 110.5L1317.8 226.5L1297.1 144.5Z" fill="#eff7fb" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1245.2 139.0L1272.2 124.4L1297.1 144.5Z" fill="#f1f8fc" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1223.4 165.6L1245.2 139.0L1297.1 144.5Z" fill="#f1f8fc" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1272.2 124.4L1245.2 139.0L1242.9 105.1Z" fill="#f6fafd" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1199.9 178.8L1222.2 206.9L1166.2 215.7Z" fill="#f3f9fc" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1199.9 178.8L1223.4 165.6L1222.2 206.9Z" fill="#eff7fb" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1404.7 121.7L1347.3 110.5L1375.0 77.0Z" fill="#eff7fb" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1347.3 110.5L1404.7 121.7L1317.8 226.5Z" fill="#eff7fb" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1245.2 139.0L1221.9 142.7L1242.9 105.1Z" fill="#f5fafc" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1169.2 190.3L1166.2 215.7L1136.5 211.9Z" fill="#f3f9fc" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1169.2 190.3L1199.9 178.8L1166.2 215.7Z" fill="#f1f8fb" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1429.2 224.5L1438.0 173.0L1501.7 169.4Z" fill="#e7f3f9" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1317.8 226.5L1438.0 173.0L1429.2 224.5Z" fill="#e7f3f9" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1404.7 121.7L1438.0 173.0L1317.8 226.5Z" fill="#edf6fb" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1223.7 161.7L1245.2 139.0L1223.4 165.6Z" fill="#f2f8fc" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1199.9 178.8L1223.7 161.7L1223.4 165.6Z" fill="#f5fafc" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1455.0 152.2L1469.9 130.4L1501.7 169.4Z" fill="#e9f4fa" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1438.0 173.0L1455.0 152.2L1501.7 169.4Z" fill="#eaf4fa" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1556.0 185.2L1580.0 208.3L1548.1 191.3Z" fill="#e3f1f8" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1611.5 247.8L1621.0 276.4L1604.5 289.1Z" fill="#d8ebf6" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1636.9 272.4L1621.0 276.4L1611.5 247.8Z" fill="#daecf7" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1621.0 276.4L1656.4 298.8L1604.5 289.1Z" fill="#d6eaf6" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+<path d="M1621.0 276.4L1636.9 272.4L1656.4 298.8Z" fill="#d6eaf6" stroke="#cfe4f0" stroke-opacity="0.28" stroke-width="0.8"/>
+</g>
+<g clip-path="url(#clipAbove)"><rect x="1095.0" y="76.0" width="600" height="332.0" fill="url(#tipGlow)"/></g>
+<g id="ib-nodes">
+<g class="ib-node" style="--d:0.00s"><circle cx="1079.7" cy="597.0" r="12.2" fill="url(#nodeGlow)"/><circle cx="1079.7" cy="597.0" r="1.5" fill="#eefcff"/></g>
+<g class="ib-node" style="--d:0.37s"><circle cx="1370.2" cy="996.8" r="17.8" fill="url(#nodeGlow)"/><circle cx="1370.2" cy="996.8" r="2.2" fill="#eefcff"/></g>
+<g class="ib-node" style="--d:0.74s"><circle cx="1489.4" cy="960.5" r="17.3" fill="url(#nodeGlow)"/><circle cx="1489.4" cy="960.5" r="2.2" fill="#eefcff"/></g>
+<g class="ib-node" style="--d:1.11s"><circle cx="1073.7" cy="558.7" r="11.7" fill="url(#nodeGlow)"/><circle cx="1073.7" cy="558.7" r="1.5" fill="#eefcff"/></g>
+<g class="ib-node" style="--d:1.48s"><circle cx="1108.4" cy="678.7" r="13.4" fill="url(#nodeGlow)"/><circle cx="1108.4" cy="678.7" r="1.7" fill="#eefcff"/></g>
+<g class="ib-node" style="--d:1.85s"><circle cx="1128.8" cy="718.2" r="13.9" fill="url(#nodeGlow)"/><circle cx="1128.8" cy="718.2" r="1.7" fill="#eefcff"/></g>
+<g class="ib-node" style="--d:2.22s"><circle cx="1405.9" cy="1015.0" r="18.0" fill="url(#nodeGlow)"/><circle cx="1405.9" cy="1015.0" r="2.3" fill="#eefcff"/></g>
+<g class="ib-node" style="--d:2.59s"><circle cx="1707.7" cy="628.7" r="12.7" fill="url(#nodeGlow)"/><circle cx="1707.7" cy="628.7" r="1.6" fill="#eefcff"/></g>
+<g class="ib-node" style="--d:2.96s"><circle cx="1077.5" cy="481.9" r="10.6" fill="url(#nodeGlow)"/><circle cx="1077.5" cy="481.9" r="1.3" fill="#eefcff"/></g>
+<g class="ib-node" style="--d:3.33s"><circle cx="1672.5" cy="719.5" r="13.9" fill="url(#nodeGlow)"/><circle cx="1672.5" cy="719.5" r="1.7" fill="#eefcff"/></g>
+<g class="ib-node" style="--d:3.70s"><circle cx="1227.4" cy="867.8" r="16.0" fill="url(#nodeGlow)"/><circle cx="1227.4" cy="867.8" r="2.0" fill="#eefcff"/></g>
+<g class="ib-node" style="--d:4.07s"><circle cx="1297.1" cy="144.5" r="6.0" fill="url(#nodeGlow)"/><circle cx="1297.1" cy="144.5" r="0.8" fill="#eefcff"/></g>
+</g>
+</g><!-- end ib-berg -->
+<g id="ib-motes"></g>
+</svg>
+
+<!-- HUD overlay -->
+<div class="ib-hud">
+  <div class="ib-copy" id="ib-copy">
+    <h2 id="ib-title">Zoom&nbsp;out.</h2>
+    <p class="ib-lede" id="ib-lede"><span class="hl">lower dB</span> is what everyone sees. Three layers of infrastructure sit below the waterline, each built to support the one above it.</p>
+    <p class="ib-sub" id="ib-sub">This is what we've been building.</p>
+    <span class="ib-back" id="ib-back">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      Zoom out
+    </span>
+  </div>
+  <div class="ib-hint" id="ib-hint">Click a layer to explore</div>
+  <div class="ib-advance" id="ib-advance" style="opacity:0">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    Press → to continue
+  </div>
+</div>
+</section>
+
+<!-- ==============================================================
+     SLIDE 3: TRANSITION
+     ============================================================== -->
+<section class="slide deep-slide" id="slide-3">
+  <div class="particles deep-motes"></div>
+  <div style="max-width:min(72vw,740px)">
+    <p class="subhead reveal" style="font-size:var(--small-size);letter-spacing:0.14em;margin-bottom:0.6em">Now let's go deeper</p>
+    <h2 class="heading reveal" style="font-size:clamp(2rem,5vw,4.5rem)">
+      How do you know if an LLM's evidence judgment matches a human's?
+    </h2>
+    <p class="body reveal" style="margin-top:1em;font-size:clamp(0.85rem,1.6vw,1.1rem)">
+      FreshProof decides, for each claim and source pair, whether evidence is sufficient, the source is appropriate, and the resolution is correct. That is a subjective judgment. To ship it in production, you need to be able to measure it.
+    </p>
+    <p class="body reveal" style="margin-top:0.5em;color:var(--text-3)">This is the problem we spent weeks testing.</p>
+  </div>
+</section>
+
+<!-- ==============================================================
+     SLIDE 4: METHODOLOGY
+     ============================================================== -->
+<section class="slide deep-slide" id="slide-4">
+  <div class="particles deep-motes"></div>
+  <div class="slide-label">Methodology</div>
+  <div>
+    <h2 class="heading reveal">A three-step evaluation framework</h2>
+    <p class="body reveal" style="margin-top:0.5em;margin-bottom:var(--gap)">Borrowed from ML eval best practices and applied to a production routing system.</p>
+    <div class="steps stagger">
+      <div class="step reveal">
+        <div class="step-num">1</div>
+        <div class="step-text">
+          <h4>Build a human gold set</h4>
+          <p>45 real claims from lower dB articles. A human reviewer makes the ground-truth decision for each. This becomes the benchmark every model must be measured against.</p>
+        </div>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">2</div>
+        <div class="step-text">
+          <h4>Calibrate a deterministic routing policy</h4>
+          <p>Identify every failure mode and rewrite the routing rules to match all 45 human decisions. The calibrated policy encodes what correct human judgment looks like as explicit rules — giving us a precise ceiling to aim for.</p>
+        </div>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">3</div>
+        <div class="step-text">
+          <h4>Benchmark models against the gold set</h4>
+          <p>Run each candidate model on the same 45 claims with the same prompt. Agreement rate with human gold is the single metric. Then validate on a separate held-out set to check for overfitting.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==============================================================
+     SLIDE 5: THE GOLD SET
+     ============================================================== -->
+<section class="slide deep-slide" id="slide-5">
+  <div class="particles deep-motes"></div>
+  <div class="slide-label">Gold set</div>
+  <div style="max-width:min(90vw,860px);width:100%">
+    <h2 class="heading reveal">Building the human gold set</h2>
+    <div class="stat-row reveal stagger" style="margin-top:var(--gap)">
+      <div class="stat-card"><div class="stat-num">45</div><div class="stat-label">Gold-labeled claims</div></div>
+      <div class="stat-card"><div class="stat-num">3</div><div class="stat-label">Resolution types</div></div>
+      <div class="stat-card"><div class="stat-num">62%</div><div class="stat-label">Baseline agreement</div></div>
+    </div>
+    <p class="body reveal" style="margin-top:var(--gap)">
+      The original deterministic system agreed with the human reviewer on only <em>28 of 45 claims</em>. Seven failure modes identified. That 62% is the floor we needed to beat.
+    </p>
+    <table class="data-table reveal" style="margin-top:var(--gap);max-width:500px">
+      <thead><tr><th>Failure mode</th><th>Count</th></tr></thead>
+      <tbody>
+        <tr><td>Source-of-record overreach</td><td class="score">6</td></tr>
+        <tr><td>Atomization overreach</td><td class="score">4</td></tr>
+        <tr><td>Span quality</td><td class="score">3</td></tr>
+        <tr><td>Source cleanup / quality</td><td class="score">3</td></tr>
+        <tr><td>Ambiguous authority</td><td class="score">1</td></tr>
+      </tbody>
+    </table>
+    <p class="body reveal" style="margin-top:var(--gap);color:var(--text-3);font-size:var(--small-size)">
+      After calibration, a separate 20-claim held-out set was built with zero overlap to test whether improvements generalize or just overfit to the 45.
+    </p>
+  </div>
+</section>
+
+<!-- ==============================================================
+     SLIDE 6: CALIBRATION
+     ============================================================== -->
+<section class="slide deep-slide" id="slide-6">
+  <div class="particles deep-motes"></div>
+  <div class="slide-label">Calibration</div>
+  <div style="max-width:min(90vw,860px);width:100%">
+    <h2 class="heading reveal">What the calibrated policy actually means</h2>
+    <p class="body reveal" style="margin-top:0.5em;margin-bottom:var(--gap)">
+      After identifying all 17 failure cases, we rebuilt the routing rules to correctly handle each one. Policy v2 now scores 45/45 on the gold set — not because it memorized the answers, but because it correctly encodes the decision logic humans actually apply. That score is the ceiling: it defines what perfect alignment looks like. Models are then tested to see how close they can get using only prompt examples.
+    </p>
+    <table class="data-table reveal">
+      <thead>
+        <tr><th>Pass</th><th>Approach</th><th>Agreement</th><th>Rate</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Original system</td><td>Deterministic v1</td><td class="score-dim">28 / 45</td><td><div class="bar-wrap"><div class="bar" style="width:62px;opacity:0.4"></div><span class="score-dim">62%</span></div></td></tr>
+        <tr class="hl"><td>Calibrated policy</td><td>Deterministic v2</td><td class="score">45 / 45</td><td><div class="bar-wrap"><div class="bar" style="width:100px"></div><span class="score">100% ceiling</span></div></td></tr>
+        <tr><td>LLM baseline</td><td>claude-haiku-4-5</td><td>34 / 45</td><td><div class="bar-wrap"><div class="bar" style="width:75px;opacity:0.55"></div><span>75%</span></div></td></tr>
+      </tbody>
+    </table>
+    <p class="body reveal" style="margin-top:var(--gap);color:var(--text-3)">
+      The calibrated policy becomes the production anchor: when a model and the policy disagree, policy wins. Models provide rationale and evidence triage; policy makes the final routing call.
+    </p>
+  </div>
+</section>
+
+<!-- ==============================================================
+     SLIDE 7: MODEL SWEEP
+     ============================================================== -->
+<section class="slide deep-slide" id="slide-7">
+  <div class="particles deep-motes"></div>
+  <div class="slide-label">Model sweep</div>
+  <div style="max-width:min(90vw,820px);width:100%">
+    <h2 class="heading reveal">Sweeping 15+ models against the gold set</h2>
+    <p class="body reveal" style="margin-top:0.4em;margin-bottom:var(--gap)">Prompt: <em>few-shot-v1</em>, first-pass strategy, same 45 claims.</p>
+    <table class="data-table reveal">
+      <thead>
+        <tr><th>Model</th><th>Agreement</th><th>Rate</th><th>Tokens</th></tr>
+      </thead>
+      <tbody>
+        <tr class="hl"><td>Qwen/Qwen3-1.7B-Base</td><td class="score">45 / 45</td><td><div class="bar-wrap"><div class="bar" style="width:100px"></div><span class="score">100%</span></div></td><td class="score-dim">76k</td></tr>
+        <tr><td>gpt-5-nano</td><td>44 / 45</td><td><div class="bar-wrap"><div class="bar" style="width:97px;opacity:0.8"></div><span>97%</span></div></td><td class="score-dim">117k</td></tr>
+        <tr><td>claude-opus-4-7</td><td>39 / 45</td><td><div class="bar-wrap"><div class="bar" style="width:86px;opacity:0.6"></div><span>86%</span></div></td><td class="score-dim">121k</td></tr>
+        <tr><td>gpt-5-mini / gpt-5.4-mini / gpt-5.4-nano</td><td>38 / 45</td><td><div class="bar-wrap"><div class="bar" style="width:84px;opacity:0.55"></div><span>84%</span></div></td><td class="score-dim">71–102k</td></tr>
+        <tr><td>MiniMaxAI/MiniMax-M3</td><td>37 / 45</td><td><div class="bar-wrap"><div class="bar" style="width:82px;opacity:0.5"></div><span>82%</span></div></td><td class="score-dim">119k</td></tr>
+        <tr><td>claude-opus-4-8</td><td>35 / 45</td><td><div class="bar-wrap"><div class="bar" style="width:77px;opacity:0.45"></div><span>77%</span></div></td><td class="score-dim">123k</td></tr>
+        <tr><td>Qwen/Qwen3-4B-Base</td><td>33 / 45</td><td><div class="bar-wrap"><div class="bar" style="width:73px;opacity:0.4"></div><span>73%</span></div></td><td class="score-dim">72k</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ==============================================================
+     SLIDE 8: WHY BIGGER MODELS DIDN'T WIN
+     ============================================================== -->
+<section class="slide deep-slide" id="slide-8">
+  <div class="particles deep-motes"></div>
+  <div class="slide-label">Interpretation</div>
+  <div style="max-width:min(80vw,740px)">
+    <h2 class="heading reveal">Why didn't the largest models win?</h2>
+    <p class="body reveal" style="margin-top:0.5em;margin-bottom:var(--gap)">
+      gpt-5-nano outscored gpt-5-mini. Qwen 1.7B matched Opus. These results are counterintuitive and worth interrogating.
+    </p>
+    <ul class="bullets stagger reveal">
+      <li><em>Classification, not generation.</em> This task requires choosing from a small set of routing labels. Larger generative capacity can be a liability when the correct answer is to follow explicit rules precisely.</li>
+      <li><em>Instruction adherence vs. reasoning.</em> Smaller, constraint-trained models tend to follow routing rules more literally. Larger models may reason around them, drifting from the prompt's explicit logic into plausible-sounding alternatives.</li>
+      <li><em>GPT-5 nano is optimized differently.</em> Nano-tier models in this family are trained for fast, precise instruction-following. The mini series trades some of that precision for broader generative range — useful for many tasks, counterproductive for strict label routing.</li>
+      <li><em>The Qwen 1.7B result needs scrutiny.</em> Its 45/45 score is in-sample: the few-shot examples are drawn from the same 45 gold claims. This is why the held-out 20-claim validation set exists — to separate calibration from generalization.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ==============================================================
+     SLIDE 9: WHERE WE ARE
+     ============================================================== -->
+<section class="slide deep-slide" id="slide-9">
+  <div class="particles deep-motes"></div>
+  <div class="slide-label">Status</div>
+  <div style="max-width:min(80vw,720px)">
+    <h2 class="heading reveal">Where we are</h2>
+    <p class="body reveal" style="margin-top:0.5em;margin-bottom:var(--gap)">The system works. The methodology is sound. Not yet in production.</p>
+    <div class="steps stagger">
+      <div class="step reveal" style="border-color:rgba(77,217,232,0.9)">
+        <div class="step-num" style="opacity:1">✓</div>
+        <div class="step-text"><h4>45-claim human gold set, calibrated policy</h4><p>Policy v2 matches human labels on all 45 claims. Failure modes documented.</p></div>
+      </div>
+      <div class="step reveal" style="border-color:rgba(77,217,232,0.9)">
+        <div class="step-num" style="opacity:1">✓</div>
+        <div class="step-text"><h4>Multi-model sweep across 15+ models</h4><p>Qwen3-1.7B and gpt-5-nano are the top candidates. Full results committed to repo.</p></div>
+      </div>
+      <div class="step reveal" style="border-color:rgba(77,217,232,0.9)">
+        <div class="step-num" style="opacity:1">✓</div>
+        <div class="step-text"><h4>20-claim held-out validation set</h4><p>Built with zero overlap from the 45-claim gold set. Human review UI complete. Awaiting final export to score generalization.</p></div>
+      </div>
+      <div class="step reveal" style="border-color:rgba(77,217,232,0.15)">
+        <div class="step-num" style="opacity:0.3">○</div>
+        <div class="step-text"><h4>Production promotion</h4><p>Gated on validation: 17/20 agreement, no systematic failures on source-of-record or compound-boundary rows.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==============================================================
+     SLIDE 10: CLOSE
+     ============================================================== -->
+<section class="slide deep-slide" id="slide-close">
+  <div style="position:relative;z-index:10;text-align:center;width:100%">
+    <p class="subhead reveal" style="font-size:var(--small-size);letter-spacing:0.14em;margin-bottom:0.8em">The whole iceberg</p>
+    <h2 class="heading reveal" style="font-size:clamp(2rem,5vw,4.5rem)">
+      lower dB is the output.<br>
+      <span style="color:var(--text-2)">The infrastructure is the work.</span>
+    </h2>
+    <p class="body reveal" style="margin:1.2em auto 0;text-align:center;max-width:48ch">
+      Content agents, FreshProof fact infrastructure, Tiered source intelligence — each layer supports the one above it.
+    </p>
+    <p class="body reveal" style="margin-top:0.6em;color:var(--text-3);text-align:center">And we're still building.</p>
+    <p class="reveal" style="margin-top:2.5em;font-size:var(--small-size);color:var(--text-3);letter-spacing:0.1em;text-align:center">Questions?</p>
+  </div>
+</section>
+
+<script>
+/* ============================================================
+   MAIN PRESENTATION CONTROLLER
+   ============================================================ */
+class Presentation {
+  constructor() {
+    this.slides = Array.from(document.querySelectorAll('.slide'));
+    this.current = 0;
+    this.total = this.slides.length;
+    this.icebergIdx = this.slides.indexOf(document.getElementById('slide-iceberg'));
+
+    this.buildDots();
+    this.buildParticles();
+    this.observe();
+    this.bindKeys();
+    this.bindTouch();
+    this.bindWheel();
+    this.activate(0);
+    setTimeout(() => document.getElementById('hint').classList.add('hidden'), 5000);
+
+    // expose for iceberg controller
+    window.presentationNext = () => this.goto(this.current + 1);
+    window.presentationPrev = () => this.goto(this.current - 1);
+    window.isIcebergActive   = () => this.current === this.icebergIdx;
+  }
+
+  buildDots() {
+    const nav = document.getElementById('dots');
+    this.slides.forEach((_, i) => {
+      const b = document.createElement('button');
+      b.className = 'dot-main';
+      b.setAttribute('aria-label', `Slide ${i + 1}`);
+      b.onclick = () => this.goto(i);
+      nav.appendChild(b);
+    });
+    this.dots = Array.from(nav.querySelectorAll('.dot-main'));
+  }
+
+  buildParticles() {
+    const c = document.getElementById('ptcl');
+    if (!c) return;
+    for (let i = 0; i < 28; i++) {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      p.style.cssText = `left:${Math.random()*100}%;bottom:${Math.random()*20}%;` +
+        `animation-delay:${Math.random()*8}s;animation-duration:${6+Math.random()*10}s;` +
+        `opacity:${0.1+Math.random()*0.4};width:${1+Math.random()*2}px;height:${1+Math.random()*2}px`;
+      c.appendChild(p);
+    }
+    document.querySelectorAll('.deep-motes').forEach(dm => {
+      for (let i = 0; i < 20; i++) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        p.style.cssText = `left:${Math.random()*100}%;bottom:${Math.random()*35}%;` +
+          `animation-delay:${Math.random()*14}s;animation-duration:${10+Math.random()*14}s;` +
+          `opacity:${0.04+Math.random()*0.1};width:${0.8+Math.random()*1.4}px;height:${0.8+Math.random()*1.4}px`;
+        dm.appendChild(p);
+      }
+    });
+  }
+
+  observe() {
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting && e.intersectionRatio > 0.5) {
+          const idx = this.slides.indexOf(e.target);
+          if (idx !== -1) this.activate(idx);
+        }
+      });
+    }, { threshold: 0.5 });
+    this.slides.forEach(s => io.observe(s));
+  }
+
+  activate(idx) {
+    this.current = idx;
+    this.slides.forEach((s, i) => s.classList.toggle('active', i === idx));
+    this.dots.forEach((d, i) => d.classList.toggle('active', i === idx));
+    document.getElementById('progress').style.width = ((idx+1)/this.total*100) + '%';
+    // hide main dots on iceberg slide
+    document.getElementById('dots').classList.toggle('hidden-for-berg', idx === this.icebergIdx);
+  }
+
+  goto(idx) {
+    if (idx < 0 || idx >= this.total) return;
+    this.slides[idx].scrollIntoView({ behavior: 'smooth' });
+  }
+
+  bindKeys() {
+    document.addEventListener('keydown', e => {
+      // Let iceberg controller handle keys when on that slide
+      if (window.isIcebergActive && window.isIcebergActive() && window.icebergHandleKey) {
+        window.icebergHandleKey(e);
+        return;
+      }
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') {
+        e.preventDefault(); this.goto(this.current + 1);
+        document.getElementById('hint').classList.add('hidden');
+      }
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); this.goto(this.current - 1); }
+      if (e.key === 'Home') { e.preventDefault(); this.goto(0); }
+      if (e.key === 'End')  { e.preventDefault(); this.goto(this.total - 1); }
+    });
+  }
+
+  bindTouch() {
+    let sy = 0;
+    document.addEventListener('touchstart', e => { sy = e.touches[0].clientY; }, { passive: true });
+    document.addEventListener('touchend', e => {
+      const dy = sy - e.changedTouches[0].clientY;
+      if (Math.abs(dy) > 40) this.goto(dy > 0 ? this.current+1 : this.current-1);
+    }, { passive: true });
+  }
+
+  bindWheel() {
+    let last = 0;
+    document.addEventListener('wheel', e => {
+      const now = Date.now();
+      if (now - last < 800) return;
+      last = now;
+      if (Math.abs(e.deltaY) > 20) this.goto(e.deltaY > 0 ? this.current+1 : this.current-1);
+    }, { passive: true });
+  }
+}
+
+/* ============================================================
+   ICEBERG CONTROLLER (adapted from artifact)
+   ============================================================ */
+(function() {
+  const svg   = document.getElementById('ib-svg');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* scenes */
+  const scenes = {
+    title: {
+      vb: [840, -100, 1100, 600], dot: null, zoomed: false,
+      title: 'The&nbsp;Iceberg',
+      lede: 'Corvo Labs, the lower dB, and the Search for Truth',
+      sub: 'Jake Butler · 2026'
+    },
+    overview: {
+      vb: [0,0,1920,1080], dot: null, zoomed: false,
+      title: 'Zoom&nbsp;out.',
+      lede: '<span class="hl">lower dB</span> is what everyone sees. Three layers of infrastructure sit below the waterline, each built to support the one above it.',
+      sub: "This is what we've been building."
+    },
+    lowerdb: {
+      vb: [1035,46,720,405], dot: 'lowerdb', zoomed: true,
+      title: 'lower&nbsp;dB',
+      lede: 'Published research with cited sources and confidence scores. The visible output. The thing everyone sees.',
+      sub: ''
+    },
+    content: {
+      vb: [985,350,820,360], dot: 'content', zoomed: true,
+      title: 'Content&nbsp;Engine',
+      lede: 'The editorial and publishing agent team. Research, drafting, revision loops, and scheduled publication. This is what makes lower dB run.',
+      sub: ''
+    },
+    fresh: {
+      vb: [945,490,900,360], dot: 'fresh', zoomed: true,
+      title: 'FreshProof',
+      lede: 'Claim extraction and atomization, source provenance, and fact decay monitoring. The verification spine under every article.',
+      sub: ''
+    },
+    tiered: {
+      vb: [945,730,900,280], dot: 'tiered', zoomed: true,
+      title: 'Tiered',
+      lede: 'Dynamic source lists built per claim type and content area. Tier 1, 2, and 3 authority — reconfigured per fact.',
+      sub: ''
+    }
+  };
+  const order = ['title','overview','lowerdb','content','fresh','tiered'];
+  let current = 'title';
+  let animId = null;
+
+  function ease(t){ return t<.5 ? 4*t*t*t : 1-Math.pow(-2*t+2,3)/2; }
+  function curVB(){ return svg.getAttribute('viewBox').split(' ').map(Number); }
+  function setVB(v){ svg.setAttribute('viewBox', v.map(n=>n.toFixed(2)).join(' ')); }
+
+  function flyTo(name) {
+    const sc = scenes[name]; if (!sc) return;
+    const from = curVB(), to = sc.vb;
+    cancelAnimationFrame(animId);
+    updateCopy(sc);
+    document.getElementById('ib-hint').style.opacity = (sc.zoomed || name === 'title') ? 0 : 1;
+    document.getElementById('ib-advance').style.opacity = (name === 'tiered') ? 1 : 0;
+    current = name;
+    if (reduce) { setVB(to); return; }
+    const dur = 900, t0 = performance.now();
+    (function step(now) {
+      let p = Math.min(1, (now-t0)/dur), ee = ease(p);
+      setVB(from.map((f,i) => f + (to[i]-f)*ee));
+      if (p < 1) animId = requestAnimationFrame(step);
+    })(performance.now());
+  }
+
+  function updateCopy(sc) {
+    const copy = document.getElementById('ib-copy');
+    copy.classList.remove('visible');
+    setTimeout(() => {
+      document.getElementById('ib-title').innerHTML = sc.title;
+      document.getElementById('ib-lede').innerHTML  = sc.lede;
+      const sub = document.getElementById('ib-sub');
+      sub.innerHTML = sc.sub; sub.style.display = sc.sub ? 'block' : 'none';
+      copy.classList.toggle('zoomed', sc.zoomed);
+      copy.classList.toggle('title-mode', sc === scenes.title);
+      copy.classList.add('visible');
+    }, 160);
+  }
+
+  document.getElementById('ib-back').addEventListener('click', () => flyTo('overview'));
+
+  /* keyboard — called by main controller when iceberg slide is active */
+  window.icebergHandleKey = function(e) {
+    if (e.key === 'Escape') { flyTo('overview'); return; }
+    if (e.key === 'ArrowRight' || e.key === ' ') {
+      e.preventDefault();
+      const idx = order.indexOf(current);
+      if (idx < order.length - 1) {
+        flyTo(order[idx + 1]);
+      } else {
+        // at last scene: advance to next main slide
+        window.presentationNext && window.presentationNext();
+      }
+    }
+    if (e.key === 'ArrowLeft') {
+      const idx = order.indexOf(current);
+      if (idx > 0) {
+        flyTo(order[idx - 1]);
+      } else {
+        window.presentationPrev && window.presentationPrev();
+      }
+    }
+    if ('123456'.includes(e.key)) flyTo(order[+e.key - 1]);
+  };
+
+  /* motes */
+  if (!reduce) {
+    const g = document.getElementById('ib-motes');
+    for (let i = 0; i < 9; i++) {
+      const x = 1100 + Math.random()*600, y = 470 + Math.random()*520;
+      const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+      c.setAttribute('cx',x); c.setAttribute('cy',y);
+      c.setAttribute('r', (0.8+Math.random()*1.4).toFixed(1));
+      c.setAttribute('fill','#bfeaff'); c.setAttribute('class','ib-mote');
+      c.style.opacity = (0.08+Math.random()*0.12).toFixed(2);
+      c.style.animationDuration = (7+Math.random()*7).toFixed(1)+'s';
+      c.style.animationDelay = (-Math.random()*8).toFixed(1)+'s';
+      g.appendChild(c);
+    }
+  }
+
+  /* trigger initial copy fade-in */
+  setTimeout(() => { updateCopy(scenes.title); }, 400);
+})();
+
+/* ============================================================
+   BOOT
+   ============================================================ */
+new Presentation();
+</script>
+</body>
+</html>
