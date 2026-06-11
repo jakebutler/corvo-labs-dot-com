@@ -1,0 +1,83 @@
+---
+title: "Golden sets and evals for trustworthy claim validation"
+date: "2026-06-05"
+subtitle: "Why claim validation needs curated examples, calibrated evals, and human review."
+description: "A practical Corvo Labs draft on golden sets, evaluator calibration, and review artifacts for trustworthy claim validation."
+author: "Jake Butler"
+tags: ["AI evaluation", "claim validation", "FreshProof"]
+heroImage: "/images/corvo-labs-stacked.svg"
+heroImageAlt: "Corvo Labs stacked logo mark."
+readTime: "4 min read"
+category: "strategy"
+featured: false
+status: "scheduled"
+---
+
+Most claim validation systems fail in the same boring way: they look great on the demo set, then quietly drift on the long tail. The fix isn't a better prompt. It's a golden set you trust, evals that pressure-test your policy assumptions, and review artifacts that trace every decision back to the specific claim it applies to.
+
+## The practical problem
+
+When a system says "this claim is supported" or "this needs review," someone downstream has to act on that label. If you can't reconstruct *why* the system reached that verdict — which claim, against which evidence, under which policy — you're not running a validation pipeline. You're running a vibes engine with logs.
+
+This shows up most painfully when:
+
+- A reviewer disagrees with a verdict and there's no clean way to localize the disagreement.
+- A policy changes and you can't tell which past decisions would flip.
+- A model update ships and regressions only surface in production.
+
+## Golden sets are the substrate, not the decoration
+
+A golden set is the artifact that makes everything else honest. It should encode:
+
+- **Claims at the right grain.** One sentence with three claims is three rows, not one. If your set treats it as one, your evals will quietly average over disagreements you can't see.
+- **Evidence linkage.** Each claim points to the specific supporting (or contradicting) passages, with span-level references where possible.
+- **Adjudicated labels.** Not "model A said X." A human-resolved verdict with a short rationale. The rationale is what lets you re-adjudicate when the policy shifts.
+- **Hard cases on purpose.** Ambiguous scope, partial support, stale evidence, and near-miss paraphrases. If your golden set is all easy calls, your eval is theater.
+
+The useful split: a stable core set that defines correctness, plus a rotating challenge set that captures new failure modes as you find them. The core set rarely changes. The challenge set is where learning happens.
+
+## Where naive evals break
+
+A single accuracy number against a balanced set will tell you almost nothing useful. The failure modes that matter live in slices:
+
+- **Policy-sensitive slices.** Claims that hinge on a specific definition (what counts as "current," what counts as "supported by the source"). These are where a policy rewrite silently changes outcomes.
+- **Evidence-quality slices.** Strong evidence vs. weak vs. absent. Systems that look fine overall often collapse when evidence is thin and they have to abstain instead of guess.
+- **Paraphrase and entailment slices.** Lexical overlap is not support. If your eval doesn't separate these, you're rewarding the wrong behavior.
+
+Measurement first: decide which slices you'd refuse to ship a regression on, and gate releases on those — not on the aggregate.
+
+## Claim-level traceability in review artifacts
+
+Reviewers need to operate on the same units the system does. That means the review UI and the stored artifact should both expose:
+
+- The extracted claim, verbatim.
+- The evidence the system considered, with what it used and what it ignored.
+- The policy clause invoked (e.g., recency threshold, source-type rule).
+- The verdict and a machine-readable reason code, not just prose.
+
+When all four are persisted per claim, three useful things become possible. You can re-run evals against past decisions when the policy changes. You can compute inter-rater agreement at the claim level instead of the document level. And you can give the model targeted feedback on the specific step that went wrong — extraction, retrieval, or judgment — instead of blaming "the model."
+
+## The review loop that actually moves the needle
+
+The loop we'd recommend building toward:
+
+1. **Sample from production**, stratified by slice and by model confidence. Don't just review what looks wrong.
+2. **Adjudicate at the claim level** with a short rationale and a reason code from a controlled vocabulary.
+3. **Promote disagreements** into the challenge set. Disagreements between reviewers are more informative than disagreements between model and reviewer.
+4. **Re-run the full eval** before any policy or model change ships. Diff the verdicts, not just the metrics.
+5. **Track drift** by re-scoring a fixed production sample weekly against the current system. Aggregate metrics hide drift; fixed samples expose it.
+
+## What to copy
+
+If you're building claim validation and want something concrete to take away:
+
+- Start the golden set before the model. The act of writing it forces the policy to become explicit.
+- Store claims, evidence spans, policy clauses, and reason codes as first-class fields in every artifact.
+- Gate releases on slice-level regressions, not aggregate accuracy.
+- Treat the challenge set as a living document owned by whoever reviews production output.
+
+None of this is glamorous. It's the real design work that separates a claim validator you'd stake a decision on from one that just produces confident-sounding labels.
+
+---
+
+*Corvo Labs works on evals, human-in-the-loop review, and claim-level traceability for AI systems where the verdict has to hold up under scrutiny.*
