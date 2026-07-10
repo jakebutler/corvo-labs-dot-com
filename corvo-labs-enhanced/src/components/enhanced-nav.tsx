@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence, useMotionValueEvent } from 'framer-motion'
 import { useScroll, useTransform } from 'framer-motion'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { ShimmerButton } from '@/components/magicui/shimmer-button'
 import { cn } from '@/lib/utils'
 import { Menu, X, ChevronDown } from 'lucide-react'
@@ -43,6 +44,7 @@ const navItems: NavItem[] = [
 ]
 
 export function EnhancedNav() {
+  const pathname = usePathname()
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
@@ -71,7 +73,11 @@ export function EnhancedNav() {
     }
 
     window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
+    const hideForProposal = pathname?.startsWith('/proposals/capital-health-solutions')
+
+  if (hideForProposal) return null
+
+  return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
   useEffect(() => {
