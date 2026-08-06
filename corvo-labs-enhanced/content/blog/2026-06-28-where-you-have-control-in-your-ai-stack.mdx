@@ -1,0 +1,70 @@
+---
+title: "Where you have control in your AI stack"
+date: "2026-06-28"
+scheduledTime: "09:00"
+timezone: "America/Los_Angeles"
+description: "Most people working with AI tools today are turning one knob: the prompt."
+author: "Jake Butler"
+tags: ["AI stack", "prompt engineering", "optimization"]
+heroImage: "https://spectrum.ieee.org/media-library/an-illustration-of-a-man-writing-words-on-sheets-and-dropping-them-into-a-a-robotic-head.png?id=52015080&width=400&height=533"
+heroImageAlt: "Cover image for Where you have control in your AI stack"
+readTime: "4 min read"
+category: "strategy"
+featured: false
+status: "draft"
+---
+
+Most people working with AI tools today are turning one knob: the prompt. That's fine as a starting point, but it sets a low ceiling on what you can change about the output. The real design work usually lives somewhere else in the stack, and knowing where to spend your time is the difference between fiddling and actually moving the system.
+
+## The practical problem
+
+You've built something with an LLM. It mostly works. But there's a class of failure you can't seem to prompt your way out of: it hallucinates a field, it picks the wrong tool, it loses the thread on long tasks, it can't reliably follow your domain's conventions.
+
+The instinct is to keep rewriting the prompt. Sometimes that helps. Often it doesn't, and you don't know why.
+
+The reason is simple: the prompt is one layer of control among many, and it's not always the right one for the problem in front of you.
+
+## The layers, roughly ordered by effort
+
+Here's a rough map of where you can intervene. Each layer takes more effort than the last and gives you a different kind of leverage:
+
+- **Prompt engineering.** Cheapest. Fast iteration. Bounded by what the base model already knows and can do.
+- **Context and retrieval.** Giving the model the right information at the right time. Often the highest-leverage move people skip.
+- **Tool design.** What actions the model can take, how they're described, what they return. A poorly-shaped tool will defeat any prompt.
+- **Workflow vs. agent.** Deciding whether to hand the model a fixed pipeline or let it choose its own path. This is an architecture decision, not a prompt decision.
+- **Model selection.** Different models have different strengths. Switching can solve a problem faster than tuning ever will.
+- **LoRA and lightweight fine-tuning.** Useful when you need consistent style, format, or domain behavior the base model resists.
+- **Post-training and full fine-tuning.** Highest effort, highest ceiling, and usually the wrong first move.
+
+The trap is assuming the layer you know best is the layer your problem lives on.
+
+## Why "just prompt harder" breaks
+
+Prompts are good at steering behavior the model is already capable of. They're bad at:
+
+- Adding knowledge the model doesn't have. That's a retrieval problem.
+- Making the model reliably pick the right action when the action space is poorly defined. That's a tool design problem.
+- Enforcing structure across long or branching tasks. That's a workflow problem.
+- Changing the model's defaults in a deep way. That's a fine-tuning problem.
+
+If you keep prompting against the wrong layer, you get a brittle system that works on your examples and falls apart on real inputs.
+
+## The useful split: leverage vs. effort
+
+Think of each layer as a tradeoff between how much effort it takes to change and how much it can change the outcome.
+
+Prompting is low effort, low ceiling. Fine-tuning is high effort, high ceiling. The interesting layers are usually in the middle: retrieval, tool design, and workflow structure. They take real work to set up, but they tend to fix entire classes of failure rather than individual examples.
+
+The skill worth building is recognizing which layer your current failure actually lives on, so you stop spending prompt-engineering effort on problems that prompts can't solve.
+
+## A measurement loop, even an informal one
+
+You don't need a full evals harness to do this well, but you do need some way to tell if a change helped. A small set of examples you re-run after every change is enough to start. Without it, you're guessing whether the new prompt is better or just different.
+
+Once you can measure, the layer question gets easier: if three prompt rewrites in a row don't move your examples, the problem probably isn't the prompt.
+
+## What to take from this
+
+Before you change anything, ask which layer the failure lives on. The answer determines whether you should be editing a string, redesigning a tool, restructuring a workflow, or picking a different model.
+
+You don't need to master every layer. You just need to know they exist, roughly what each one is good for, and how to tell when you're working on the wrong one. That's where the leverage is.
