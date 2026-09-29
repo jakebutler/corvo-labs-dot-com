@@ -1,0 +1,109 @@
+---
+title: "Search APIs are not an editorial strategy"
+date: "2026-07-29"
+scheduledTime: "09:00"
+timezone: "America/Los_Angeles"
+description: "We ran Brave, Firecrawl, and LangSearch against one week of GLP-1 news for the lower dB digest."
+author: "Jake Butler"
+tags: ["search", "editorial workflows", "source selection"]
+heroImage: "/images/blog/search-apis-are-not-an-editorial-strategy/hero.webp"
+heroImageAlt: "Cover image for Search APIs are not an editorial strategy"
+readTime: "9 min read"
+category: "research"
+featured: false
+status: "draft"
+---
+
+*We ran Brave, Firecrawl, and LangSearch against one week of GLP-1 news for the lower dB digest. Here is what the numbers say, and what they can't.*
+
+What do you get when you ask three search APIs for one week of news and then count what came back?
+
+A lot of links. Nine of them, out of 308, carried a date in the URL that put them inside the week.
+
+That was the most useful result of the bakeoff, and it took us a failed first run to see it. This post covers what we compared, what the numbers show, and where they stop being evidence.
+
+## What we set up
+
+The lower dB weekly digest had already gone wrong once. Its sources were cited and passed source-grounding checks, but it missed stories readers needed. Before touching the writing, I wanted to test the step upstream of it: could a search provider hand us the right week's stories to begin with?
+
+We wrote a plan for a bakeoff of low-cost providers. The rules:
+
+- **One explicit window.** June 21 through June 27, 2026, for a digest that would publish on July 3. The plan told us not to rely on words like "recent" or "last 7 days" inside queries. Dates went in as parameters wherever a provider supported them.
+- **Topic lanes instead of one big query.** Drug and safety news, research and trials, policy and coverage, cardiovascular outcomes, bariatric care, and patient experience each got their own queries.
+- **Four known misses as anchors.** Stories the failed digest had missed: the CMS Medicare GLP-1 Bridge launch, FDA concerns about unapproved GLP-1 drugs, declining bariatric surgery as GLP-1 use rises, and the retatrutide phase 3 TRIUMPH-1 results. They were probes, not a full gold set.
+- **Three providers in the final run.** Brave Search, Firecrawl Search, and LangSearch. A news-monitoring dataset called GDELT was in the first rounds and dropped after it produced no results and a 76.2% failure rate in round one.
+
+Around the providers we had a runner that normalized results, an LLM judge scoring five editorial questions, and a blind review file for me to label by hand.
+
+## The first run failed before the providers did
+
+Round zero produced 505 raw results, 383 after deduplication. I reviewed the first ten rows of a 40-row review file and stopped. None were usable for that week: nine were useful but outside the window, one was stale, none was in-window.
+
+The cause was not a bad provider. Every row in the normalized set had an unknown in-window status. Brave had returned a page-age date for all 159 of its rows, and all 159 fell inside the window, but our normalizer ignored the field. LangSearch had been asked for one week of freshness, but its date fields were empty. Firecrawl had been given a date-constrained parameter and returned no structured dates at all.
+
+So we had asked all three for "this week," and for two of them we couldn't check whether we got it. Our lab notes say as much - round zero was invalid as an eval, and useful mainly as evidence that later checks can't rescue an upstream freshness failure.
+
+## What counted as "in the week"
+
+Round one fixed the date handling, and an audit of it found more. The normalizer had checked the window before applying a fallback date. And the generated summary named LangSearch the winner, because ranking still leaned on broad anchor recall and domain variety even though LangSearch had given us almost no usable date information. That recommendation was wrong for weekly discovery.
+
+We sorted every result into tiers:
+
+- **Strict:** a publication date or a date in the URL path, inside the window.
+- **Provisional:** only a crawl or page-age date inside the window.
+- **Background:** dated, but outside the window.
+- **Undated.**
+- **Blocked:** from domains we exclude from digest content: Grokipedia, Facebook, YouTube, Pinterest, and a podcast-lyrics site.
+
+Only strict results went to blind review. The rest went to a separate audit file, so I could still check whether we were excluding good material unfairly.
+
+## The round two numbers
+
+Round two ran the three providers against the same window - 471 raw results, 308 after deduplication. Of those 308, nine were strict, 96 provisional, 4 background, 137 undated, and 62 blocked.
+
+| | Brave | Firecrawl | LangSearch |
+|---|---:|---:|---:|
+| Raw results | 192 | 192 | 87 |
+| After dedup | 106 | 140 | 62 |
+| Results with any date info | 100% | 2.1% | 0% |
+| Strict in-window candidates | 6 | 4 | 0 |
+| Anchors found, strict pool (of 4) | 1 | 1 | 0 |
+| Anchor keyword matches, top 10 results (of 4) | 2 | 2 | 4 |
+| Median search latency | 1,510 ms | 2,251 ms | 2,825 ms |
+| Error rate | 0% | 0% | 0% |
+
+Deduplication was pooled across providers, so each URL is credited to the first provider that returned it. LangSearch's four keyword matches came from blocked pages: Grokipedia, YouTube, and a podcast site.
+
+The date row explains most of the rest. Brave attached a page-age date to 100 of its 106 results and a URL date to the other six. Only those six counted as strict, because page age isn't a publication date. Ninety-six more were provisional, and four were dated outside the window. Firecrawl left 137 of its 140 results undated. That is the gap behind six strict candidates from Brave and four from Firecrawl. One was returned by both, hence nine pooled.
+
+LangSearch is where the table gets odd. All 62 of its deduplicated results came from three domains: Grokipedia, YouTube, and a podcast-lyrics site. All three are on our blocklist, so every one was classified as blocked and it contributed no strict candidates. Its 4-of-4 anchor score is a keyword match on those pages, not evidence that it found the four stories. Why LangSearch returned only those domains, I can't establish from the experiment's records.
+
+LangSearch scored 4 of 4 on the anchor test, and none of what it returned was usable.
+
+Across the pooled strict set, Brave and Firecrawl together produced nine candidates and one of four anchors: the retatrutide TRIUMPH-1 results, via a newsletter dated June 22. Firecrawl's own strict "hit" was a STAT story that matched only on the words Lilly and weight loss. The three combination strategies we tried, which merged and re-ranked the providers' results in different ways, all collapsed to that same nine. They couldn't be told apart, so they told us nothing about which way of combining was better.
+
+## The judge passed everything
+
+The LLM judge ran on those nine strict candidates and passed all nine on all five dimensions. A separate LLM critique of the round called that "suspiciously optimistic," and I agree with it. A perfect score on nine items says the judge wasn't discriminating. We treated the judge as a control, not as a source of truth, and the summary file says not to publish provider rankings until the blind labels are complete. I did label candidates in the review tool, but those labels weren't exported or preserved, so I'm not relying on them.
+
+## What these numbers don't show
+
+I'd be careful about the ranking they imply. Brave first and Firecrawl second is what the strict metrics say; LangSearch isn't ranked at all, because it had no strict candidates. Here is why I wouldn't lean on it:
+
+- **One topic and one week.** GLP-1 and obesity-treatment news, June 21 through 27, 2026. Nothing here says how these providers behave on another topic or another week.
+- **Tiny pools.** Nine strict candidates and four anchors. One anchor is the difference between 1/4 and 2/4.
+- **No preserved labels behind the ranking.** The checked-in blind-review file for the nine strict candidates is blank. I labeled candidates in the review tool, but those labels were never exported or preserved, so this post doesn't rely on them. The ranking is computed from deterministic counts against four fixed anchor stories: strict candidates, date evidence, and anchor matches.
+- **The strict test favors providers that expose dates.** It measured whether a result carried a date we could verify, not whether the story was good. That was the point, but it is narrower than "which search API is best."
+- **No cost comparison.** The run didn't estimate provider cost (it shows $0 for all three), so it says nothing about price.
+- **One run each.** Median latencies come from a single run per provider.
+- **Anchors from one failed digest.** They were probes for known misses, not a sample of the week, and the anchor test is a keyword match, so a hit means the words matched.
+
+## What we did with it
+
+After round two we decided against a third round of generic search reruns. Round two had answered the central question: downstream judging and review can't make up for missing date and source evidence upstream. Even the best strict pool matched one of four must-cover stories on the keyword test, the retatrutide TRIUMPH-1 results. The keyword test found none of the other three. The recommendation was to build direct connections to primary sources for FDA, CMS, Medicare.gov, ClinicalTrials.gov and PubMed, and company investor and newsroom pages, and to use search for the open web around them.
+
+The next round did that. It replaced raw search results with assignment desks, each with preferred sources for one part of the beat, and it recovered all four anchors. The lab notes call that first pass too generous, and a later human review sent a round back for another pass, so I'd read 4 of 4 as a starting shape, not a result. I don't read that as search losing to something cleverer. The desks were seeded with known high-signal sources from an earlier review, so a 4/4 there is partly a statement about what we put in. It was still a better starting shape than hoping a query would find the week.
+
+The bakeoff never named a search API as the answer. What it settled was narrower and more useful: a provider can return sources that look right and still leave the editorial work undone, and that work has to happen before anyone writes a sentence.
+
+The story doesn't end there. Next time we'll cover what changed when we assembled the week's sources first and wrote second.
