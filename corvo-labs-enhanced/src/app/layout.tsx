@@ -7,7 +7,7 @@ import { cabinetGrotesk } from './fonts'
 import { ScrollProgress } from '@/components/magicui/scroll-progress'
 
 export const metadata: Metadata = {
-  metadataBase: new URL('http://localhost:3000'),
+  metadataBase: new URL('https://corvolabs.com'),
   title: 'Corvo Labs - AI Consulting & Healthcare Technology Solutions',
   description: 'Transform your workflows with responsible AI. Corvo Labs delivers sophisticated AI solutions for healthcare and SMB teams with measurable results.',
   keywords: ['AI consulting', 'workflow automation', 'healthcare AI', 'SMB AI solutions'],
@@ -18,13 +18,14 @@ export const metadata: Metadata = {
     locale: 'en_US',
     url: 'https://corvolabs.com',
     siteName: 'Corvo Labs',
+    images: ['/images/og-image.png'],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Corvo Labs - AI Consulting & Healthcare Technology Solutions',
     description: 'Transform your workflows with responsible AI. Corvo Labs delivers sophisticated AI solutions for healthcare and SMB teams.',
     creator: '@corvolabs',
-    images: ['/images/og-image.jpg'],
+    images: ['/images/og-image.png'],
   },
 }
 

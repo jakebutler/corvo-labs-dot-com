@@ -156,7 +156,7 @@ export async function generateMetadata({ params }: PageProps) {
     const fullTitle = post.subtitle ? `${post.title}: ${post.subtitle}` : post.title
     const socialImages = post.coverImage
         ? [{ url: post.coverImage, alt: post.coverImageAlt || fullTitle }]
-        : []
+        : [{ url: '/images/og-image.png', alt: 'Corvo Labs' }]
 
     return {
         title: `${fullTitle} | Corvo Labs Blog`,
