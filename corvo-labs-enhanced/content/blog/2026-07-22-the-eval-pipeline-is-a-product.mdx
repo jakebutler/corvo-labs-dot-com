@@ -1,0 +1,108 @@
+---
+title: "The eval pipeline is a product"
+date: "2026-07-22"
+scheduledTime: "09:00"
+timezone: "America/Los_Angeles"
+description: "We rewrote a set of GLP-1 articles with a second-generation pipeline and never let it publish a word."
+author: "Jake Butler"
+tags: ["evaluation", "editorial workflows", "human review"]
+heroImage: "/images/blog/the-eval-pipeline-is-a-product/hero.webp"
+heroImageAlt: "Cover image for The eval pipeline is a product"
+readTime: "9 min read"
+category: "research"
+featured: false
+status: "draft"
+---
+
+*We rewrote a set of GLP-1 articles with a second-generation pipeline and never let it publish a word. The checking machinery around it ended up being the most reusable thing we built.*
+
+How do you test a rewrite pipeline for health content without ever letting it touch the live site?
+
+That was the constraint for our research-editorial rewrite work. The rewrite ran offline, its output stayed advisory, and everything it produced had to be checkable after the fact. Over July 3 to July 7, 2026, we ran it through three rounds of blind human review. The automated checks kept saying it was better. The human review kept saying it wasn't ready. The third version improved materially and still did not clear release readiness.
+
+This post is about the machinery that let us see that clearly. The next one goes into one of the places that machinery was wrong.
+
+## Why we replayed instead of writing to production
+
+The plan was to compare the new pipeline against the old one on the same articles. That needs the old pipeline's artifacts: drafts, source logs, fact-check output. Those historical artifacts were not recoverable from our storage.
+
+So we built a stand-in. We froze snapshots of the production articles, reran the existing first-generation pipeline from those snapshots, and wrote everything to local storage only. We call the result a proxy in our notes. It is a regeneration, not the original, and we treated it that way. The source notes say to keep using it as the comparison set until true historical artifacts are recovered.
+
+Some of the safety controls were plain:
+
+- The storage root was pointed at the experiment's local output directory before the artifact store loaded.
+- The production database's connection settings were cleared before any imports.
+- A setting blocked fallback to any model provider we hadn't chosen for the run.
+- No production publish, job enqueue, or database write path was used.
+
+The result was a complete local artifact chain for all 23 articles, with no failed rows.
+
+"Offline" here means no production writes. It does not mean no network: the regeneration still called model and search providers, with credentials scoped to the process and kept out of artifacts and docs. The notebook's operating rules said the same thing from the start. Every run had to be reproducible from a frozen input snapshot, a command log, a model route table, a deterministic gate report, a judge report, a usage report, and a failure log.
+
+## Three layers, and what each one is for
+
+We ended up with three kinds of check. Each does a different job, and none of them substitutes for the others.
+
+**Deterministic gates** are ordinary code. They ask questions with exact answers. Did the draft keep every number from the original? Every medication term, regulatory term, and safety term? Did it keep the headings? Are there em dashes? Is a metadata label leaking into reader-facing text? Did the source trace get recorded? These are the checks we treat as hard controls. If one fails, a person looks at it.
+
+**LLM judges** answer softer questions. Our paired judge read the old and new draft of the same article and said which it preferred, along with pass/fail calls on things like factual preservation, medical safety, source consistency, and structure. That is useful as a diagnostic. The notebook's operating rules said to treat judge output as automated evidence, not as human gold, and that turned out to matter.
+
+**Blind human review** is where a person compares two drafts without knowing which pipeline produced which (one reviewer; only which pipeline wrote which draft was hidden). We built a static review page for it: side by side, pick one, export the labels. It asks the question no other layer can answer: would you rather publish this one?
+
+Between the gates and the human sits the fact-check output, where review routing sorts findings into five levels: blocking, required fix, advisory, clear, and unknown. The human queue drew on three of those levels. Of its 13 rows, 4 were blocking routes, 5 were required fixes, and 4 were clear controls.
+
+## What the layers said
+
+Here are the three rounds side by side. The judge ran on all 23 articles each time. The human review was a 13-row queue each time.
+
+| Round | Judge preferred the new version | Human: new wins outright | Human: new is a better base with edits | Human: old preferred | Human: tie or unclear | Factual or safety concerns |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Round 1: rewrite and repair | 23 of 23 | 3 | 1 | 9 | 0 | 0 |
+| Round 2: adds a humanizer pass (a rewrite stage that removes AI-sounding phrasing) | 23 of 23 | 0 | 0 | 11 | 2 | 0 |
+| Round 3: adds structure and chunking | 23 of 23 | 2 | 3 | 5 | 3 | 0 |
+
+Read across the judge column first. It never wavered. Then read the human columns.
+
+The judge picked the new version on every article, three rounds running. In the second round, the human picked it on zero rows.
+
+That gap is the finding. Factual preservation and reader preference turned out to be separate release gates. No round produced a factual or safety concern from the human reviewer, and the rollout still stayed on hold. The third round was real progress, from no rows where the new version was preferred or a better base to five, but the set stayed split. One caveat on all of this: 13 rows per round is a small sample, and I would not read the exact counts as more than a direction.
+
+The round-one repair pass and paired judge were also inexpensive. In the first round, the repair pass on 23 articles had an estimated cost of $0.1294, and the paired judge $0.0657.
+
+## Source traces made fallback auditable
+
+When a source fetch fails or comes back thin, a pipeline usually falls back to another provider. That is reasonable behavior. The problem is what a reviewer sees afterward: a source that looks fine, or looks missing, and no way to tell why.
+
+In the validation work, the source log for each entry started persisting the provider attempts, which provider was selected, whether a fallback was used, whether a low-quality result was chosen, and which providers were skipped because they weren't configured. The notes give the reason directly: without that, a later reviewer can't tell whether a failure was a quality problem, an absent provider, a provider error, or a deliberate best-effort fallback.
+
+The evidence has limits. The 128 source entries from the full 23-article run predate this change, so they don't carry the new trace. A fresh, source-only smoke test did: 6 of 6 entries included the attempts, the selected provider, and a fetch-quality rating. In one case, a page from a federal health institute got a low-quality result from the first provider, the second and third providers were recorded as not configured, and a plain HTML fetch was accepted. The smoke run stopped after source gathering, which was all that test needed.
+
+The full run also preserved one source failure - one company's official site stayed unreachable across all three fetch methods. That failure is in the artifacts instead of quietly missing from them.
+
+A source trace is a small piece of infrastructure, but it changes what a reviewer can decide. It is the difference between "this source looks wrong" and "here is the sequence of attempts that produced it."
+
+## Why we held at advisory
+
+Our notes had recommended, before human review, proceeding with the rewrite as an advisory workflow behind hard gates. After the first blind round, that recommendation was superseded: do not proceed with rollout yet. The same call was repeated after each later round.
+
+What that hold means in practice:
+
+- Feature flags stay off by default.
+- Advisory generation stays separate from publishing.
+- Factual-surface, review-routing, source-trace, and output-hygiene checks remain hard controls.
+- Blocking and required-fix routes need human approval.
+- Any re-review waits until the specific failure modes are encoded, and then it runs as a targeted review rather than another broad batch.
+
+At no point did the pipeline publish anything. "Not ready" was a state the system could stay in for as long as needed, with the evidence in one place.
+
+One gap remains, and I'll name it: the human review was the release gate, and it was also the least automated part. Part of what we did next was try to encode what the human review kept telling us, so that some of it runs without waiting on a person.
+
+## The pipeline is the product
+
+Here is what I take from this. We came out of the work without a rollout. What we had was a set of standards: what should guide generation before a draft exists, and what should be checked after. Those are things like opening with the practical answer, framing scope, grounding any table in facts already in the article, and keeping metadata labels out of reader-facing text.
+
+By July 7 those standards had been implemented in a working branch, though not shipped: pre-generation guidance was injected into the pipeline prompts, a reusable evaluator checked hygiene and routing criteria, and an audit command ran them against existing content. Run against the 23-article corpus, it found 0 blocking, 16 required-fix, 2 advisory, and 5 clear articles. The audit results went into a remediation list, and rollout is to be revisited after that.
+
+The model rewrite was one output of this work. The eval loop, the source traces, the routing, the review page, and the hold decision were the other, and I'd argue the more durable one. If you treat that part as a sidecar, you find out too late that the green metrics measured something narrower than what you meant.
+
+Next up - a deterministic gate that flagged a problem the draft didn't have.
