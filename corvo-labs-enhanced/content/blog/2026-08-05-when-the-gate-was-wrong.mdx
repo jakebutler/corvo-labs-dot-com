@@ -1,0 +1,88 @@
+---
+title: "When the gate was wrong"
+date: "2026-08-05"
+scheduledTime: "09:00"
+timezone: "America/Los_Angeles"
+description: "What do you do when the check that's supposed to catch the mistake is the thing making it?"
+author: "Jake Butler"
+tags: ["evaluation", "editorial workflows", "quality gates"]
+coverImage: "/images/blog/when-the-gate-was-wrong/hero.webp"
+coverImageAlt: "A paper raven carpenter points to a bowed straightedge resting on a straight plank."
+readTime: "7 min read"
+category: "research"
+featured: false
+status: "published"
+---
+
+What do you do when the check that's supposed to catch the mistake is the thing making it?
+
+That's what happened to us on one article in our health-content editorial pipeline. This is a process story, not health advice, and nothing in it changes what any reader should do about their own care. It's about how we test the software that checks our work.
+
+## The setup
+
+The pipeline we were evaluating rewrites existing articles, and it runs offline and advisory. It replays against frozen snapshots of 23 published articles, and nothing it produces gets published on its own. We judge each rewrite in three layers: deterministic gates first, then an LLM judge that compares the original and the rewrite side by side, then blind review by a person.
+
+The gates run first. They compare what the original said with what the rewrite says, and they check for changes in numbers, medication names, regulatory terms and safety terms, along with a few style rules. The gate that matters for this story is the numeric one. If the original had a number and the rewrite doesn't, the article gets flagged for a person to look at.
+
+I care about that gate because timing guidance is one of the things our own standards list as required to survive a rewrite. My view is that a changed or missing figure in health content is not a cosmetic edit, since it can change what a reader thinks they're supposed to do. And earlier in the work, the gate had caught safety omissions that the judge passed. So we kept it as a hard control.
+
+## The incident
+
+On a full replay of the 23 articles, the judge preferred the rewrite on all 23. It passed factual preservation on all 23. The numeric gate flagged one: a practical guide to digestive side effects had, according to the gate, dropped the exact value "2-3 hours".
+
+That was the only deterministic flag on the whole run.
+
+We tried to fix it the way you'd expect. The repair step got one gate retry and the article still failed. So we ran a targeted second pass, with the current draft as its source and two more retries. It still failed after three attempts, at about 35,000 additional tokens, still missing "2-3 hours". We also tried two other models on that one article. One of them got past the missing-number check, but it turned a 2,776-word draft into 6,409 words and introduced a pile of new numbers. The other stayed within bounds and still failed, this time on "3-4 days" as well.
+
+Our notes had already said to stop spending retries on the same path. That was the right call, though the reason turned out to be bigger than we thought. The problem wasn't the draft.
+
+## What was actually wrong
+
+We went back and audited the flagged article before writing any content patch. The draft already contained "2-3 hours". The value was right there in the text.
+
+The bug was in the evaluator. Before it pulled numeric ranges out of a draft, it ran a step that strips Markdown formatting, and that step also removed ASCII hyphens. The step treated ASCII hyphens as Markdown formatting. A range written "2-3" lost its hyphen before extraction, and the number never registered.
+
+The original article used an en dash ("2–3"), and an en dash survived the stripping and was normalized later. So the gate extracted the range from the original and failed to extract it from the rewrite. From where the gate sat, the rewrite had lost a number that was in fact sitting in the text.
+
+Notice what that means for the retries. We had spent repair attempts, tokens and a couple of model trials trying to restore a number that was already there. And the LLM judge, which had passed factual preservation for that article, was right about this one.
+
+A gate that exists to catch dropped numbers dropped one.
+
+## The fix, and how we checked it
+
+We changed the extractor to pull numeric ranges before Markdown stripping, and to treat "2–3 hours", "2-3 hours" and "2 to 3 hours" as the same token.
+
+Then we tested it, on both the extraction and the behavior. Regression tests cover two situations worth pinning down. One checks that a range written with an en dash ("2–3 hours") and one written with an ASCII hyphen ("3-4 days") both come out as ranges. The other checks that a source written with an en dash and a rewrite written with a hyphen don't get flagged as a missing number. The focused test files, lint and typecheck all passed.
+
+We also recomputed the gates over the whole 23-article set:
+
+- Factual-surface pass went from 22/23 to 23/23.
+- The missing-number check went from 22/23 to 23/23.
+- The new-number check, medication terms, regulatory terms, safety terms and the check for new high-risk terms all stayed at 23/23.
+
+Those unchanged rows are how we checked that the fix hadn't loosened anything.
+
+## The review queue
+
+While we were in the validation pass, we changed a second thing. It's a separate change from the hyphen fix, and I don't want to blur the two together.
+
+The fact-check step feeds a review queue. Until then, non-blocking required fixes were being treated as hard approval blockers. We split severity into five levels: blocking, required fix, advisory, clear and unknown. Approval-blocked is reserved for true blocking issues. Required fixes still count as issues and still need a reviewer's attention.
+
+We reran the routing over the 23 regenerated fact-checks from the earlier pipeline:
+
+| | Before | After |
+|---|---|---|
+| Articles blocked from approval | 17 of 23 | 4 of 23 |
+| Issue signals | 48 | 48 |
+
+The second row is the point. Getting the blocked count down is easy if you loosen things until nothing gets flagged. What we wanted was fewer hard blocks with every issue signal still on the board, and that's what the numbers show. The 48 split into 4 blocking issues and 44 required fixes, the same counts before and after. The validation packet labels the 13 articles that came out of the blocked group as no longer incorrectly blocked. The issues behind them didn't go away. They stopped being treated as hard stops. After the change, 4 of the 23 are blocked, 13 are in required-fix and 6 are clear.
+
+The packet is explicit about why this matters: the system didn't hide any reviewer work. A queue where nearly every item is a hard stop makes a good advisory system feel worse, even when the underlying issues are real. Blocking issues and required fixes both still need a person to approve. The whole path stays advisory and separate from publishing, and human review remains the release gate.
+
+I'll be direct about what I take from this. I don't read it as a reason to trust gates less. We kept the deterministic checks as hard controls, because a number is either preserved or it isn't and because they'd already caught things the judge missed. But the gates are software too. They have parsing bugs, and a parsing bug in a gate is worse than one in a feature, because everything downstream trusts its verdict. Our own notes say to make a check a release blocker only after testing it against known punctuation, markdown and formatting variants.
+
+We also got a useful reminder that no single layer settles anything. In this case the deterministic layer was wrong and the judge was right. Earlier, it was the other way around. That's the argument for having layers at all, and for treating the code that connects them as part of the product, with tests.
+
+The pattern I'd keep from this - when a gate flags something that looks odd, audit the gate against the artifact before you spend a single retry fixing the artifact.
+
+Coming next is a case where the judge liked the rewrites and the person reading them didn't.
