@@ -1,0 +1,98 @@
+---
+title: "The safer answer was not one model call"
+date: "2026-10-21"
+scheduledTime: "09:00"
+timezone: "America/Los_Angeles"
+description: "In July 2026 we ran three small pilots on claim review."
+author: "Jake Butler"
+tags: ["claim validation", "system design", "evaluation"]
+heroImage: "/images/blog/the-safer-answer-was-not-one-model-call/hero.webp"
+heroImageAlt: "Cover image for The safer answer was not one model call"
+readTime: "8 min read"
+category: "engineering"
+featured: false
+status: "draft"
+---
+
+*In July 2026 we ran three small pilots on claim review. Each improved when we broke a single judgment into typed pieces, and where we added a rule the model does not control, that rule mattered as much as the split.*
+
+What does it mean when a model says a claim is "supported, 0.87"?
+
+For medical and editorial work, not much, at least not by itself. That one number has to stand in for several separate questions: what the claim actually asserts, whether the evidence backs the whole claim or a narrower version of it, and whether two claims that look like they collide are even talking about the same thing. Fold all of that into one score and you get a number that is easy to threshold and hard to trust.
+
+This is one post in a short series on how we approached automation around our claim ledger, the record of claims behind a weekly digest. The thesis of the series is safer automation, not unattended automation. This post covers the constructed pilots, where the shape of the answer first showed up. Everything below comes from small, synthetic test sets. None of it is production evidence, and none of these numbers is an accuracy estimate for real claims.
+
+## Why the blunt tools were too blunt
+
+The starting point was the current style of decision: a scalar judgment ("how relevant is this evidence?") and lexical overlap ("these two claims share words, and one has a negation").
+
+Both fail in ways that matter here. A single verdict on whether evidence supports a claim can hide that the evidence covers only part of the claim. And word overlap says nothing about whether two statements are about the same population, time period, or endpoint.
+
+So we split the risk into three decisions and tested each as its own pilot.
+
+1. **Assertion scope.** What is the editorial claim itself asserting: a fact, one person's experience, a community-wide signal, some mix, or not enough context to tell?
+2. **Evidence entailment.** Does the cited source text back the whole claim, part of it, only mention it, or say something else?
+3. **Pair compatibility.** When two claims appear to conflict, is it a direct contradiction, a difference in scope, time, or wording strength, a refinement, a duplicate, or simply not comparable?
+
+We froze each test set before running it, and the runs wrote only inside their own experiment folder. Nothing was written to production. We did revise prompts between runs and, in the entailment pilot, corrected one gold label after the first run, which is one more reason to read the numbers as descriptive.
+
+## Assertion scope - the guard mattered as much as the split
+
+Here we compared three designs on 42 synthetic test claims, using the same small hosted model for all of them so that the only thing changing was the architecture. The first design was one holistic judgment. The second broke the work into steps: separate the propositions, compare against the source, check the gates, then classify. The third did the same but sharpened the class boundaries and added a rule the model does not control: a claim can only pass without review if the editorial claim itself has explicit attribution to a report, complete provenance, source text, individual scope, and no strengthening (for example, an added causal or generalizing claim).
+
+| Design | Scope accuracy | False auto-clears | Auto-clear precision |
+|---|---:|---:|---:|
+| One holistic judgment | 76.2% | 2 | 83.3% |
+| Factorized, no guard | 73.8% | 1 | 90.9% |
+| Factorized with deterministic guard | 90.5% | 0 | 100% |
+
+By "auto-clear" I mean letting a claim through without a reviewer. A "false" one is a claim that should not have gone through. The strongest design let ten claims through, all correctly, on synthetic data where ten is a small number.
+
+The row I would point at is the middle one. Splitting the work into steps did not help accuracy on its own. It was a hair worse than the single judgment. What moved the result was two specific decisions: classify the proposition the editorial claim makes, rather than inheriting the anecdotal form of its source, and make the pass/no-pass call a deterministic conjunction over typed assessments instead of something the model writes.
+
+The model produces assessments. A versioned rule makes the gate decision.
+
+## Entailment - the scalar answer hid a narrower claim
+
+The second pilot used 12 synthetic claim and source-text cases, again with the model held fixed. One variant asked a scalar question in the style of what we had been doing. The other asked for a typed assessment with six relationship categories plus separate safety flags.
+
+| Measure | Scalar | Factorized |
+|---|---:|---:|
+| Relationship accuracy | 58.33% | 83.33% |
+| Unsafe clears | 1 | 0 |
+| Full schema validity | 66.67% | 41.67% |
+
+The unsafe clear is the case worth remembering. It appears after a gold-label correction; in the first run neither variant had one. The source described a narrower cohort than the claim did, and the scalar variant marked the claim as fully supported anyway, even though its own rationale acknowledged the narrower scope. The typed version called it partial support. It also handled a compound claim as partly supported instead of contradicted, and separated an observed result in one country from a prediction for another.
+
+Twelve cases is twelve cases. The write-up itself says they are too few to establish confidence bounds, prevalence, or calibration, and I would not read the accuracy column as anything beyond "the direction was right on this fixture set."
+
+## Pair compatibility - overlap is for finding, not deciding
+
+The third pilot used 21 constructed pairs, three for each of seven relationship types. We treated the existing approach (shared tokens plus opposite negation) as if it were the decision. On that reading it scored 28.6% accuracy and produced three false direct contradictions, meaning pairs that were not contradictions but got labeled as such.
+
+The typed assessor scored 85.7% accuracy (macro F1 of 0.863) and produced no false direct contradictions. Zero false direct contradictions came from only 18 non-direct pairs, all constructed; the write-up calls that promising but statistically weak. Its remaining errors were boundary calls between scope difference, modality difference, and insufficient comparability. Eight rows went to the review queue.
+
+A second finding here is easy to skip. Entity and scope cues were much better than the old token logic at finding relevant candidates: 94.4% recall, against 33.3%. But they also pulled in all three of the unrelated pairs, and only 85% of their candidates were relevant. That is fine for retrieval and disqualifying for a verdict. So the design we settled on has three stages: wide retrieval first, then a typed assessment, then deterministic policy.
+
+## Where it broke
+
+The factorized entailment output only followed the full requested schema in 5 of 12 cases. In the scope fields we asked for fixed categories, and the model sometimes wrote free text where a category belonged. The pilot also had weak results on counting the parts of a claim (41.67%) and on scope dimensions (51.04%).
+
+Better semantic answers arriving in a format software cannot rely on is not a small problem. It is the reason the write-up concluded that prompt-only JSON contracts are insufficient. The next step it called for was provider-supported structured output, field-level validation, and routing invalid output to retry, fallback, or a person.
+
+Read against the table above, the two lines together are the honest summary. The scalar answer was more often in the requested shape and less often right. The factorized one was more often right and less often in shape. Neither is something you would let write to a ledger on its own.
+
+## Why none of this was promotion-grade
+
+The pilot write-up says it plainly: "None is promotion-grade yet." The reasons are specific.
+
+- **The test sets are synthetic and small.** Forty-two, twelve, and twenty-one items, synthetic or design-derived, with synthetic labels that no human had yet adjudicated.
+- **One model per task, never compared.** The scope and entailment pilots used the same small hosted model, and the pair pilot used a different one. We did not test the same task across models, so the pilots say nothing about whether the decomposition carries over.
+- **Confidence is uncalibrated.** The pair pilot warned against promoting any automatic resolution threshold from a single run, and the overall write-up lists raw self-reported confidence as a routing threshold among the things that cannot advance.
+- **Nothing here measures time saved.** These runs say something about error types on constructed data. They say nothing about review time or reviewer workload.
+
+What the pilots did earn was a design to test next: typed assessments, retrieval kept separate from judgment, deterministic policy after the model, and structured review queues. The next step was to run those on real, production-derived samples without writing to production, and to keep every direct-contradiction call behind a human until a held-out set showed the false-direct rate was low enough.
+
+The model did better when the decision got smaller. And where we tested one, the safest part of the design was the rule the model did not control.
+
+We'll follow the same designs into samples derived from production in the next installment.
