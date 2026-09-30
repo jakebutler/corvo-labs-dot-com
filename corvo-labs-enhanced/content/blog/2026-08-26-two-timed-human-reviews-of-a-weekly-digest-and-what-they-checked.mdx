@@ -1,0 +1,115 @@
+---
+title: "Two timed human reviews of a weekly digest, and what they checked"
+date: "2026-08-26"
+scheduledTime: "09:00"
+timezone: "America/Los_Angeles"
+description: "Two timed reviews of our weekly digest took 12.5 and 10.19 minutes."
+author: "Jake Butler"
+tags: ["human review", "editorial workflows", "evaluation"]
+coverImage: "/images/blog/two-timed-human-reviews-of-a-weekly-digest-and-what-they-checked/hero.webp"
+coverImageAlt: "A paper raven reads at a desk while a cropped paper hand holds a copper stopwatch beside it."
+readTime: "9 min read"
+category: "research"
+featured: false
+status: "published"
+---
+
+*Two timed reviews of our weekly digest took 12.5 and 10.19 minutes. The review is where a slot-cap default and two undated sources got checked, and where my judgment overrode a rule-based selector.*
+
+What does a 12-minute human review actually buy you?
+
+For the lower dB weekly GLP-1 digest, it bought a set of decisions the tool's rules had only pre-labeled: which stories belonged in the email, which needed more sourcing, and which shouldn't run at all. It also bought one source-date problem worth walking through. But I want to be careful about the claim. These two reviews show where a person checked the workflow. They don't show that the review made the system better, and the workflow is not autonomous or error-free.
+
+## What the gate is
+
+The digest no longer started from a draft. It started from candidate story clusters, each with its sources attached. Automated checks ran first: readiness checks on dates and coverage, and a check on whether each source supported its story. One detail matters later: the out-of-window date check looks at the stories chosen for the email, not every candidate cluster. Then a person reviewed.
+
+The review screen asked one question per cluster. It offered six buttons (include, merge, archive, reject, source work, defer), plus a dropdown for the overall verdict. Across these two reviews I used four of the values: include, source work, merge and reject. A running timer was on screen the whole time. Our target, set in the plan for this workflow, was 20 minutes or less for the full queue.
+
+Automated runs prepare the digest. A person decides what goes in it and approves the result. Nothing here sends anything on its own.
+
+We ran this twice on the same week, June 29 to July 5, with the second a clean rerun. Same window, 11 story clusters to decide each time. One more difference: the draft generator's clinical evidence language was updated during the second round, per the report for that run, to be more cautious for trial, pharmacology and meta-analysis sources. So the two rounds were not the same system.
+
+## The two reviews
+
+| | First review | Second review |
+|---|---|---|
+| Time it took (first open to finish) | 12.5 minutes | 10.19 minutes |
+| Estimated review time (from the run) | 13.5 minutes | 12.8 minutes |
+| Decisions made | 11 of 11 | 11 of 11 |
+| Included in the email | 5 | 4 |
+| Sent back for more source work | 2 | 3 |
+| Merged into another cluster | 2 | 1 |
+| Rejected | 2 | 3 |
+| Calls that differed from the tool's default suggestion | 4 of 11 | 5 of 11 |
+| Verdict (my setting in the review tool) | pass with edits | pass with edits |
+| Final approval | publishable | publishable |
+
+Both reviews finished inside the 20-minute target, and both came in under the estimate the run had produced. The timer runs from first opening the review page to finishing, with no pause, so it can't separate active review from time away. Two earlier timed reviews in our lab notes, on other weeks, ran 13.38 and 6.77 minutes, so neither of these was the first under 20.
+
+The second was faster, but I wouldn't read much into that: the runs weren't identical and the sources don't say what drove the difference. What the table does show is that 11 decisions fit in about ten to twelve minutes.
+
+The row I care about more is disagreement, so it needs a careful definition. The review tool shows a default suggestion for each cluster. It is rule-based: it pre-labels at most one email-ready story per topic lane, up to four, and labels everything else by readiness. It is a slot cap, not a judgment about whether a story is good.
+
+In 4 of 11 cases the first time, and 5 of 11 the second, my call was different from that default. (These counts are tallied from the exported decisions; the reports for those runs don't state them.) Only two of those rows each time were real system flags: two candidates with no usable date evidence. The rest were stories the tool considered email-ready that simply lost a lane slot. So the review wasn't a rubber stamp, and it went in both directions.
+
+## The source dated after the window
+
+The second review turned up the one I keep coming back to.
+
+One of the clusters, a pipeline story, included a source dated July 6. Our week ended July 5. That is one day outside the window, in a digest whose whole job is to cover a defined week.
+
+The source was already labeled in the data as arriving after the cutoff, and the tool's default for the cluster was reject, because it hadn't made the four-story email set. That is also why the automated out-of-window check, which looks only at stories chosen for the email, never ran on it.
+
+I saw the date and marked the cluster as needing more source work, with a written reason. That left a single in-window source and not much of an argument for readers, so it stayed out of the email. The report for that run calls this the review catching the source. What the records show is narrower: I noticed the date, and I wrote down why the cluster couldn't run.
+
+A copy edit wouldn't obviously surface this. The source was real; the issue was its date, which only mattered because the digest covers a defined week.
+
+## Two sources with no date at all
+
+The other date problems were different. Two candidates arrived with no usable date evidence, and the system marked both as needing more source work. Among the calls where I disagreed with the default, those were the only real system flags.
+
+In the first review, one of them was an FDA page whose text said it was current as of June 15, 2026. That is well before our window. I rejected it and noted it should only appear in the archive, if anywhere, and rejected it again in the second review.
+
+The other interests me more. It came up in both reviews as the same source. In the first review I merged it into a related cluster on bariatric surgery. In the second, I opened the source itself, found a publication date of May 18, 2026, and rejected it: with that source gone, the cluster had nothing left, so it couldn't run.
+
+Same source, two different calls. The sources don't record why the first went the way it did. They do show that the second time I opened the source and had a publication date in hand.
+
+## Where I overrode the default
+
+In the first review, the tool's default for a single-source study on diabetes prevalence trends was reject, because it had not made the four-story email set. I included it, noting it was a good source showing diabetes growth flattening while prediabetes kept growing, with implications for future healthcare needs. It became the fifth cluster in the email.
+
+In the second review, the tool's default for three clusters was reject, although each had passed its readiness checks and simply hadn't made the four-story email set. I sent all three back for more source work instead, with notes on what each needed. For one, a study on a berberine derivative, the source was relevant, but the angle and the reader value had to be rewritten and more sources added. The pipeline cluster was the July 6 problem. For a market-industry cluster, my note said the reader-value argument wasn't strong enough as written, and that source work could address it.
+
+A slot-cap default can't make those judgments. Reject and source work lead to different next steps - one closes the story, the other tells someone what to go get.
+
+In the other direction, I moved two clusters from the tool's source-work flag to reject in the second review: the FDA page and the May 18 source.
+
+## One outside-the-window source I included, labeled
+
+Not everything outside the window was thrown out. In the first review, a Medicare access cluster included a company page on what Medicare Part D patients need to know about two obesity medicines. It was useful context, not news from our week. My note said it needed to be called out as outside the digest range and provided as additional context, and I included the cluster.
+
+The approved digest lists it marked "background/context", as the written quality standard requires for background sources.
+
+## What happened to the decisions
+
+Two rules in the workflow made the decisions stick.
+
+First, the draft has to contain exactly the clusters a human approved for the email, using only the sources attached to each. A fallback covers a failed model copy pass, so the final draft still respects the human decisions.
+
+Second, archive and background decisions from a round are stored as evidence of that round and treated as final unless someone reopens them.
+
+Both rounds ended the same way: the final draft passed validation and I approved it as publishable. My decisions determined which clusters ran. The approved file matches the generated draft apart from an approval header, and I did not hand-edit it.
+
+## What this does not show
+
+The numbers could be over-read, so:
+
+- It's one reviewer, on one week, twice, and the generator changed between the rounds. Two data points don't make a trend.
+- Both reviews ended with the verdict pass with edits, a setting I chose in the review tool, not a clean pass. The approved file matches the generated draft apart from an approval header, and I did not hand-edit it.
+- The timings are wall-clock. They say how long the page was open, not how long I was working.
+- One post-window source sat in a cluster the tool had not put in the email. I flagged it. That is a reason to keep the gate, not a reason to trust the automated check to cover every candidate.
+
+What I take from this is narrower than "human review is good." A timed queue with one decision per cluster let me make 11 editorial calls in about ten to twelve minutes, and they carried through into the final draft. The review is where a slot cap and two undated sources got checked, and where a person's call overrode a rule-based default. Whether that made the digest better is something these two rounds don't measure.
+
+There's one last step to cover - what the reader-facing copy had to look like before I'd approve it.
