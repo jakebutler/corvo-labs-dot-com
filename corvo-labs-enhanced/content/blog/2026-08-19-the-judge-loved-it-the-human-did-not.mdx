@@ -1,0 +1,101 @@
+---
+title: "The judge loved it. The human did not."
+date: "2026-08-19"
+scheduledTime: "09:00"
+timezone: "America/Los_Angeles"
+description: "Three blind review rounds, one LLM judge that never changed its mind, and what the gap taught us about editorial standards."
+author: "Jake Butler"
+tags: ["evaluation", "human review", "editorial standards"]
+coverImage: "/images/blog/the-judge-loved-it-the-human-did-not/hero.webp"
+coverImageAlt: "A paper award dispenser gives one pastry a rosette while a raven diner tastes the other pastry."
+readTime: "9 min read"
+category: "research"
+featured: false
+status: "published"
+---
+
+*Three blind review rounds, one LLM judge that never changed its mind, and what the gap taught us about editorial standards.*
+
+What do you do when the automated judge says a draft is better and the person who would have to publish it disagrees?
+
+We found out across three rounds of blind review. In every round, our paired LLM judge preferred the rewritten drafts on all 23 articles in the test set. On the 13 rows we reviewed by hand, it rated every rewrite a pass on factual preservation, medical safety, source consistency, editorial usefulness, readability, and structure, in every round. And in the first round, I preferred the older pipeline's draft on 9 of 13 rows.
+
+This is Part 3 of a series on the research-editorial rewrite eval loop. Part 1 covered why the eval pipeline is a product, and Part 2 covered a deterministic gate that was wrong. This one is about the layer that disagreed with the judge.
+
+## Three layers, three different jobs
+
+The loop used three kinds of checks, and it helps to keep them apart.
+
+**Deterministic gates** are code. They check the factual surface of a draft: numbers, medication terms, regulatory terms, safety terms. They also check things like whether a reader-facing label leaked into the text. They are hard controls.
+
+**LLM judges** are models asked to compare a draft against another one. Ours was a paired judge - it saw the old pipeline's draft and the rewrite and picked one, with a rubric behind it.
+
+**Blind human review** is a person reading two drafts without knowing which is which. The review interface hid draft identity until the labels were exported. I did the reviewing, and each row got a preference, a confidence level, a factual/safety flag, and a note on whether the draft was publishable after edits.
+
+The rewrite lane stayed offline and advisory the whole time. Nothing here published anything. Human approval stayed the gate for anything routed as blocking or needing a fix.
+
+## The three rounds
+
+Here are the three rounds side by side. In each one, the comparison was the rewrite against the draft from the existing article pipeline, on the same 13 articles. That older draft had to be regenerated from frozen snapshots of published articles, because the original artifacts could not be recovered from storage.
+
+| Round | What changed in the rewrite | Judge preferred rewrite | Human: rewrite wins outright | Human: rewrite is better base, needs edits | Human: older draft preferred | Tie or unclear | Factual or safety concerns |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 1 | Repaired rewrite, no voice pass | 13 of 13 | 3 | 1 | 9 | 0 | 0 |
+| 2 | Added a dedicated humanizer pass | 13 of 13 | 0 | 0 | 11 | 2 | 0 |
+| 3 | Kept the humanizer, added structure and chunking instructions | 13 of 13 | 2 | 3 | 5 | 3 | 0 |
+
+The judge column does not move. The human columns do, and they are the only place any of this shows up.
+
+A few things I take from the table.
+
+First, factual preservation was necessary but not sufficient. I marked zero factual or safety concerns in any round, and the deterministic gates passed the full 23-article set once the evaluator bug from Part 2 was fixed. That is the good news, and it is also exactly why it did not settle anything. The drafts were accurate and in the first two rounds I still preferred the other version on most rows.
+
+Second, round 2 was closer than it looks. The notes from that round describe many rows as a toss-up or near toss-up, and most of my preferences were low confidence. The humanizer narrowed the gap. It did not close it.
+
+Third, round 3 was real progress, and it was still not a pass. Human preference for the rewrite went from none of the 13 rows to 5, with 5 for the older draft and 3 ties. All 13 rows were intended as publishable after edits. That is a better base, not a release. The split stayed split.
+
+## Why the humanizer was essential but not enough
+
+After round 1, the main qualitative finding was voice. The older draft presented the same underlying material in a more digestible, less AI-sounding way. So we added a dedicated humanizer stage after the repaired draft. Its target was a patient-first, calm, practical voice that sounds human-edited, and it avoids the usual AI-writing patterns: formulaic openings, inflated significance, generic wrap-ups, vague attributions, stacked hedges.
+
+It was essential, and I would not remove it. Round 2 got much closer to the older draft.
+
+But it did not produce a single outright win. The notes from that round say where the remaining gap lived: stronger openings, better transitions, charts, and easier chunking. Voice was no longer the main problem. Structure was. A sentence-level rewrite cannot fix a draft that makes the reader wait for the useful part.
+
+## What became product requirements
+
+Round 3 added structure instructions: short-answer openings, an "At a glance" summary, comparison affordances, lower-level headings, and compact tables only when every cell was grounded in facts already in the article.
+
+The clearest single signal came from a two-drug comparison article. I gave the rewrite a narrow win, and my note says the "At a glance" intro made the difference: it delivered high-value numbers and read as authoritative. That one line turned a formatting preference into a requirement.
+
+The misses in round 3 were just as specific. On one side-effects guide, I narrowly preferred the older draft for its stronger opening. It got the high-value information across quickly, even though the rewrite had some helpful charts. On a provider-landscape article, a small preference went to the older draft because it stated what the article would not cover. Those two rows turned into three more requirements:
+
+- **Strong openings.** Early paragraphs should answer the reader's likely question instead of warming up with context.
+- **Scope framing.** For broad topics, say what the article covers and what it leaves out.
+- **Useful charts.** Tables and charts only when they reduce effort for the reader and every cell traces back to an existing claim or source note.
+
+Then there is the smallest item on the list, which was not small.
+
+**Dek hygiene.** A dek is the short standfirst under a headline. In our pipeline it is supposed to be metadata. A scan found the literal label `Dek`, as a heading or bold prefix, in 13 of 23 drafts from the older pipeline, and in none of the 23 repaired rewrites. Any reader-facing path that exposes draft markdown directly would print it. So the rule became: map the dek to a subtitle field or strip it, and never show the label to a reader. A tiny string, a real product bug, and a deterministic check covers it.
+
+**Source traces.** The same reasoning applies one layer down. The source logs from the original 23-article run predated trace persistence. Once we added it, a fresh smoke run recorded, for all 6 source entries, which providers were tried and which one was selected. One fallback case showed one provider's result flagged as low quality, two other providers skipped because they were not configured, and a raw page fetch accepted at the end. Without that record, a reviewer cannot tell whether a source problem was poor quality, a missing provider, an error, or a deliberate best-effort fallback. It is the same principle as "At a glance": it helps the person on the other end get to the useful information without guessing.
+
+## Judges are diagnostics, not gates
+
+I do not think the lesson is that LLM judges are bad. Ours was useful. It flagged nothing wrong on facts, and its notes were worth reading as diagnostic input.
+
+The lesson is narrower. An uncalibrated judge cannot be the release gate for editorial preference. In our loop it preferred the rewrite on 23 of 23 articles, three rounds running, while my preference for the rewrite went from 4 of 13 rows to 0 to 5. It looked equally confident in each of those rounds, and its editorial usefulness column was a pass on all 13 rows every time. At least it was consistent.
+
+So the release gate stayed with deterministic checks for the factual surface and with human review for editorial preference. In our notes, the judge stays useful for diagnostic notes. The plan is narrow, binary judges, one question each: does the opening deliver the answer quickly, does the draft frame its scope, do the tables avoid invented values. That is a different tool than asking "is this better?"
+
+## The artifact was the standard
+
+We did not ship the third version. It improved materially and it did not clear release readiness.
+
+What we came away with is an encoded editorial standard. It exists in two places: guardrails that shape drafts before they are written, and post-draft checks that route outputs for revision or human review. The pre-generation side covers practical-value-first openings, "At a glance" sections, grounded tables, scope framing, and `Dek` handling. The post-generation side includes deterministic checks for hygiene and routing, plus the narrow judges described above.
+
+The notebook records the sequence after that. The first pass of the existing-content audit ran against the 23-article set: 16 articles needed required fixes, 2 had advisory notes, 5 were clear, and none were blocking. The findings included em dash style, missing reader affordances, and scope framing. Those findings went into a separate remediation issue.
+
+The rollout posture did not change. Feature flags stayed off by default, advisory generation stayed separate from publishing, and human approval stayed required for anything routed blocking or required-fix. Before anything moves, a targeted human review should run again, since the specific failure modes are written down.
+
+That is the order I would keep - encode the standard, audit the content we already have, and then revisit rollout.
