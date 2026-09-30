@@ -1,0 +1,112 @@
+---
+title: "We stopped drafting first"
+date: "2026-08-12"
+scheduledTime: "09:00"
+timezone: "America/Los_Angeles"
+description: "Why the lower dB weekly digest rebuild starts with a set of sources and story candidates, and only then gets any prose."
+author: "Jake Butler"
+tags: ["editorial workflows", "source selection", "human review"]
+coverImage: "/images/blog/we-stopped-drafting-first/hero.webp"
+coverImageAlt: "A paper evidence board connects charts, maps, and documents to a central report above a desk."
+readTime: "8 min read"
+category: "research"
+featured: false
+status: "published"
+---
+
+*Why the lower dB weekly digest rebuild starts with a set of sources and story candidates, and only then gets any prose.*
+
+What do you review when the draft reads fine and the story list is wrong?
+
+That was our situation. The old weekly digest could pass its source-grounding checks and still pick the wrong stories for lower dB readers. Editing the prose was never going to fix that, because the prose was downstream of the mistake.
+
+This is an editorial-process post, not health advice. The lower dB is a patient-first newsletter about GLP-1s, and everything below is about how we choose and check what goes into an edition. Automated runs prepare the material. A person reviews it and decides what gets published.
+
+## What draft-first looked like
+
+The product requirements for the rebuild describe the old flow plainly - fetch and score a broad pool of sources, ask a model to choose among the top clusters, then try to patch the gaps afterward. One edition we looked at led with a thyroid eye disease drug story, underused patient and community signals, and had weak internal linking. By the time claim review started, the draft was already poor, so the review burden landed on the wrong problem.
+
+The redesign notes for the review screen say the same thing from the editor's side. The screen behaved like a repair shop for generated prose, when the real failure was that the system chose the wrong stories and didn't show coverage gaps early enough. An editor had to hunt through implementation details just to see why publishing was blocked.
+
+So we flipped the order. The product requirements put it this way: assemble the evidence first, select stories second, check readiness third, and only then write email and archive copy.
+
+## What a source set is
+
+In plain English, it's the set of articles and story candidates we assemble for one week before anyone writes a sentence. For each source it records where it came from, how we know its date, which topic area it belongs to, and how much authority it carries. For each story candidate it records which sources back it and why we included or rejected it.
+
+Two things about that set matter more than the rest.
+
+**It comes from source families, with search as a supplement.** The experiment plan organizes acquisition into five "assignment desks": regulators and access; pipeline, trials and journals; trusted news and trade context; bariatric and procedural care; and patient signal. Each desk has required source families. The regulator desk starts from FDA and CMS pages, for example, and the trials desk starts from ClinicalTrials.gov, publication metadata and company newsrooms. The plan states the principle in one line: trusted source families first, search and models second.
+
+Behind that sits a validated source list. Our validation report checked 104 candidate sources, and 32 of them were ready for automated ingest as primary or direct sources.
+
+**It carries rules about what counts as evidence.** A regulatory, policy, trial, safety or numeric claim needs a primary or high-authority source. If only news coverage exists, the candidate gets flagged as missing a primary source. Patient and community material is labeled anecdotal and can't satisfy a clinical, regulatory or safety requirement.
+
+## The date window is a gate
+
+Every run targets a single, explicit week. In the runs below, the window was 2026-06-29 through 2026-07-05, with a publish target of 2026-07-06.
+
+After a human review turned up false positives, we wrote several rules down as hard constraints, because they were deterministic:
+
+- Email stories must be dated inside the window.
+- Items dated after the window can be archive or context material only, unless an editor deliberately changes the window.
+- Wikipedia, Grokipedia and other blocked domains can't appear in the persisted set. They can still serve as discovery hints outside it.
+- A story marked as needing more source work, missing a primary source, or flagged as overstated can't pass as a final email item.
+- The final email is built only from story and source IDs a person approved.
+
+Later, a clean rerun on the same window showed why the date rule earns its keep. The reviewer spotted a source dated 2026-07-06, one day after the window closed, sitting inside one of the candidate clusters. That cluster had been marked as needing more source work, so the final draft left it out of the email.
+
+## Two artifacts from one set
+
+The written decision also splits the output. From the same source set, the new workflow produces:
+
+1. **A curated email:** roughly the top eight stories, shaped for an inbox.
+2. **A web archive edition:** the complete above-threshold story set, with citations, shaped for completeness and searchability.
+
+The decision record's reasoning is that one artifact makes it hard to be both. Treating the inbox product and the complete archive as the same thing makes it hard to optimize for skimming, completeness, search and corpus maintenance at once. Splitting them also means email quality and archive completeness can be evaluated separately.
+
+The experiment rounds described here exercised the email side. The email target was eight or fewer stories, and the plan capped a round at 15 or fewer review decisions, including rejected and background candidates. A round could only count as publishable if the review was estimated at 20 minutes or less. The plan's rule of thumb was two minutes per email story plus 30 seconds per background or reject decision; the estimates in the table below come from the runner's own weighting, so read them as rough, relative numbers.
+
+## Checking that the sources support the story
+
+Even with a good source set, a candidate story can have sources attached that don't support it. So before human review, an entailment check asks, for each source attached to a story: does this source directly support the headline and the claim we're making, only give context, or not support it at all?
+
+On the clean rerun, that check made 25 judgments. It kept 9 sources, kept 5 as context only, and recommended dropping 11 from their stories. One cardiovascular story about outcomes associated with semaglutide and tirzepatide had three attached sources the check flagged as unsupported: one about SGLT2 and inflammation, one about sarcopenic obesity, and one broader industry piece. The estimated cost of the whole audit was under a cent.
+
+A model judge is a diagnostic, not the final word. The rules we adopted keep human review as the final gate over model judgments.
+
+## What the rounds showed
+
+We tested three versions of the checking step against the same week:
+
+| Check used | Readiness | Email stories | Areas covered | Estimated review time |
+|---|---|---:|---|---:|
+| Pattern-matching check | Pass | 4 | policy and access, pipeline, bariatric, cardiovascular | 16.5 min |
+| Entailment check | Partial confidence | 3 | policy and access, bariatric, cardiovascular | 10.8 min |
+| Entailment check plus reframing the story around confirmed sources | Pass | 4 | policy and access, pipeline, bariatric, cardiovascular | 13.5 min |
+
+Story counts are what the runner selected before human review.
+
+The stricter check didn't just make things faster. It cost us the pipeline area entirely, because the old retatrutide follow-up story's weekly sources didn't directly support its framing.
+
+But the set still held sources the check had confirmed as direct pipeline coverage. They were stuck under a headline that read like a workflow label: "Anti-obesity pipeline coverage needs primary trial sources."
+
+The sources were fine. The headline read like a to-do item.
+
+The fix was to form the story around the confirmed sources instead of preserving the earlier cluster headline. The findings note concludes that source volume was no longer the main bottleneck for that week, and that search providers shouldn't be asked to solve story framing or source-to-story mismatch. Targeted search stays as a fallback for when reframing can't cover a required area.
+
+## Reviewing decisions instead of paragraphs
+
+With the set built and checked, the review asks for a decision on each story candidate rather than edits to a paragraph: include in the email, keep for the archive, merge into another cluster, send back for more source work, or reject.
+
+I reviewed two of these runs in the review tool: a first pass that ended in a "pass with edits," and a clean rerun on the same window. Both drafts were approved as publishable by a person. The report for the clean rerun notes that the approved file is the human-approved draft, not raw pipeline output.
+
+The next post digs into that review step. Here, the point is narrower - by the time a person looks at anything, the arguments about which stories and which sources are already on the table as choices.
+
+## What changed in our approach
+
+Draft-first hid the problem because a fluent draft looks finished. Checking prose tells you whether the sentences are clean. It doesn't tell you whether the week's stories were the right ones, whether each source was dated inside the window, or whether the cited link supports the sentence next to it.
+
+Source-set-first moves those questions to the front, where they can be settled with dates, source families and explicit decisions. The prose comes last, and it only draws on what a person approved.
+
+In the next article, we'll look at what that review step actually asks of the person doing it.
