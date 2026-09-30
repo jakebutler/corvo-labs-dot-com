@@ -1,0 +1,125 @@
+---
+title: "The digest that won our blind review was built on sources covering 17% of our gold list"
+date: "2026-09-30"
+scheduledTime: "09:00"
+timezone: "America/Los_Angeles"
+description: "How the lower dB weekly digest went from three competing pipelines to one, and why the email that won had a thin pool of sources behind it."
+author: "Jake Butler"
+tags: ["source selection", "evaluation", "editorial workflows"]
+heroImage: "/images/blog/the-digest-that-won-our-blind-review-was-built-on-sources-covering-17-of-our-gold-list/hero.webp"
+heroImageAlt: "Cover image for The digest that won our blind review was built on sources covering 17% of our gold list"
+readTime: "8 min read"
+category: "research"
+featured: false
+status: "draft"
+---
+
+*How the lower dB weekly digest went from three competing pipelines to one, and why the email that won had a thin pool of sources behind it.*
+
+How do you know a digest is any good when all you've read is the digest?
+
+We found out the hard way. The version that won our blind review was built from a pool of articles that matched 17% of a 30-story gold set for the same week.
+
+## The stakes
+
+The lower dB is a patient-first newsletter about GLP-1s. Readers use it to understand access, safety, and what new evidence might mean for them, so a wrong or thin sourcing pass is a bigger problem for us than a broken build. It's also why we keep two actions separate: an automated run can prepare an edition for review, but a person publishes it, and sending it is a separate action a person takes.
+
+So when we had three pipelines that could each produce a weekly email, "pick the one with the nicest prose" wasn't a good enough way to choose. This is an editorial-process post, not health advice, and everything below is about how we chose our sources and format.
+
+## Three pipelines, one blind rank
+
+The three contenders for ISO week 2026-W27 (June 29 through July 5) were:
+
+- **Legacy**, our existing synthesizer.
+- **Digest V2**, a draft built on a set of 100 sources.
+- **Option B**, which fed a frozen packet of 100 collected articles (65 inside the week's window) into Valyu DeepResearch and asked it to draft the email.
+
+We kept the identities out of the room. Each pipeline's raw email body was labeled Pipeline 1, 2, or 3, the mapping from label to pipeline stayed hidden, and I ranked all three with no ties before anything was revealed. The review page was checked for leaks of the pipeline names before it went out. Agents handled the packaging and the runs; I did the reading and the ranking.
+
+The result:
+
+| Place | Pipeline |
+|---|---|
+| 1st | Option B |
+| 2nd | Digest V2 |
+| 3rd | Legacy |
+
+My notes said Option B had the best headline, summary, and why-it-matters prose. V2's reading lists, where a story links to several corroborating sources, were an excellent legitimacy feature. Legacy's longer summaries helped when a topic needed more description.
+
+That settled the format - Option B's prose plus V2's reading lists, with most summaries at one or two sentences and why-it-matters always one or two.
+
+## Format locked, sourcing not
+
+A winning email doesn't tell you what was left out. So we counted what each pipeline considered against what made it into the email for the same week:
+
+| Pipeline | Considered | In the email |
+|---|---:|---:|
+| Legacy | 15 scored clusters | 7 topics |
+| V2 | 100 sources, 11 story candidates | about 4 numbered stories |
+| Option B | 65 in-window articles, 41 in the model's input | 7 stories |
+
+Option B's pool was a closed one: the model was told to use only the articles we gave it. Our notes from that round point at three things about those pools: the closed set, a mix heavy on PubMed, SOARD, and KFF, and a 25k truncation. The date window was not the main failure.
+
+To measure it, I needed something to compare against. I used a 30-story list I pasted in from a DeepSeek chat as the benchmark for what the week's important stories were. It's an open-world editorial shortlist, not ground truth, and the notes flag that some items may bend the publish dates. Recall against it is a rough directional signal, not a measure of editorial quality, and keyword matches can be loose, so a hit doesn't always mean the same story.
+
+## Where Valyu comes in
+
+I first came across Valyu at an event on search and research with AI and LLMs. Option B had already used [Valyu DeepResearch](https://www.valyu.ai) once, as a synthesizer over our closed set. That first run in `standard` mode cost $0.50 and took about 13 minutes. The sourcing tests asked what happens if Valyu isn't handed our articles at all.
+
+The setup we tested looks like this. We ask for the top 30 developments for the ISO week, for two audiences (informed patients, and healthcare operators), and tell it to prefer primary sources and high-signal trade coverage while allowing other domains that carry the story. The answer comes back as structured JSON: rank, title, URL, domain, published date, audience, cluster, a one-line summary, and why it was selected. The plain version sets only a date window, scoped to US results. No domain preferences, no allowlist.
+
+That structured shortlist is the contract. It gives us something we can store and inspect before any email exists.
+
+## The arms we ran
+
+Every live run needed my explicit approval first, at about fifty cents each. Here's what came back:
+
+| Arm | Mechanism | Keyword recall vs gold |
+|---|---|---:|
+| Legacy | Scored clusters from production | 3% |
+| V2 candidates | The pool V2 drew its stories from | 27% |
+| Option B closed set | Curated articles handed to Valyu (recall measured on the whole in-window pool) | 17% |
+| Open web, plain | Open web, no domain preferences | 27% |
+| Open web, long preference list | Open web plus soft preferences for about 100 domains | 27% |
+| Open web, short preference list | Open web plus soft preferences for about 50 domains | 23% |
+| 20-domain allowlist | Restricted to 20 named domains, no open web | 10% |
+| Open web, tighter query | Open web, more tightly worded editorial query | 27% |
+
+One week (2026-W27), one benchmark, keyword matching against 30 stories. Read these as directional, not as a general claim about search tools. The V2 and Option B pools came from the same source collection, but V2's figure includes older items outside the week's window.
+
+The surprise was how little the clever versions bought us. Soft domain preferences didn't beat plain open search on recall. They moved the lead story toward a primary source: the long-preference-list run led with cms.gov where the plain run led with the Washington Post. Across all 30 stories I didn't see a clear shift, so I wouldn't lean on that. The tighter query tied plain open search at 27% and its domain mix got worse. Even the best arms missed most of the gold list, including several named pipeline candidates.
+
+The hard allowlist did what we expected on domains. The results snapped to CMS, KFF, JAMA, FDA, STAT, Lilly, and Endpoints. But some stories the benchmark wanted, like the TRIUMPH trial coverage, lived off the list.
+
+A 20-domain allowlist pulled results onto primary domains but cut recall to 10%. Plain open search reached 27%.
+
+Turns out a very trustworthy list of sites is also a very short list of sites.
+
+So the front door is plain open retrieval. The domain lists stay as an editor's checklist, not a crawl restriction.
+
+## The final blind round
+
+With sourcing chosen, we built the **rebuilt pipeline**: the frozen plain-open shortlist, converted to the hybrid email format. Then a second blind ranking, this time across four pipelines (the rebuilt one, V2, Option B, and Legacy), again with identities hidden until I locked it on 2026-08-17.
+
+| Place | Pipeline |
+|---|---|
+| 1st | Rebuilt pipeline |
+| 2nd | V2 |
+| 3rd | Option B |
+| 4th | Legacy |
+
+My notes from that round produced one editorial fix. In the rebuilt pipeline, the reading-list entries repeated the main summary. V2 had a good example of the alternative: different text for the topic and for its reading-list items. The rule we adopted is that reading-list entries show the link title and domain only. Legacy was last: lowest content quality, and too text-heavy to read and follow.
+
+## Shipping it
+
+In production, the weekly synthesis step makes one Valyu `standard` request for the edition's week, using the open-web setup above. Before anything is converted into an email, we store the raw shortlist, along with the Valyu task ID, the cost, and the retrieval time, on the edition itself. If a story looks odd later, we can look at exactly what retrieval returned.
+
+The edition lands in review. An automated run can't publish or send it. Publishing and sending are each explicit actions by a person.
+
+A production smoke run for 2026-W33 looked like this: 30 frozen stories, $0.50, about 16 minutes, it landed in review and was not sent. At one request per week, sourcing comes to roughly $26 a year (52 x $0.50, our arithmetic, sourcing only) if every week runs.
+
+We've since deleted the old synthesis path. If we ever need to go back, that's a git revert plus a normal deploy, not a runtime switch.
+
+## What's next
+
+As of this writing, rebuilding past unpublished weeks on this path is a separate piece of work and hasn't been done. The soft domain preferences aren't used at runtime, but they may come back as a light tuning knob later. And the benchmark is one week. I'd want more weeks before I trusted any recall number as more than a direction.
