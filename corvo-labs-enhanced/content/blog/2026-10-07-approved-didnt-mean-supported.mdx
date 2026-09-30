@@ -1,0 +1,130 @@
+---
+title: "Approved didn't mean supported"
+date: "2026-10-07"
+scheduledTime: "09:00"
+timezone: "America/Los_Angeles"
+description: "In May 2026, we found that a claim ledger can look reviewed while its evidence is thin."
+author: "Jake Butler"
+tags: ["claim validation", "evaluation", "human review"]
+heroImage: "/images/blog/approved-didnt-mean-supported/hero.webp"
+heroImageAlt: "Cover image for Approved didn't mean supported"
+readTime: "9 min read"
+category: "research"
+featured: false
+status: "draft"
+---
+
+*In May 2026, we found that a claim ledger can look reviewed while its evidence is thin. Fixing that meant splitting editorial approval from evidence checks, and keeping people in the loop for evidence repair and review.*
+
+Here's a question that sounds simpler than it is - when a claim in the ledger says "verified," what exactly was verified?
+
+For the lower dB, a newsletter about GLP-1 medications, we keep a ledger of factual claims and the sources behind them. In May 2026 we started asking that question of the ledger itself. This is the first post in a series about the automation we built around that work, and the short version of the series is that we were after safer automation, not unattended automation. This post covers where that came from. It's a process write-up, not health advice, and nothing here is a statement about any clinical claim.
+
+## A bulk review that looked productive
+
+On May 24 we ran a bulk review over the ledger. It applied decisions to 505 claims with no failed review or apply calls. The outcomes were mixed:
+
+| Decision | Claims |
+|---|---:|
+| Approved | 93 |
+| Needs follow-up | 212 |
+| Rejected | 200 |
+
+Seventeen of the approvals had confidence under 90%, so they went into a manual audit queue. The audit we ran the same day told us more.
+
+## The audit that changed the question
+
+We sampled 20 claims at random (a fixed seed, so the sample can be redrawn) and had an LLM judge score the 37 source links behind them, asking whether the stored passage actually supported the claim. Four of those scores came from judge outputs we couldn't parse, so those links went to human review instead.
+
+| Audit result | Links |
+|---|---:|
+| Stored passage below the 0.7 relevance bar | 37 of 37 |
+| Keep the current passage | 0 |
+| Replace with a better passage from the same source | 5 |
+| Find a better source | 28 |
+| Human review | 4 |
+
+Every link scored below the bar. The URLs looked plausible. The stored text often wasn't, and in 28 of the 37 cases the audit judged that we needed a better source altogether: in one case the passage was a cookie notice, in another a truncated table of contents, while a later section of the same page held exactly what the claim needed.
+
+Part of the cause was mechanical, and I'd call that the useful part. Most links needed a better source, but for the ones that didn't, source pages were being cut into fixed 1,400-character windows, so a passage could start or end mid-sentence and carry unrelated neighboring text. The stored excerpt was the first 700 characters of whichever chunk got picked, and the picking was done by a lexical overlap scorer with low support thresholds. A relevant page could be selected and an irrelevant opening excerpt saved as its evidence.
+
+So the problem wasn't one bad gate at the end. It was every stage.
+
+## Deciding to split two questions
+
+We wrote the decision down. Considered options were a final relevance gate only, better source discovery only, or a full redesign. We chose the redesign, because the audit had found failures across source discovery, source eligibility, fetch quality, passage selection, support judgment, the legacy "verified" state, and export gating. A final gate alone would catch bad evidence late without making the system more autonomous.
+
+The core of the decision is that editorial review and evidence sufficiency are separate questions. A claim that fails the evidence check keeps its editorial state. It's marked evidence-insufficient and blocked from export until repair or human review resolves it.
+
+We also wrote a shared evidence contract with two blunt rules. A source that merely mentions a topic never counts as support. And source tier alone is never enough, because every link between a claim and a source needs a judgment about the specific passage. The contract is still labeled a draft.
+
+## Counting honestly
+
+The first full dry-run of the export check, on May 25, blocked 87 publishable claims. Then we made sufficiency additive: weak links became warnings when enough qualifying support existed, while contradictions still blocked outright. After that fix the same kind of dry-run showed 37.
+
+It's tempting to draw a line through the counts that followed. Here they are, each with the gate that produced it:
+
+| Count | Which gate |
+|---:|---|
+| 87 | First full export dry-run |
+| 37 | After making sufficiency additive |
+| 44 → 50 | Before and after a stricter rule requiring support from more than one source type |
+| 47 | Dry-run after atom-level sources were applied |
+
+Don't. The 87 to 37 movement came from the additive sufficiency change. The 44 to 50 movement went the wrong direction on purpose: a stricter gate exposed risks the older one missed, and the blocker set was deliberately rebaselined. Our own handoff notes say not to compare counts without naming the artifact and gate version. I'd go further and say a blocker count on its own isn't a progress bar.
+
+One more guard from this stretch: exact-number claims. Model relevance judgments were too permissive when a claim carried a specific figure, so we added a deterministic check that blocks a supporting link if the passage doesn't contain the claim's numeric signals. I don't have an effect size for it.
+
+## Repair, routed by kind
+
+With 47 blockers on the last dry-run, we didn't run the same source search across all of them. The handoff's reasoning was that each kind of blocker needs a different fix, and a uniform search wastes time and creates false positives. Blockers were sorted into lanes first:
+
+| Lane | Blockers |
+|---|---:|
+| Bad extraction | 17 |
+| Wrong source attached | 9 |
+| Compound claim | 6 |
+| Candidate for a curated source list | 5 |
+| Weak source-class cluster | 5 |
+| Negative-evidence claim | 3 |
+| Exact numeric mismatch | 1 |
+| Stale source classification | 1 |
+
+Compound claims led to atoms: breaking a sentence into its individual assertions and storing evidence for each atom separately from evidence for the whole claim. In an offline simulation that overlaid atom sources on the export, the blocker count went from 50 to 47, clearing 3 claims with one added claim-source row and six atom-source rows. No writes were made to any live system. The report also says validation came back false after the overlay, so I'd read this as a design signal, not a fix.
+
+A separate replay of the atom ledger cleared 2 claims and kept 19 negative-evidence claims blocked. Absence needs explicit absence or uncertainty evidence, and omission never counts.
+
+## The combined overlay missed its bar
+
+We also tried combining several of the experiments into one overlay simulation on a dataset of 508 claims. Blockers went from 50 to 41, an 18% reduction, against an expansion threshold of 25 to 35%. Eleven approved controls got worse. A source-class calibration rule showed a 57% false-clear rate across 200 negative controls, and requiring agreement across search providers lifted accepted candidates only 1.02x over the strict setting.
+
+A later run that folded in human decisions started from a baseline of 48 and showed a smaller reduction:
+
+| Overlay | Blocked before | Blocked after | Reduction | Approved controls worse or newly blocked |
+|---|---:|---:|---:|---:|
+| Combined v2 overlay | 50 | 41 | 18% | 11 |
+| Later run, with human decisions applied (baseline 48) | 48 | 43 | 10% | 10 |
+
+The human pass here covered 28 decisions: 6 accepts and 22 rejects. The synthesis note's decision was: don't broaden the production implementation yet.
+
+## Human review became the development loop
+
+The part I'd most want another team to take from this is what happened with the LLM judge, the model we used to recommend accept, reject or rewrite on each claim's evidence.
+
+In the second repair round, a human reviewed 24 routed rows, with the judge's labels hidden in the review interface so agreement could be scored fairly. On the 21 comparable rows, exact agreement was 76.2% and binary agreement was 85.7%. There were two false accepts (9.5%). The write-up's conclusion was that the judge was useful for triage and queue ordering but not ready for autonomous migration approval or unattended auto-clear decisions.
+
+The disagreements became the tuning spec. In one, the judge had accepted a compound approval-and-coverage claim from atom-rollup context, and the human rejected it because the cited passages didn't directly support it. The tuning targets that came out of it: fail closed when an accept carries a blocking label, and never accept on the strength of a rollup or a source-pack match unless the same support appears in the passages a reviewer can actually see.
+
+By the fifth round, on a blind 20-row check where judge-only fields were kept out of the review pack, the tuned judge had 0.0% false accepts, 85.0% exact agreement and 90.0% binary agreement (only 3 of the 20 human labels were accepts, so read that as a small-sample result). Stable automatically blocked rows were 14 for 14. But rows that had changed into automatically blocked were only 2 for 5, with two false blocks, so promotion needed a carve-out for them.
+
+Part of that round was plain engineering. The first compact run without JSON output mode had 12 skips. JSON mode alone brought that to 9. Compact prompt, JSON mode, one parse retry and stricter accept safety together produced a usable result, and truncated output still fails closed.
+
+Then a reminder that "cleanup needed" isn't "ready." In the sixth round, none of five cleaned-up claims were ready to migrate. In the seventh, three of five were newly migration-ready, and three still needed human review.
+
+## Where this left us
+
+The last dry-run still blocked 47 claims, so it was not a green light for cutover. The plan for the next round of experiments writes its promotion bar down in advance: at least a 25% blocker reduction, no unreviewed regressions on approved controls, at least 90% precision on newly cleared claims, zero false support on negative evidence, and zero production writes. That series has per-loop run summaries, but no combined-overlay result or promotion decision on record, so I won't claim an outcome.
+
+What the raw traces and human labels changed was the design itself: the additive rule with strict contradictions, atom storage kept apart from whole-claim evidence, and the judge's safety rules.
+
+The next article looks at why the safer answer was never a single model call.
