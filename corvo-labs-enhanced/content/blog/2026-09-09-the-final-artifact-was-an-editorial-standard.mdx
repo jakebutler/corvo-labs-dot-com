@@ -1,0 +1,101 @@
+---
+title: "The final artifact was an editorial standard"
+date: "2026-09-09"
+scheduledTime: "09:00"
+timezone: "America/Los_Angeles"
+description: "The most durable thing we built for the lower dB weekly digest wasn't a model or a screen. It was a short document that says what a publishable digest is."
+author: "Jake Butler"
+tags: ["editorial standards", "human review", "editorial workflows"]
+heroImage: "/images/blog/the-final-artifact-was-an-editorial-standard/hero.webp"
+heroImageAlt: "Cover image for The final artifact was an editorial standard"
+readTime: "8 min read"
+category: "research"
+featured: false
+status: "draft"
+---
+
+*The most durable thing we built for the lower dB weekly digest wasn't a model or a screen. It was a short document that says what a publishable digest is.*
+
+What do you hand a reviewer when "this feels off" is the only feedback you can give?
+
+That was the gap. By early July we had a source-first workflow and human review rounds running. What we didn't have was a written answer to a plain question: what does a digest have to look like before a person should publish it? So we wrote one down. It's about fifty lines long, and it's the part of this project I expect to matter longest.
+
+This is an editorial-process post, not health advice. The lower dB covers GLP-1 topics, so a few examples touch medical subjects, but everything here is about how we decide what a digest looks like.
+
+## Why a document, not a better prompt
+
+The earlier parts of this series covered how the digest problem turned out to be about choosing sources and controlling editorial decisions, not about prose. The design record from the start of the rebuild says the same thing: the digest could pass its downstream checks while still selecting the wrong stories for readers. Fixing the upstream decisions got us to a workflow. It didn't tell anyone what a good finished email looks like.
+
+The risk was that every review round would re-argue taste from scratch. A written standard turns "I'd never send this" into a list of things you can check. The document we wrote is called the editorial draft quality bar. This post describes its 2026-07-08 version. It sets the baseline for drafts once the workflow reaches a human-reviewed draft. The workflow's model copy pass drafts against it.
+
+## What the standard requires
+
+I'll walk through it in the order the document does.
+
+**The email can't sound like our workflow.** The first rule is that the reader-facing email must not expose internal workflow language. The document lists the offenders: the labels an operator uses to talk about readiness and what to do with an item, plus the names of our own internal stages. Any of those in an email means the draft isn't ready.
+
+That produced a small irony. The first thing the standard bans is the vocabulary we used to build the thing.
+
+The source files say what changed but not the reason for this rule. The 2026-07-08 milestone note records that admin-facing fields were removed from reader-facing copy and that the old flat section layout was replaced with editorial clusters. It doesn't explain why in prose, so I won't invent a story. My own read is that a subscriber shouldn't have to learn our internals to read an email, but that's my judgment, not something the record states.
+
+**Every included cluster has the same four parts.** Each story cluster in the email renders as:
+
+1. A headline
+2. An editorial setup of one to three sentences
+3. A "Why it matters" section of one to three sentences
+4. A reading list with one short blurb per cited source
+
+The setup and the "Why it matters" must not repeat the same sentence. The document gives the reason for this one: the setup orients the reader to what happened, and "Why it matters" explains the implication for whoever it affects, whether that's patients, clinicians, payers, researchers, operators, or the market. If both sections say the same thing, one of them isn't doing its job.
+
+**The copy standard has a voice and models.** Drafts are supposed to start from the quality bar written down on 2026-07-08:
+
+- Subject and preview text that reads like a newsletter, not an artifact label.
+- A health and technology journalist's voice with a clear point of view.
+- Link blurbs modeled on concise newsletter sections, specific, short, and useful on their own.
+- Analysis that explains the second-order implication, not just the facts.
+- Headlines that name the story rather than the workflow task. Clear enough to scan, specific enough to say why the cluster exists.
+
+The document doesn't say why it picked those particular models, and I'm not going to guess. What it does give is a test you can apply to a blurb - could someone read it alone and learn something?
+
+**Housekeeping decisions stay out of the email.** Items that don't make the email land in a separate review appendix. The standard says plainly that the appendix isn't reader-facing copy. It exists to preserve a person's editorial decisions and answers only four questions: archive it, merge it into a cluster, do more source work, or discard it. Once approved, those decisions stand as the final call for that round unless someone explicitly reopens them.
+
+## The validation checklist
+
+The last section is the one that's closest to a gate. A draft isn't publishable unless:
+
+- It includes exactly the clusters a person approved for the email, no more and no fewer.
+- It uses only the sources attached to each included story.
+- It contains no blocked domains.
+- It contains no known unsupported reader-facing terms.
+- It keeps admin-only metadata out of the reader-facing text.
+- It labels background or context sources as background in the reading list.
+
+Most of these are things a program can check. The document doesn't spell out the reasoning behind each line, so I'll only say what each one does. The first line matters most to me. The email contains what a person decided, not what a model preferred.
+
+There's a fallback clause too. If the model's copy pass fails validation, a simpler deterministic version is acceptable as a safe floor for the draft. The document also says production quality should keep improving until the model pass can meet the standard directly. So the fallback is a floor, not a goal.
+
+## How it gets used in review
+
+The standard doesn't replace the person reviewing. It shapes what they're looking at.
+
+In the July 8 round, a person reviewed the draft and gave a verdict of pass with edits in 12.5 minutes. Review validation and draft validation both passed, and I approved the final draft as publishable: five email clusters, six items in the appendix. The milestone note records what changed to get there, including validation and fallback behavior so the draft respects human decisions even if the model's copy pass fails.
+
+In the clean rerun on the completed window of 2026-06-29 through 2026-07-05 (publish target 2026-07-06), review took 10.19 minutes. The reviewer made 11 of 11 decisions: four for the email, three marked for more source work, one merged, three rejected. The review also turned up a source dated 2026-07-06, the day after the window closed, sitting inside a cluster. Because that cluster was marked for more source work, the final draft left it out of the email.
+
+Two notes on that round. First, the approved file matches the generated draft apart from an approval header. Second, the report notes the draft generator was updated during the round to use more cautious clinical wording for trial, pharmacology, and meta-analysis sources.
+
+In July, the round-end note said the workflow was ready to promote as the production path for the digest and backfill process. That's a statement about the workflow shape, and it sits on top of a person deciding what goes out.
+
+## The review screen was the same idea
+
+The redesign of the admin review screen followed the same logic, so I'll include it here. The design record from 2026-07-06 describes the old screen as a repair shop for generated prose. The failure it names isn't "the draft needs copy edits." It's that the system chose the wrong stories, surfaced coverage gaps late, and made the editor hunt through implementation detail to see why publishing was blocked.
+
+The team prototyped three approaches: a decision-first cockpit, a coverage matrix, and an assembly-line view. We kept the decision queue from the first, the coverage table from the second, and the assembly view only as an audit screen. The accepted direction organizes the page around questions: what needs my attention, did we find the right stories, what will readers see, what should we update, and what happened in the pipeline.
+
+I'd describe that as the same standard, expressed as an interface. The quality bar says what a finished email must contain. The screen says which decisions a person makes before that email exists.
+
+## What I take from this
+
+I'll be direct about the takeaway. A model will change. A screen will get redesigned. The written bar is what lets either one be judged, swapped, or fixed without starting the taste argument again. It also does something less obvious: it tells the model, the validator, and the reviewer the same thing, so a disagreement becomes a specific line in a document rather than a mood.
+
+The bar isn't finished and doesn't claim to be. It states outright that model copy should improve until it can pass directly, and it requires that the email contain exactly the clusters a person approved. If you're building an AI-assisted editorial workflow, my suggestion is to write the bar down early, put the checkable parts in code, and leave the judgment calls to people.
