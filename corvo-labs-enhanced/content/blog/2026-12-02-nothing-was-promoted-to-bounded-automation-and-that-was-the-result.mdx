@@ -1,0 +1,106 @@
+---
+title: "Nothing was promoted to bounded automation, and that was the result"
+date: "2026-12-02"
+scheduledTime: "09:00"
+timezone: "America/Los_Angeles"
+description: "Where each class of claim-resolution automation landed after the July 2026 experiments - report-only, human-gated, or not promotable, and why."
+author: "Jake Butler"
+tags: ["human review", "release boundaries", "evaluation"]
+heroImage: "/images/blog/nothing-was-promoted-to-bounded-automation-and-that-was-the-result/hero.webp"
+heroImageAlt: "Cover image for Nothing was promoted to bounded automation, and that was the result"
+readTime: "9 min read"
+category: "research"
+featured: false
+status: "draft"
+---
+
+*Where each class of claim-resolution automation landed after the July 2026 experiments - report-only, human-gated, or not promotable, and why.*
+
+What did we actually promote?
+
+That's the fair question to ask after four posts about pilots, dark launches, and human labels. The short answer, on our reading of the notes: no class of model-driven decision earned bounded automation in July 2026. Some things moved forward as report-only proposals. Some moved forward with a person making the final call. A few were ruled out by name. This post lays out which is which, and what each call rested on.
+
+A note on scope. This is a process post about how we build and test tooling around the lower dB claim ledger. It isn't health advice, and none of the numbers below measure how good the ledger's content is.
+
+## The status table
+
+Here's the summary. The grouping is mine: the readiness note itself sorts work into "ready now," "dark launch only," and "blocked," so I've mapped those onto three plain terms. "Report-only" means a model proposes and nothing acts on it. "Human-gated" means a person makes the final decision. "Bounded" would mean a narrow class handled automatically once it met its safety thresholds. Nothing reached that last row.
+
+| Class | Where it landed | Main reason |
+|---|---|---|
+| Model proposals for scope, evidence relationship, and pair type | Report-only / dark launch | Proposals were useful to study, but no reviewed positive controls established a safe automated lane |
+| Direct contradictions | Human-gated | No direct contradiction turned up in either production pair sample, so the false-direct rate can't be estimated |
+| Typed conflict resolution by an editor | Ready for normal review and deployment, with classifier automation left off | A person picks the relationship; the system refuses to let a direct contradiction be acknowledged as publishable |
+| Bounded automation, any class | Nothing approved | No class had the reviewed positive evidence needed to be considered |
+| Anecdote auto-accept, evidence auto-verification, model-driven contradiction blocking, model-driven scope/time/modality resolution, self-modifying prompts or thresholds | Blocked | See below |
+
+## What "report-only" meant here
+
+Report-only is the least dramatic status, and it's where most of the model work sits.
+
+The constructed pilots in early July made the case for decomposing the decisions. On 42 synthetic assertion-scope fixtures, a guarded, factorized pipeline scored 90.5% against 76.2% for one holistic prompt on the same model, with zero false auto-clears instead of two. On 12 entailment cases, factorized reached 83.3% against 58.3% for a scalar version. On 21 constructed pairs, a typed assessor scored 85.7% and cut false direct contradictions from three to zero, compared with 28.6% for token and negation logic.
+
+Those are constructed fixtures. The pilot summary says outright that none of the three is promotion-grade. It also flagged a practical problem: the factorized entailment output matched the requested schema only 41.7% of the time.
+
+Then we ran the same ideas on production-derived samples, with no production writes. Those numbers are proxies, not accuracy, because no human had labeled those rows yet. The 150-claim assertion-scope sample was almost entirely factual, and it produced no safe auto-clears, because the claim-only snapshot had no original source text or provenance record for the deterministic policy to check. The entailment run disagreed with stored relationships on 91 of 150 edges and sent 133 to the safety queue. That's a review set, not a count of wrong edges. A deterministic repair took schema validity from 90.67% to 100%, and the safety queue stayed at 133.
+
+The smallest run was a read-only report-only pass on real conflict pairs. No model was called; it covered two pairs that had no typed proposal, none were reviewed, and the promotion report's recommendation was "none," with a note that no reviewed positive controls established a safe automated lane and all model proposals should stay report-only.
+
+As promotion reports go, that one is refreshingly easy to read.
+
+## What "human-gated" meant here
+
+Two things sit in this category, and they're different in kind.
+
+The first is a change to how people resolve conflicts. The readiness note calls the typed reconciliation and structured human-resolution slice ready for normal review and deployment. It records explicit left and right claims, a typed relationship, a rationale, and scope differences. It derives the disposition on the server. It won't let a direct contradiction be acknowledged as publishable. And it fails closed for classifier results. The classifier automation switch stays off, and the note says no production path enables it. I'd put the emphasis there: the thing that was ready for review and deployment was the interface for humans, not the model.
+
+The second is the direct-contradiction class. The pilot summary says to keep proposed direct contradictions human-gated until their held-out false-direct bound meets policy. The readiness note lists the model-driven version of this under "blocked"; "human-gated" is the pilot's label for the same rule. We couldn't test that bound. The 150-pair production sample had zero direct contradictions. A targeted supplement of 50 more pairs, built from open production conflicts plus modality-cue candidates, also found none, and none of the time-difference or modality-difference positives either. The exposed read path doesn't list resolved conflict history, so we couldn't pull positives from the past. The notes say the ledger needs explicit left and right claim-version references and a read-only export of resolved reconciliations before those classes can be calibrated from production.
+
+"No direct contradictions found" is not the same as "direct contradictions handled." It's the same as "we haven't seen one yet."
+
+## Why nothing reached "bounded"
+
+The human calibration is where bounded automation would have had to prove itself. It was an 80-row pack across four tasks, with the machine answer visible but never preselected. Here is what it said, by task.
+
+| Task | Rows | Agreement with human labels | Risk that matters |
+|---|---:|---|---|
+| Assertion scope | 23 | 23 of 23 | Not estimable: no auto-clear candidates, and the labels were only factual (21) and aggregate (2) |
+| Community provenance | 17 | 1 of 17; machine covered 2 of 17 | False auto-accept not estimable |
+| Entailment | 23 | 14 of 23 | Both high-confidence full-support proposals were rejected by the reviewer |
+| Pair compatibility | 17 | 12 of 17 overall; 12 of 15 where the output mapped | False direct contradiction not estimable |
+
+Look at the last column. On three of four tasks, the risk we most care about couldn't be estimated, because the pack held no examples of the thing that would go wrong. Perfect agreement on assertion scope sounds like a green light. It isn't one. The slice had no individual-report or mixed examples, so it says nothing about the classes where a mistake costs the most.
+
+Entailment is the opposite case, and the calibration report says plainly that auto-verification is unsafe. Two rejected proposals is a tiny sample, so I read it as a warning rather than a rate. The reviewer notes also point at a repeatable cause, but only as a triage signal: they matched a "source span missing material the claim depended on" pattern 21 times. That count is not a prevalence estimate.
+
+The calibration's decision was to not promote any reviewed classifier to an unbounded production auto-accept or publish-blocking role. What the labels can do is more modest. They can inform bounded routing rules, deterministic exclusions, retrieval repairs, and the next held-out experiment. And they can't do double duty: the report says not to train and report on the same 80 rows.
+
+## What stayed blocked, and why
+
+The readiness note lists five things that must not run in production automation:
+
+1. Anecdote auto-accept. The machine covered 2 of 17 community-provenance rows, and the sample that lacked source text couldn't test the gate at all.
+2. Entailment-driven auto-verification. Both confident full-support calls were wrong.
+3. A model auto-blocking on direct contradiction. We haven't seen a real positive to test against.
+4. A model auto-resolving scope, time, or modality differences. Same gap: no positives in the samples.
+5. Self-modifying prompts, policies, or thresholds. Human labels should become versioned evaluation data, not rules that rewrite themselves.
+
+I'd add one from the pilot summary - raw self-reported model confidence isn't a routing threshold. The pilots called it uncalibrated.
+
+## What this doesn't tell you
+
+Some claims would be easy to make from this work, so here is what we don't have.
+
+- No production accuracy figure. Every production number above is a proxy.
+- No evidence of time or cost saved. The report-only run's time-saved column reads "unavailable."
+- No evidence the pilot gains transfer to another model. Each pilot compared its variants on a single model, and none tested a second one.
+- Small, narrow gold. Eighty rows, four tasks, and one of the 80 labels came from a message rather than the review interface.
+- No unattended automation is approved or running. Even the ready-now slice puts a person at the decision.
+
+## What the work did produce
+
+It produced a way to keep a rollout honest. Candidate generation stayed separate from final decisions. Raw traces and manifests stayed alongside the model runs, and the production-derived run manifests carry hashes. Production-derived samples were tested without production writes, apart from read-only acquisition of public community records and open conflict records. Human review became calibration data. And classes without held-out positive evidence weren't promoted.
+
+The documented next steps are modest. Watch at least two representative weekly-digest cycles while auditing every typed resolution. Compare review time, false conflict blocks, disagreements with the legacy path, and override usage. Confirm the 20-case held-out design, which is a draft awaiting domain confirmation. Acquire real positive controls. Then run a separate promotion experiment before enabling any model-driven lane.
+
+I'll take an answer of "nothing yet" over a promotion we couldn't defend. When a class does earn one, it should be because we saw the thing it might get wrong.
