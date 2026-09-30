@@ -1,0 +1,103 @@
+---
+title: "The digest was cited and still wrong"
+date: "2026-07-15"
+scheduledTime: "09:00"
+timezone: "America/Los_Angeles"
+description: "Our weekly digest passed its fact-check and still missed the stories readers needed. Grounded and useful turned out to be two different tests."
+author: "Jake Butler"
+tags: ["editorial workflows", "evaluation", "source grounding"]
+coverImage: "/images/blog/the-digest-was-cited-and-still-wrong/hero.webp"
+coverImageAlt: "Even with all the right equipment, sometimes you still miss the mark."
+readTime: "8 min read"
+category: "research"
+featured: false
+status: "published"
+---
+
+*Our weekly digest passed its fact-check and still missed the stories readers needed. Grounded and useful turned out to be two different tests.*
+
+How do you catch a digest that is wrong when it passes its own fact-check?
+
+That was the problem in front of us. The weekly digest for the lower dB, which covers GLP-1s and obesity treatment, had citations. The fact-check passed. The claim check was answering whether the draft matched the sources it had picked, and it did. The edition was still off-mission.
+
+This is the first in a series of posts about how we rebuilt that workflow. It starts with the failure, because the failure changed what we thought the problem was.
+
+## What the first workflow did
+
+The original setup started from a rolling pool of sources. It scored clusters of items on recency, authority, relevance, and engagement, then wrote sections from the top of the pile. The digest window was 14 days, even though the product was a weekly digest. Source authority was mostly judged by source name or category, so an unknown website could score well enough to compete with a regulator or a major journal.
+
+Around that sat plumbing we liked and kept: source health reporting, claim extraction, a claim ledger that can block publishing on material conflicts, and a separation between publishing and sending. Automated runs prepare an edition. A person reviews it and decides.
+
+The edition we tore down covered the week of June 21 to 27, 2026, and it was sitting in review. The written adversarial review of it is dated July 2, 2026.
+
+## Cited, supported, and off-target
+
+The review's verdict on the edition was blunt - it wasn't merely rough, it was off-mission. Here are four examples:
+
+- The lead story was an FDA approval for a thyroid eye disease drug. It may be a legitimate biopharma story. It isn't a GLP-1, obesity-treatment, cardiovascular, bariatric, access, or patient-experience story, which is the territory readers come to the digest for.
+- A generic weekly item about a pharma acquisition and China had made it in with little direct relevance.
+- A UK oral Wegovy item appeared to be sourced from a site that was not a regulator, the manufacturer, a major wire service, or a trusted medical trade outlet. For a regulatory access item, that's the wrong citation of record.
+- The patient-experience section leaned on isolated anecdotes rather than a synthesis of what patients were reporting, with no explanation of what those anecdotes do and don't prove.
+
+Meanwhile, the review listed stories the digest should have been built to catch:
+
+| Missed story | Why it belonged | Where it sat |
+|---|---|---|
+| Medicare GLP-1 Bridge (CMS) | Access policy: eligible Part D beneficiaries could obtain certain GLP-1 medications for weight management at $50 per month through 2027 | Announced 2026-07-01, just after the week's window, while the edition was still in review |
+| FDA concerns about unapproved GLP-1 drugs | The agency was warning patients and clinicians about unapproved products, compounding risks, and dosing errors | No date given in the review |
+| Bariatric surgery declining as GLP-1 use rises | Squarely in the bariatric-treatment lane; a Harvard summary of new claims-data research | Covered 2022 to 2024 in a claims dataset |
+| Retatrutide phase 3 results from Lilly | A high-signal pipeline event | Reported 2026-05-21, just outside a 30-day lookback from July 2 |
+
+I'll keep the language careful here. These are examples of the kind of story the product had to catch, not a complete news roundup, and nothing in this post is health advice. It's an editorial-process story.
+
+One sentence from the review captures it: the fact-check passed while the digest was still editorially wrong.
+
+## Two questions, only one asked
+
+The claim check was actually answering the question 'is this draft supported by the sources it selected?'
+
+That's a useful question. It's the one you want a safety gate to ask, and the claim ledger did find blocking conflicts and follow-up needs on that edition. But it never asked the other one: did we select the right stories for these readers?
+
+The fact-check and the gap checks both ran after selection. By the time the gate ran, a weak draft already existed, and all the gate could do was add review burden to it. The problem wasn't the writing either. Our redesign notes are explicit that the failure was not "the draft needs copy edits." It was that the system selected the wrong stories, didn't expose coverage gaps early enough, and made an editor hunt through implementation details to understand why publish was blocked. Better prompts for the writing step would have been polishing the wrong end of the pipe.
+
+## The second failure - dates we couldn't see
+
+One hypothesis was that we needed better search. So we ran a search bakeoff for the same week, with an explicit discovery window of June 21 through June 27, 2026. We'll get into the provider comparison in more detail in a future post. The part that matters here is the first run, which we later called invalid as an eval.
+
+It returned 505 raw results, 383 after removing duplicates. I started reviewing a blind queue of 40 of them, and stopped after the first 10 rows, because none were usable for a weekly digest. Nine were useful background but outside the date window. One was stale. None were in the window.
+
+The cause was upstream, and the lab book says exactly where. Brave's raw results carried a page age for all 159 of its rows, and all 159 fell inside the requested window, but our normalizer ignored the field. LangSearch had been asked for one week of freshness, but its raw date fields were empty. Firecrawl had been given a date-constrained query and returned no structured date fields at all.
+
+So we had asked for the week's news, and we couldn't verify from the results what had come back. A freshness request is a hope, not evidence. The lab book's conclusion is the one I'd underline: downstream LLM judging and human review cannot rescue an upstream freshness failure.
+
+After that we stopped treating "recent" as a property a search box could hand us. Date evidence became a field with a kind (a publication date, a date in the URL, a provider's page age, a crawl date, or nothing), and only a publication date or a date in the URL counted as strong enough for a weekly digest. Page age or crawl date alone counted as provisional. We'll get into that later in the series.
+
+## The judge that liked everything
+
+There was a second trap in the same experiment. We used an LLM judge to score the candidates, and by the third run the pool was small: nine strictly in-window candidates. The judge passed all nine on all five dimensions: editorial relevance, materiality, citation usability, usefulness to our article library, and patient-safety framing.
+
+Nine for nine, five dimensions each.
+
+In that same strict pool, anchor recall, meaning how many of our four anchor stories the search found, was one of four.
+
+We didn't read the perfect score as a win. The lab book calls the 100% pass rate "a warning sign, not a success metric," and treats the judge as a control rather than editorial truth. A judge that can't tell a good weekly pool from a thin one is a fine diagnostic and a poor editor. The human labels stayed load-bearing.
+
+## What grounded does and doesn't buy you
+
+Citations answer one question - where did this claim come from? They can't answer whether it was the right claim to make that week, for this audience, from a source that should carry it, inside a date window someone can check.
+
+It's easy to blur these when you're building with language models. Our workflow was grounded and still chose badly, and the only checks in place were pointed at the first question.
+
+That gave us a working list of what had to move upstream of the prose:
+
+- **Explicit date windows.** Stories have to prove they belong to the week, and a "since the cutoff" check has to exist for news that lands while an edition is still in review.
+- **Curated source families.** Regulators, journals, trial registries, and company newsrooms should be fetched deliberately for anything that is regulatory, clinical, safety, or numeric, not hoped for through search.
+- **A check that a story is actually supported by its sources,** before anyone reads a paragraph.
+- **A person with a fast, structured way to say yes, no, or not yet.**
+- **A written standard for what reaches readers.**
+
+Those became the rest of this series. In the later rounds, the automated runs prepared the material and a person reviewed it, and the digests we called publishable were ones a person had approved. I'd rather be plain about that than make it sound like the automation got us there alone.
+
+The takeaway from this first stretch is small and a little uncomfortable. If a digest can pass its own checks and still miss what readers needed, the checks are measuring the wrong thing. Citation grounding is necessary. It isn't sufficient.
+
+Stay tuned for the topic for our next article...why a good search api still isn't an editorial strategy.
