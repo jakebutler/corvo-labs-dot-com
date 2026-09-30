@@ -1,0 +1,101 @@
+---
+title: "Production samples changed the story"
+date: "2026-11-04"
+scheduledTime: "09:00"
+timezone: "America/Los_Angeles"
+description: "Our constructed pilots looked encouraging. Then we pointed the same ideas at real ledger data, read-only, and learned what the pilots couldn't show us."
+author: "Jake Butler"
+tags: ["evaluation", "production samples", "human review"]
+heroImage: "/images/blog/production-samples-changed-the-story/hero.webp"
+heroImageAlt: "Cover image for Production samples changed the story"
+readTime: "9 min read"
+category: "research"
+featured: false
+status: "draft"
+---
+
+*Our constructed pilots looked encouraging. Then we pointed the same ideas at real ledger data, read-only, and learned what the pilots couldn't show us.*
+
+What should a dark launch be allowed to tell you?
+
+I think it should be allowed to disappoint you. In July 2026 we ran three claim-resolution ideas against production-derived samples: whether a claim describes a personal experience or a general fact, whether a source really supports a claim, and whether two claims actually conflict. The constructed pilots we'd run beforehand had looked encouraging. The production samples were less flattering, and more useful for it.
+
+A note on what kind of evidence this is. Three kinds are in play across this series, and I want to keep them apart. The constructed pilots used synthetic fixtures. The dark launches in this post used frozen samples drawn from real data. Human-labeled gold comes later, in the next post. Nobody had labeled anything in the samples below, so every number here is a proxy for workload and distribution. None of it is accuracy.
+
+## Why the dark launch made no production writes
+
+The whole round made no production writes. That was the point of calling it a dark launch: run the proposed machinery against real inputs, look at what it would have done, and change nothing.
+
+The only production access was reading. Where our local snapshots lacked data a test needed, we ran read-only queries against production for public community posts and for open conflict records. The community runner had no mutation or action path at all. We also froze the inputs and recorded hashes of the snapshots and sample sets, so a later reader can check that the run used the inputs we say it did.
+
+That is why I count the read-only acquisition as part of the evidence trail, not a footnote to it. When a sample turns out to be missing something, how you went and got the missing piece matters as much as what the piece showed. I'll come back to that.
+
+## What each sample showed
+
+| Task | Sample | What came back |
+|---|---|---|
+| Assertion scope | 150 claims from a frozen ledger snapshot | 143 factual, 3 aggregate, 3 mixed, 1 proposed individual report; 0 auto-clears; 86 rows in the uncertainty queue |
+| Assertion scope, missing class | 50 public community items, read-only | 32 proposed individual reports, 7 mixed, 5 insufficient, 5 factual, 1 aggregate |
+| Entailment | 150 claim-to-source edges | 20 full support, 21 partial, 54 mention, 54 unrelated, 1 contradiction; 91 of 150 disagreed with the stored relationship; 133 of 150 sent to review |
+| Pair compatibility | 150 claim pairs | 110 insufficient comparability, 21 refinement, 17 scope difference, 2 duplicate, 0 direct contradiction |
+| Pair compatibility, targeted supplement | 50 pairs from open production conflicts and modality cues | 19 scope difference, 11 refinement, 1 duplicate, 19 insufficient; 0 direct contradiction, 0 time update, 0 modality difference |
+
+Read down the right-hand column and a pattern shows up. The interesting classes are the ones that are missing.
+
+### Assertion scope - the risky class wasn't in the sample
+
+The 150-claim sample was drawn proportionally from a frozen 508-row ledger snapshot, after excluding demo and smoke rows. It was overwhelmingly factual. The one claim the model proposed as an individual report looked aggregate on inspection, so it went to the review queue, not into a positive column.
+
+Two more problems turned up. The model's attribution-form field came back as "explicit" for all 150 rows. A field that never varies can't be used, so we excluded it from the review recommendation. And the ledger snapshot held claim text but not the original source text or a record of where an anecdote came from. Without those, the gate we wanted to test for personal-experience claims had nothing to check. The deterministic policy correctly cleared zero rows. Model confidence was not a substitute for the missing inputs.
+
+So we went and got them. A read-only query against the production community cache returned 2,207 recent rows, of which 2,204 were usable public rows. We snapshotted the newest 50, each with complete public provenance. That sample was full of the class the claim-only sample lacked: 32 proposed individual reports. Of those, 29 passed the provenance, non-advice, and privacy checks, and 3 went to safety and privacy review.
+
+I want to be careful about what "passed" means. Complete provenance means we can establish that a public report exists and preserve its exact text. It doesn't verify that the described experience happened, establish causality or how common it is, or make a post clinical evidence. This is a process post, and that boundary is part of the process.
+
+### Entailment - a review set, not an error rate
+
+The entailment run covered 150 edges sampled from 1,786 in the ledger. The proposed relationships disagreed with the stored ones on 91 of 150 rows (60.67%). It is tempting to read that as "60% of our stored edges are wrong." The stored relationships are a weak baseline that we already knew contained weak and incorrect links, so the disagreement is a prioritized set of rows for humans to look at, and the run's own write-up says it is not an accuracy estimate. Some of that disagreement may be the model correcting the ledger. Some may be the model being wrong. We can't tell which yet.
+
+One number I'd point at is the contradiction row. The stored baseline had 21 contradictions; the model proposed 1. Some stored contradictions may be false. The model may also simply under-detect them.
+
+Then there was the schema. Full schema validity on the production run was 136 of 150 (90.67%). The constructed pilot, 12 synthetic cases, had 5 valid (41.67%). Production was higher, but that compares a tiny fixture set to a real sample, and 90.67% is still below the standard for a machine to act on. Fourteen outputs used free-text scope aliases where the schema wanted fixed values. A deterministic normalization step repaired those 14 without changing the relationship, confidence, atom coverage, flags, or rationale, using no model retries, and validity went to 100%.
+
+Here's the part that keeps me honest: the review queue stayed at 133 of 150. Repairing the format fixed the plumbing. It didn't touch the judgment calls, and the judgment calls were what needed people.
+
+### Pair compatibility - no direct contradictions to find
+
+The 150-pair sample came from three sources: pairs the current lexical negation heuristic flagged, pairs sharing an entity or scope cue, and 30 deliberately non-comparable controls. The result: zero direct contradictions. The 50 pairs from the negation heuristic produced none, which is strong evidence, though not proof, that opposite negation plus word overlap belongs in candidate generation and shouldn't be trusted to block anything. The entity-only retriever was too broad: 65 of 70 selected pairs were assessed as insufficiently comparable.
+
+We didn't take that zero as good news, and the next section explains why.
+
+## Why missing positives matter as much as false positives
+
+The pair result has two readings. Either the ledger contains no direct contradictions, or our samples couldn't find any. A zero in the "predicted direct contradiction" column supports neither. Both write-ups say as much: an empty direct queue gives no production-derived positives to validate precision or review behavior, and you can't infer a zero false-direct rate from it.
+
+So we tried to go get positives. A targeted supplement inspected open conflict records from production, recovered 29 unique pairs, and added 21 pairs picked by differing modality cues. Result: no direct contradictions, no time updates, no modality differences. The 29 open-conflict pairs came out as 12 scope differences, 5 refinements, and 12 insufficiently comparable. The supplement's own summary calls it a failed positive-set acquisition "in the useful experimental sense", and I agree with that framing.
+
+By the typed assessor's read, none of the 29 open conflicts were direct contradictions.
+
+We didn't manufacture labels to fill the empty classes. The exact blocker was in the data model: the read API doesn't enumerate resolved conflict reconciliations, and a pair's second claim was recoverable only when a free-form field happened to encode it. A durable pair assessment needs explicit left and right claim-version IDs. As of that July work, the ledger could not supply that history, so we could not measure how any automation performs on true direct contradictions.
+
+A report-only comparison on two real article-conflict pairs in July ended in the same place. Neither pair had a model proposal, zero rows were reviewed, and the recommendation was none, because no reviewed positive controls established a safe automated lane.
+
+## What this means for promotion
+
+A claim that a classifier does well on a class is only checkable if the class has positive examples. Where one didn't, we didn't promote it. The July readiness review kept model-driven resolution out of production entirely, and no stratum was approved for bounded automation. The classes it blocked:
+
+- Anecdote auto-accept: the claim-only sample cleared zero rows, and the community sample was unlabeled. The human-labeled pass, covered in the next post, found too little positive evidence to estimate the risk.
+- Entailment-driven auto-verification: the review queue held 133 of 150 rows, and human labels were needed before any edge rewrite. The next post covers what those labels showed.
+- Direct-contradiction auto-blocking from a model: no direct positives in either pair sample, 0 of 150 and 0 of 50.
+- Scope, time, and modality auto-resolution from a model: no time or modality positives in the supplement, and no qualifying time-update pair in the snapshot.
+- Self-modifying prompts, policies, or thresholds.
+
+Model confidence was also kept out of routing policy.
+
+What did advance was smaller and less exciting: the strict output format, the deterministic guards, and the routing of uncertain rows to human review, as inputs to human adjudication. Everything here stayed candidate-only or report-only, with people making the final calls. I'd take a slow queue over a wrong auto-clear.
+
+## Limits
+
+Everything above is unlabeled, so every count is a proxy for how the machinery behaves on real data. Every sample is small next to the ledger; the 150-pair sample touched roughly 42% of eligible unique claims, but only a tiny slice of possible pairs. The runs used a small set of hosted models, and nothing here shows the approach transfers to others. Nothing here shows the models got more accurate in production. Cleaner output format did not shrink the review queue.
+
+In the next piece, we'll turn to the people who labeled the machine's proposals and what those labels changed.
