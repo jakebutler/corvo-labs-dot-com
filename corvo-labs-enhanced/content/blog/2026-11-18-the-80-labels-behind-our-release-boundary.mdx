@@ -1,0 +1,105 @@
+---
+title: "The 80 labels behind our release boundary"
+date: "2026-11-18"
+scheduledTime: "09:00"
+timezone: "America/Los_Angeles"
+description: "What do you do once a pipeline can propose an answer for every row, but you have no idea how often it is right?"
+author: "Jake Butler"
+tags: ["human labels", "evaluation", "release gates"]
+coverImage: "/images/blog/the-80-labels-behind-our-release-boundary/hero.webp"
+coverImageAlt: "A paper raven cartographer draws a copper boundary where observations end on a partly completed map."
+readTime: "8 min read"
+category: "research"
+featured: false
+status: "published"
+---
+
+*Machine proposals are cheap. What made them usable was a small pile of human decisions, and what those decisions said about where we could not trust the machine yet.*
+
+Part 4 of a series on claim-ledger automation.
+
+What do you do once a pipeline can propose an answer for every row, but you have no idea how often it is right?
+
+That was where we were in July 2026. The earlier dark-launch runs had shown us distributions and review burden on real ledger data. They had not shown us accuracy on real data, because no production row had a human label yet. Every production number from those runs was a proxy. To get past proxies we needed humans to decide, row by row, what the right answer was, and we needed to do it without nudging the reviewer toward the machine's answer.
+
+So this post is about a small human review, and about how the result supported the boundary for what could ship. It is not a story about automation getting approved. Nothing was.
+
+## How the pack was built
+
+The review set was 80 rows across four tasks:
+
+| Task | Rows |
+|---|---|
+| Assertion scope (what kind of claim is this?) | 23 |
+| Community provenance (is this an eligible individual report?) | 17 |
+| Evidence entailment (does the source span support the claim?) | 23 |
+| Pair compatibility (do these two claims actually conflict?) | 17 |
+
+The selection was deterministic. Rows were chosen by hashing, in what the build manifest calls "minimum-sufficient stratified slices," so the selection is meant to be reproducible and we can show which inputs they came from. The candidates were drawn from the review queues, random-audit samples and safety queues of the earlier dark-launch runs, plus a small supplement of open production conflicts. The pack itself is hashed, and so is every input.
+
+"Minimum-sufficient" is a fair description and also a warning. Eighty rows is small. Splitting them four ways leaves 17 to 23 rows per task. Keep that in mind for everything below.
+
+## The review screen showed the machine's answer and refused to preselect it
+
+The review interface shows the machine's proposal next to each row. The panel is labeled as visible for calibration and never preselected as the reviewer's answer. The reviewer picks from the task's choices (four options per task) with the number keys, can defer a row, undo, and export the decisions.
+
+Two design choices are in that sentence, and they pull in different directions. The reason to show the proposal but not default to it is simple. A default turns a review into a rubber stamp. If the machine's answer is already highlighted, agreement gets cheap, and an agreement rate stops meaning anything. Agreement was one of the numbers we were going to read, so that mattered.
+
+## From decisions to gold
+
+The 80 decisions were validated against the pack before they counted as gold: 80 unique decisions, every one belonging to the pack, each matching its task and choosing one of that row's offered options. The gold set records hashes for the pack and the two exports it was built from, and it records both versions of the pack it came from, because 62 of the decisions were made against one version of the pack and 18 against another.
+
+One provenance detail matters, and I would rather state it than let a round number imply something cleaner. Seventy-nine of the decisions came from the review tool's exports. One came from a message, not the tool, and the gold manifest records it as its own input with its own origin. The gold set is 80 human decisions, and 79 of them came out of the interface.
+
+Then we scored each task separately, because a blended number would have hidden the interesting parts.
+
+## What the labels said
+
+| Task | Agreement with the human | Machine coverage | The risk we cared about |
+|---|---|---|---|
+| Assertion scope | 23 of 23 | 23 of 23 | False auto-clear: not estimable |
+| Community provenance | 1 of 17 | 2 of 17 | False auto-accept: not estimable |
+| Entailment | 14 of 23 (60.9%) | 23 of 23 | Both high-confidence "full support" proposals were rejected (2 of 2) |
+| Pair compatibility | 12 of 17 (70.6%) | 15 of 17 | False direct contradiction: not estimable |
+
+Agreement counts a machine abstention as a disagreement. "Coverage" is how often the machine gave an answer at all.
+
+The interesting column is the last one, and it is mostly a column of "not estimable."
+
+Assertion scope looks perfect and proves very little. The human labels in that slice were only factual (21) and aggregate community signal (2). There were no individual-experience or mixed examples, and no auto-clear candidates, so there was nothing for a false auto-clear to happen to. A perfect score on the easy classes says nothing about the hard ones.
+
+Community provenance is the reverse. The machine mostly declined. It sent 15 of the 17 rows to human review, which is a safe behavior, but it means the pipeline covered two rows and there was no auto-accept to evaluate.
+
+Pair compatibility had no direct-contradiction proposals at all, in the machine output or, as it turned out, in the earlier production samples. We can say the false-direct rate is unknown. We cannot say it is low.
+
+Entailment is the one place with a real signal, and it points the wrong way. Sixty percent agreement is unimpressive by itself. The sharper result is that the machine's two high-confidence full-support proposals were both rejected by the reviewer. With n of 2 I would not put a rate on that. As a direction, it is enough to say that auto-verification is unsafe.
+
+Three of the four tasks have a "not estimable" risk measure. That is not a footnote. It is the finding about how far 80 rows can take us.
+
+## The reviewer's notes were worth as much as the scores
+
+Because the reviewer could add notes, we could also count recurring failure modes, using deterministic pattern matching over the notes. The biggest cluster was in entailment: 21 matches for a source span that was wrong or missing the claim's material piece, whether the predicate, the endpoint, the mechanism, or a named entity. Four more were link and navigation clutter saved as if it were evidence. On the pair task, 12 matches were shared entities or broad context being mistaken for comparability, and 5 were a broader or narrower scope being flagged as a conflict.
+
+The counts can overlap and they are triage signals, not prevalence estimates. Their use is that they point to what needs fixing - span extraction, deterministic exclusions, and retrieval that stops treating shared entities as if they meant the claims compare.
+
+## What the labels let us decide
+
+The calibration report's decision is short. No reviewed classifier gets an unbounded production auto-accept or a publish-blocking role on the strength of this pack.
+
+The production readiness note turns that into a release boundary. What was ready to go through normal review was the plumbing for people: typed reconciliation records, structured human resolutions, and a rule that a direct contradiction cannot be acknowledged as publishable. What was not ready was any model-driven lane, and classifier automation stays disabled. The blocked list is explicit: anecdote auto-accept, entailment-driven auto-verification, model-driven direct-contradiction blocking, model-driven scope, time, or modality resolution, and prompts, policies, or thresholds that modify themselves.
+
+So what can advance?
+
+- **Report-only.** Classifier proposals can keep running as a dark launch, compared against legacy behavior, with telemetry on review time and false blocks.
+- **Human-gated.** People resolve conflicts through the typed, structured path, and the system enforces the one hard rule on direct contradictions.
+- **Bounded automation.** Nothing was approved. The strategy is to promote only strata that meet their safety thresholds, and this pack did not give any stratum enough positive safety examples to justify it.
+
+The labels can still do real work in the meantime. The report says they are useful for bounded routing rules, deterministic exclusions, retrieval repairs, and the next held-out experiment. It also draws a line I think is the most important sentence in the whole exercise: do not train and report on these same 80 rows. Once you tune against the labels, they stop being a test. The design calls for versioned evaluation data, not self-modifying rules. A held-out safety set exists as a synthetic draft that still needs domain confirmation.
+
+## What this does not show
+
+The labels say nothing about how much time or money a human-gated flow saves. Nothing in the packet measures human review time or cost per row, and the readiness note lists review-time telemetry as something still to collect. The 80 rows are also not a sample you can generalize from: they were chosen to cover the review queues, not to represent the ledger. The dark-launch numbers before them remain proxies, and the labels here cover only a slice of the classes we care about. I would not call any of it accuracy in a product sense.
+
+What we came away with is narrower and, I think, more useful. Eighty human decisions did not make the pipeline good. They told us, task by task, where it was unsafe, where we could not tell, and what evidence we would need before that changed.
+
+To close the series, we'll sort all of this into report-only, human-gated, and bounded.
