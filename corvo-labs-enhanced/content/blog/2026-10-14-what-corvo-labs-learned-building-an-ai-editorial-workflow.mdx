@@ -1,0 +1,93 @@
+---
+title: "What Corvo Labs learned building an AI editorial workflow"
+date: "2026-10-14"
+scheduledTime: "09:00"
+timezone: "America/Los_Angeles"
+description: "Where should the hard decisions in an AI editorial workflow go, if the writing turns out not to be the hard part?"
+author: "Jake Butler"
+tags: ["editorial workflows", "human review", "AI systems"]
+coverImage: "/images/blog/what-corvo-labs-learned-building-an-ai-editorial-workflow/hero.webp"
+coverImageAlt: "A photographic hand holds a copper landscape image beside an empty image slot in a paper newspaper."
+readTime: "9 min read"
+category: "strategy"
+featured: false
+status: "published"
+---
+
+*A weekly digest that passed its fact-check and still missed the week's stories taught us where the hard decisions in an AI-assisted editorial workflow actually live.*
+
+Where should the hard decisions in an AI editorial workflow go, if the writing turns out not to be the hard part?
+
+That question took more than one failed test to answer. In this series I've walked through how we rebuilt the weekly digest for the lower dB, a patient-first newsletter about GLP-1s. This one steps back. It's the short version of what we learned, plus what it says about the kind of work Corvo Labs does: practical AI systems, human judgment treated as part of the product, evaluation infrastructure, and content operations.
+
+Everything below is about editorial process. None of it is health advice.
+
+## The digest passed and was still wrong
+
+The original digest had citations. The fact-check passed, and the claim check found the draft matched the sources it had picked. The written review of the June 21 to 27, 2026 edition still called it off-mission. It led with a thyroid eye disease drug approval and leaned on isolated patient anecdotes, and it missed stories the product existed to catch, such as the Medicare GLP-1 Bridge announcement (made just after the week closed) and the FDA's concerns about unapproved GLP-1 drugs.
+
+The claim check answered one question: is this draft supported by the sources it selected? Nobody had asked the other one: did we select the right stories for these readers? Both checks ran after selection, so by the time they ran, a weak draft already existed.
+
+That's the thesis of the series. The failed digest was not primarily a writing problem. It was a source-selection and editorial-control problem. We got to a publishable workflow only after moving the hard decisions upstream: explicit date windows, named source families used as an editor's checklist, source/story entailment, a timed human review UI, and a final reader-facing copy standard.
+
+Here's how each of those held up, including where the evidence is thinner than I'd like.
+
+## 1. Dates became evidence, not a request
+
+The old workflow used a 14-day window for a weekly product. Our first search test, run against one explicit week, showed the problem directly: it returned 505 raw results, 383 after removing duplicates. I reviewed the first ten rows blind and stopped, because none were usable. Nine were useful but outside the window, one was stale, none was in it.
+
+The cause was upstream. We had asked three providers for "this week." For two of them we couldn't check whether we got it, and our normalizer ignored the date field the third one returned. We later called that first run invalid as an eval. After that, date evidence became a field with a kind, and only a publication date or a date in the URL counted as strong for a weekly digest. In the rebuilt workflow every run targets one explicit week, and email stories must be dated inside it.
+
+## 2. Sources chosen deliberately, not by search rank
+
+A later round of that test used stricter date handling. Of 308 deduplicated results, nine were strict in-window candidates, and that pool matched one of our four must-catch stories on a keyword test. One provider scored 4 of 4 on the anchor keyword test across its top ten results, and none of what it returned was usable.
+
+I'd be careful with that comparison. It's one topic, one week, four anchors, one run each, and the checked-in review labels are blank, so mine weren't preserved. The point isn't which search provider is best. It's that a provider can return sources that look right and still leave the editorial work undone.
+
+So the next round replaced raw search results with five assignment desks, each starting from named source families: regulators and access, pipeline and journals, trusted news and trade context, bariatric care, and patient signal. Our validation pass checked 104 candidate sources, and 32 were ready for automated ingest as primary or direct sources. The desk round recovered all four anchors, but the desks were seeded with known high-signal sources from an earlier review, so I read 4 of 4 as a starting shape, not a result.
+
+A separate test pointed the same direction from the other side. We compared pipelines against a 30-story gold list, keyword-matched, for one week. The version that won our first blind review was built from a pool of articles that matched 17% of it. A hard 20-domain allowlist pulled results onto primary domains but cut recall to 10%, while plain open retrieval reached 27%. The gold list came from a chat and is an open-world shortlist, not ground truth, so keyword matches can be loose, and I'd treat those numbers as a rough direction, not a floor. What we took from it: retrieval stays open, and curated source lists stay as an editor's checklist rather than a crawl restriction.
+
+## 3. Sources have to entail their stories
+
+Even a good source set can attach sources that don't support the story. Before any human sees a candidate, an entailment check asks whether each attached source directly supports the headline and claim, only gives context, or doesn't support it at all.
+
+On the clean rerun it made 25 judgments: 9 sources kept, 5 kept as context, 11 recommended for removal. In an earlier round, adopting the stricter check cost us the pipeline topic area for that week, because the old retatrutide follow-up story's weekly sources didn't support its framing. The sources that did support it had been sitting under a headline that read like a workflow label. We reframed the story around them and the area came back.
+
+A model judge is a diagnostic, not the last word. Separately, a judge that passed nine of nine candidates on all five dimensions told us it wasn't discriminating, not that the pool was good.
+
+## 4. A person decides, on a timer
+
+Review asks for one decision per story candidate - include, merge, archive, reject, source work, or defer. A running timer stays on screen, and the plan set a target of 20 minutes or less for the full queue.
+
+We ran two reviews on the same week, the second a clean rerun. They took 12.5 and 10.19 minutes, measured first open to finish with no pause, for 11 decisions each. My call differed from the tool's rule-based default in 4 of 11 cases the first time and 5 of 11 the second (tallied from the exports). That default is a slot cap, not a judgment about quality, and only two of those rows each time were real system flags: candidates with no usable date evidence.
+
+The second review also turned up a source dated July 6, one day after the week closed, inside a cluster that hadn't made the email set. I saw the date and marked the cluster as needing more source work, with a written reason.
+
+What this doesn't show is that review made the system better. It's one reviewer, one week, twice, and the draft generator changed between the rounds. It shows that a timed queue let one person make 11 editorial calls in about ten to twelve minutes, and that those calls carried into the final draft.
+
+## 5. The copy standard is written down
+
+The last piece is a document of about fifty lines that says what a publishable digest must look like. The reader-facing email can't expose internal workflow language. Every story has a headline, a short setup, a "why it matters" that doesn't repeat the setup, and a reading list. A validation checklist requires that the draft include exactly the clusters a person approved, use only the sources attached to them, and label background sources as background. If the model's copy pass fails validation, a simpler deterministic draft is the floor, not the goal.
+
+Most of that checklist is checkable by a program. The rest is judgment calls for a person. In the clean rerun, review took 10.19 minutes, and the report records the approved file as the human-approved draft, not a direct pipeline output.
+
+## What we're not claiming
+
+This is a human-in-the-loop path, and I'd rather be plain about it than let the automation take credit. Automated runs prepare an edition. A person reviews it, approves it, and publishes it, and sending is a separate action a person takes. The rebuilt pipeline ranked first in a final blind round of four, and that ranking was one reviewer's. As of late September, rebuilding earlier unpublished weeks on this path hadn't been done, and the benchmark is one week, so I wouldn't trust any recall number as more than a direction.
+
+## What this says about how we work
+
+Read side by side, the five decisions show a pattern. Each one takes a judgment call and turns it into something you can inspect: a date field, a source family, an entailment verdict, a decision with a timer, a line in a document.
+
+| Decision | Before | After |
+|---|---|---|
+| What counts as this week | A 14-day window and a freshness request | One explicit week, dates treated as evidence |
+| Where sources come from | Scored pool, authority by name | Named source families as an editor's checklist, open retrieval, and a support check |
+| Whether a source backs a story | A claim check after selection | Entailment check before human review |
+| Who decides | Repair work on generated prose | One decision per story candidate, timed |
+| What reaches readers | No written standard | A written standard, partly enforced in code |
+
+That's the work Corvo Labs takes on - building AI systems where the evaluation is part of the system and a person's judgment is a component you design and measure, not an afterthought. In this project the model and the screen will both change. The decisions around them are what we can keep improving.
+
+If you're running or planning a similar editorial, evaluation, or content-operations workflow, tell Corvo Labs about it through the [contact page](https://corvolabs.com/contact); the form has a general consulting option.
