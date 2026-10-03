@@ -1,0 +1,71 @@
+---
+title: "Model routing is really about task atomization and definition"
+date: "2026-08-07"
+scheduledTime: "09:00"
+timezone: "America/Los_Angeles"
+description: "\"...routing isn't really the problem. Task definition is.\""
+author: "Jake Butler"
+tags: ["model routing", "LLM strategy"]
+heroImage: "https://healthy-platypus-553.convex.cloud/api/storage/811dc580-29ad-4660-8d30-fa61c78dc6f8"
+heroImageAlt: "Cover image for Model routing is really about task atomization and definition"
+readTime: "4 min read"
+category: "strategy"
+featured: false
+status: "draft"
+---
+
+Most teams reach for "model routing" when their AI workflow starts getting expensive, slow, or unreliable. They wire up a router, pick a cheap model for "easy" calls and a frontier model for "hard" ones, and hope the numbers move.
+
+They usually don't move much. The reason is that routing isn't really the problem. Task definition is.
+
+## The practical problem
+
+If you route a vaguely-defined task to a cheaper model, you get a cheaper version of a vague result. If you route it to a stronger model, you get a more expensive vague result. The router isn't the lever. The lever is how well the underlying unit of work is scoped.
+
+Model routing only pays off when the thing being routed is small, specific, and has a clear success criterion. Otherwise you're just shuffling ambiguity between price tiers.
+
+## The useful split: atomize, then route
+
+The real design work happens before the router. It looks like this:
+
+1. **Decompose the workflow into atomic tasks.** Each task should do one thing you can describe in a sentence and check in a line of code or a short rubric.
+2. **Define inputs and outputs precisely.** What context is required? What shape is the output? What counts as a correct response?
+3. **Then, and only then, pick a model per task.** Now "which model" becomes a boring, testable question: what is the smallest, cheapest, fastest model that reliably passes the check for this specific task?
+
+Routing is the last step, not the first.
+
+## Why the naive approach breaks
+
+The naive setup — a big prompt, a big context blob, and a router that picks between two models based on some heuristic — breaks for a few predictable reasons:
+
+- **Context bloat.** When tasks aren't atomized, you end up shoveling everything into every call, because you don't know what any single step actually needs.
+- **Drift.** Loosely defined tasks give the model room to interpret. Two calls with the same input can diverge, and you can't tell whether the model, the prompt, or the task boundary is at fault.
+- **Untestable quality.** If you can't state what "correct" looks like for a step, you can't tell whether a cheaper model is good enough. So you default to the expensive one everywhere, or you route by vibes.
+- **Hidden coupling.** One "task" that's actually three tasks in a trenchcoat will fail in ways that no router can fix, because different sub-parts want different models.
+
+Atomization fixes these at the root. Small, well-defined tasks need less context, drift less, and are cheap to evaluate.
+
+## The measurement loop
+
+Once tasks are atomic, routing becomes an evaluation exercise rather than an architectural debate.
+
+For each atomic task:
+
+- Write a small eval set — inputs paired with acceptable outputs or a rubric.
+- Run the candidate models against it. Start with the smallest.
+- Record pass rate, latency, and cost.
+- Promote to a larger model only when the smaller one fails the bar you set.
+
+This is measurement first, routing second. The router configuration falls out of the eval results instead of being guessed at.
+
+It also gives you an honest observability story: when a workflow regresses, you know which atomic step failed, on which model, against which criterion. That's a debuggable system. A monolithic prompt with a router bolted on is not.
+
+## What to take away
+
+If you're trying to make an agentic or LLM-driven workflow better — cheaper, faster, more reliable — the highest-leverage move is almost never a fancier router or a bigger model. It's this:
+
+**Break the work down further, and define each piece more specifically.**
+
+Do that, and model routing becomes a straightforward optimization on top of a system you actually understand. Skip it, and you're tuning a router that's routing ambiguity.
+
+Atomize first. Define tightly. Measure per task. Route last.
